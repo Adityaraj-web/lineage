@@ -14,7 +14,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - `contracts/vault`: `lineage-vault` (near-sdk 5.30.1). Owner actions need exactly 1 yocto (proves a full-access key). NEP-297 events, standard `lineage`.
 - `contracts/registry`: `lineage-registry`, a curated P2 resolver. Re-`apply` resets a service to Pending.
 - `contracts/mock-usdc`: NEP-141 tUSDC, 6 decimals, `mint` faucet (max 10k per call).
-- `scripts/`: TypeScript deploy/verify/agent scripts (tsx, near-api-js 7.5.x).
+- `scripts/`: TypeScript deploy/verify scripts (tsx, near-api-js 7.5.x); `scripts/lib/` is shared by every script.
 - `deployments/testnet.json`: public account ids of the live deployment (committed).
 - `docs/specs/F0X.md`: one spec per feature. **Read the spec for the current feature before planning.**
 
@@ -30,6 +30,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - Tests / acceptance checks first, watch them fail, then implement.
 - Plan before editing, in two phases when the spec says so; stop at the end of each phase for review.
 - Commits are authored by Adityaraj. Do not push; he pushes.
+- After Adityaraj merges, he deletes the feature branch locally and on GitHub. Start each feature from an up-to-date `main`.
 - Minimal inline comments. Explanations go in chat.
 - Never commit secrets: `.env.local` holds agent private keys and stays gitignored. `.env.example` lists variable names only.
 
@@ -42,8 +43,14 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - Owner calls (`create_task`, `approve_payment`, `reject_payment`, `unfreeze`, `close_task`, `withdraw`) attach exactly 1 yocto. `freeze` attaches nothing.
 - In a negative test, assert the specific error (e.g. access-key method-name mismatch), not just "it threw".
 
+## Definition of done (every feature, before its last commit)
+
+1. Update this file: move the feature into Status → Done, set Next, and update Layout, Commands and NEAR pitfalls if the feature changed them or taught something new.
+2. Run `npm run typecheck`, the unit tests and the feature's acceptance check, and paste the results in the final summary.
+3. Include the CLAUDE.md change in the feature's last commit. Keep this file short: facts, commands and rules, not history.
+
 ## Status
 
-- Merged: F00 scaffold · F01 vault · F02 registry · F03 mock USDC · F04 testnet deploy + verify
-- Live on testnet: see deployments/testnet.json (root lineage-aditya.testnet, task 0 on vault and guarded, expires 2026-11-25)
-- Next: F05 TypeScript agent (NEAR AI Cloud + deterministic `--scripted` mode) · F06–F08 Next.js dashboard · F09 README, video, X post
+- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks)
+- Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run the same wasm, code hash `7tq25xKEFJ2FhJBiznTZdiTX6dzFKKGF8VbAtSwtZCea`; task 0 on both, expires 2026-11-25)
+- Next: F05 agent (`docs/specs/F05.md`) · F06–F08 Next.js dashboard · F09 README, video, X post
