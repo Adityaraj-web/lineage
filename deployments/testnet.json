@@ -1,0 +1,39 @@
+{
+  "network": "testnet",
+  "root": "lineage-aditya.testnet",
+  "explorer": "https://testnet.nearblocks.io",
+  "contracts": {
+    "usdc": "usdc.lineage-aditya.testnet",
+    "registry": "registry.lineage-aditya.testnet",
+    "vault": "vault.lineage-aditya.testnet",
+    "guarded": "guarded.lineage-aditya.testnet"
+  },
+  "agents": {
+    "vault": {
+      "account": "agent-l.lineage-aditya.testnet",
+      "publicKey": "ed25519:AYibAouj9NVgWviC6aipK9fNFdPZm1u5KP1B4cohMKnD",
+      "createTx": "BCnHSu3jgNTn25xStV5swVgApuTn654Pedweecxu9akD"
+    },
+    "guarded": {
+      "account": "agent-g.lineage-aditya.testnet",
+      "publicKey": "ed25519:7zA9nqqT976HYDWuJEx2MnhVdfdd1mvhrJQ9AWtxMmKA",
+      "createTx": "9WuWxJyebbCU7to46T9xWTYHDeQCUq6Fb7nBjHpxs2HM"
+    }
+  },
+  "actors": {
+    "alice": "alice.lineage-aditya.testnet",
+    "hindiTranslator": "hindi-translator.lineage-aditya.testnet",
+    "vendorPayments": "vendor-payments.lineage-aditya.testnet"
+  },
+  "registry": {
+    "translate-hi": {
+      "payee": "hindi-translator.lineage-aditya.testnet",
+      "price": "25000000"
+    }
+  },
+  "tasks": {
+    "vault": 0,
+    "guarded": 0
+  },
+  "deployedAt": "2026-11-11T23:35:53.650Z"
+}
