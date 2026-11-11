@@ -1,0 +1,17 @@
+[package]
+name = "lineage-mock-usdc"
+version = "0.1.0"
+edition = "2021"
+description = "Testnet-only NEP-141 mock USDC with an open faucet"
+license = "MIT"
+repository = "https://github.com/Adityaraj-web/lineage"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = { workspace = true }
+near-contract-standards = { workspace = true }
+
+[dev-dependencies]
+near-sdk = { workspace = true, features = ["unit-testing"] }
