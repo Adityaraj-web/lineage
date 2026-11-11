@@ -1,0 +1,16 @@
+[package]
+name = "lineage-registry"
+version = "0.1.0"
+edition = "2021"
+description = "Curated payee registry implementing the Lineage resolver interface"
+license = "MIT"
+repository = "https://github.com/Adityaraj-web/lineage"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = { workspace = true }
+
+[dev-dependencies]
+near-sdk = { workspace = true, features = ["unit-testing"] }
