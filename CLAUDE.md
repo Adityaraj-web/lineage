@@ -44,6 +44,6 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 
 ## Status
 
-- Merged: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests pass)
-- In progress: F04 testnet deploy + verify (`docs/specs/F04.md`)
+- Merged: F00 scaffold · F01 vault · F02 registry · F03 mock USDC · F04 testnet deploy + verify
+- Live on testnet: see deployments/testnet.json (root lineage-aditya.testnet, task 0 on vault and guarded, expires 2026-11-25)
 - Next: F05 TypeScript agent (NEAR AI Cloud + deterministic `--scripted` mode) · F06–F08 Next.js dashboard · F09 README, video, X post
