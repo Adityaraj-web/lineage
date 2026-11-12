@@ -46,5 +46,5 @@ export const accentHex: Record<Accent, string> = {
   p2: "#38bdf8",
   p3: "#fbbf24",
   attacker: "#fb7185",
-  neutral: "#9aa3b5",
+  neutral: "#a8b0c0",
 };

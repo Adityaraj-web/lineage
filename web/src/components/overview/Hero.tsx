@@ -84,11 +84,11 @@ function HeroVault({ view }: { view: Overview | null }) {
               <div className="flex flex-col gap-[clamp(0.75rem,3cqi,1.25rem)]">
                 <motion.p className="flex items-baseline gap-2 whitespace-nowrap text-p1" {...appear(AT.p2)}>
                   <span className="num text-[clamp(1.75rem,7cqi,2.75rem)] leading-none font-medium">{view.demo.paid}</span>{" "}
-                  <span className="text-[clamp(0.8125rem,2.7cqi,1.0625rem)] font-semibold">paid</span>
+                  <span className="text-[clamp(0.8125rem,2.7cqi,1.0625rem)] font-semibold text-foreground">paid</span>
                 </motion.p>
                 <motion.p className="flex items-baseline gap-2 whitespace-nowrap text-p3" {...appear(AT.p3)}>
                   <span className="num text-[clamp(1.75rem,7cqi,2.75rem)] leading-none font-medium">{view.awaitingCount}</span>{" "}
-                  <span className="text-[clamp(0.8125rem,2.7cqi,1.0625rem)] font-semibold">held for you</span>
+                  <span className="text-[clamp(0.8125rem,2.7cqi,1.0625rem)] font-semibold text-foreground">held for you</span>
                 </motion.p>
               </div>
             ) : (
@@ -161,7 +161,7 @@ export function Hero({ view }: { view: Overview | null }) {
                 </Shared>
               )}
             </Link>
-            <a href="#doorways" className="text-small text-muted-foreground underline-offset-4 transition-colors duration-150 hover-fine:text-foreground hover-fine:underline">
+            <a href="#doorways" className="text-small text-foreground underline-offset-4 transition-colors duration-150 hover-fine:underline">
               Skip to the vaults
             </a>
           </motion.div>

@@ -1,5 +1,5 @@
 import { cn } from "@/components/cn";
-import { needsYouText, Shared } from "../transitions";
+import { NeedsYou, Shared } from "../transitions";
 
 // Placeholders sized like the real sections, so data arriving doesn't shift the page much.
 export function Block({ className }: { className?: string }) {
@@ -21,7 +21,9 @@ export function VaultSkeleton({ awaiting = null }: { awaiting?: number | null })
         <div id="inbox" className="scroll-mt-24">
           <h2 className="mb-6 font-serif text-title">
             <Shared name="needs-you">
-              <span className="inline-block">{needsYouText(awaiting)}</span>
+              <span className="inline-block">
+                <NeedsYou n={awaiting} />
+              </span>
             </Shared>
           </h2>
           <Block className="h-[34rem]" />

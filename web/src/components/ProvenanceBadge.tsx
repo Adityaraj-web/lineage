@@ -24,7 +24,7 @@ export function ProvenanceBadge({
       data-tone={badge.tone}
       data-code={badge.code}
       className={cn(
-        "inline-flex max-w-full items-center gap-2 rounded-full border py-0.5 pr-2.5 pl-1 text-micro leading-5 whitespace-nowrap",
+        "chip-ink inline-flex max-w-full items-center gap-2 rounded-full border py-0.5 pr-2.5 pl-1 text-micro leading-5 whitespace-nowrap",
         a.soft,
         a.border,
         wrap && "items-start rounded-[11px] whitespace-normal",

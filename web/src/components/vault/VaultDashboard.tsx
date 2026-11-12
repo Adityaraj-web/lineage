@@ -7,7 +7,7 @@ import type { DemoRun } from "@/lib/config";
 import { attackerPayments, splitTasks, storyStrip } from "@/lib/story";
 import type { VaultView } from "@/lib/views";
 import { Section } from "../live/ScreenState";
-import { needsYouText, Shared } from "../transitions";
+import { NeedsYou, Shared } from "../transitions";
 import { AttackerPaid } from "./AttackerPaid";
 import { Inbox } from "./InboxCard";
 import { PaymentsTable } from "./PaymentsTable";
@@ -37,7 +37,9 @@ export function VaultDashboard({
           id="inbox"
           title={
             <Shared name="needs-you">
-              <span className="inline-block">{needsYouText(held)}</span>
+              <span className="inline-block">
+                <NeedsYou n={held} />
+              </span>
             </Shared>
           }
         >

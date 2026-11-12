@@ -26,3 +26,15 @@ export function Shared({ name, children }: { name: string; children: React.React
 
 export const needsYouText = (n: number): string =>
   n === 0 ? "Nothing needs you" : n === 1 ? "1 payment needs you" : `${n} payments need you`;
+
+// The same words for a serif heading: the count is set in the sans (Instrument Serif's "1" reads as "l").
+export function NeedsYou({ n }: { n: number }) {
+  const m = needsYouText(n).match(/^(\d+)(.*)$/);
+  if (!m) return <>{needsYouText(n)}</>;
+  return (
+    <>
+      <span className="num font-sans text-[0.86em] font-normal">{m[1]}</span>
+      {m[2]}
+    </>
+  );
+}

@@ -95,7 +95,7 @@ export function RiskCard({ risk, play }: { risk: Risk; play?: boolean }) {
       </ul>
 
       {risk.advice && (
-        <p className={cn("rounded-xl border px-4 py-3 text-small", levelA.border, levelA.soft, levelA.text)}>
+        <p className={cn("chip-ink rounded-xl border px-4 py-3 text-small", levelA.border, levelA.soft, levelA.text)}>
           {risk.advice}
         </p>
       )}

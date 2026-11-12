@@ -39,7 +39,7 @@ export function StatusPill({
       data-status={status}
       transition={{ duration: DUR.base, ease: EASE_OUT }}
       className={cn(
-        "relative inline-flex h-6 items-center overflow-hidden rounded-full border px-2.5 text-micro font-medium whitespace-nowrap transition-colors duration-300",
+        "chip-ink relative inline-flex h-6 items-center overflow-hidden rounded-full border px-2.5 text-micro font-medium whitespace-nowrap transition-colors duration-300",
         cls,
         status === "AwaitingApproval" && "glow-amber",
         className,

@@ -33,7 +33,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
   const vaultName = vault === "vault" ? "Lineage vault" : "LimitsOnly vault";
 
   return (
-    <Glass as="article" ref={ref} className="flex flex-col gap-5 p-6" aria-labelledby={`key-${vault}-title`}>
+    <Glass as="article" ref={ref} className="flex flex-col gap-5 p-6 [--glass-ink:0.45]" aria-labelledby={`key-${vault}-title`}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id={`key-${vault}-title`} className="label flex items-center gap-2">
@@ -43,7 +43,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
         </div>
         <span
           className={cn(
-            "rounded-full border px-2.5 py-0.5 text-[12px]",
+            "chip-ink rounded-full border px-2.5 py-0.5 text-[12px]",
             proof.ok ? "border-p1-ring bg-p1-soft text-p1" : "border-attacker-ring bg-attacker-soft text-attacker",
           )}
         >

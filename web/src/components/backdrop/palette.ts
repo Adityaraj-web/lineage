@@ -39,7 +39,7 @@ const b = (c: RGB, x: number, y: number, r: number, s: number): Blob => ({ c, x,
 export const PALETTES: Record<Mood, Palette> = {
   overview: {
     ink: INK,
-    blobs: [b(INDIGO, 0.08, 0.12, 0.36, 1.25), b(TEAL, 0.86, 0.5, 0.3, 1.3), b(INDIGO, 0.62, 0.95, 0.36, 1.1), b(EMERALD, 0.78, 0.02, 0.202, 0.8), b(AMBER, 0.12, 1.02, 0.216, 0.9)],
+    blobs: [b(INDIGO, 0.08, 0.12, 0.36, 1.25), b(TEAL, 0.86, 0.5, 0.3, 1.15), b(INDIGO, 0.62, 0.95, 0.36, 1.1), b(EMERALD, 0.78, 0.02, 0.202, 0.8), b(AMBER, 0.12, 1.02, 0.216, 0.9)],
   },
   lineage: {
     ink: INK,

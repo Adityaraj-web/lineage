@@ -18,7 +18,7 @@ export function AccountId({ id, link = false, className }: { id: string; link?: 
       {tail && (
         <>
           <wbr />
-          <span className="inline-block max-w-full truncate align-bottom text-faint">{tail}</span>
+          <span className="inline-block max-w-full truncate align-bottom text-muted-foreground">{tail}</span>
         </>
       )}
     </>

@@ -49,9 +49,9 @@
   --color-attacker: #fb7185;
   --color-attacker-soft: rgb(251 113 133 / 0.08);
   --color-attacker-ring: rgb(251 113 133 / 0.35);
-  --color-neutral: #9aa3b5;
-  --color-neutral-soft: rgb(154 163 181 / 0.08);
-  --color-neutral-ring: rgb(154 163 181 / 0.28);
+  --color-neutral: #a8b0c0;
+  --color-neutral-soft: rgb(168 176 192 / 0.08);
+  --color-neutral-ring: rgb(168 176 192 / 0.28);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -119,8 +119,8 @@
   --secondary: rgb(255 255 255 / 0.06);
   --secondary-foreground: #eceef3;
   --muted: rgb(255 255 255 / 0.05);
-  --muted-foreground: #9aa3b5;
-  --faint: #858ea1;
+  --muted-foreground: #a8b0c0;
+  --faint: #98a1b3;
   --accent: rgb(255 255 255 / 0.07);
   --accent-foreground: #eceef3;
   --destructive: #fb7185;
@@ -150,6 +150,8 @@
   body {
     @apply min-h-dvh text-body text-foreground antialiased;
     background: var(--background);
+    /* Plus Jakarta's tabular "1" has a foot; the proportional one reads as "l". */
+    font-variant-numeric: tabular-nums;
   }
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -164,6 +166,10 @@
   /* Sentence-case label: replaces the tracked all-caps eyebrow. */
   .label {
     @apply text-small font-medium text-muted-foreground;
+  }
+  /* Coloured chips on glass: a dark base under the tint keeps small coloured text at 4.5:1. */
+  .chip-ink {
+    background-image: linear-gradient(rgb(7 10 18 / 0.5), rgb(7 10 18 / 0.5));
   }
   .num {
     font-variant-numeric: tabular-nums;

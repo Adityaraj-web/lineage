@@ -45,18 +45,18 @@ export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | n
           <Stat label="In flight" value={BigInt(view.config.total_reserved)} tone={view.config.total_reserved !== "0" ? "text-p3" : "text-muted-foreground"} />
         </dl>
       </div>
-      <p className="flex flex-wrap items-center gap-x-6 gap-y-2 text-small text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5 text-foreground">
+      <p className="flex flex-wrap items-center gap-x-8 gap-y-3 text-small text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-foreground">
           {view.config.frozen && <Snowflake className="size-3.5 text-p2" aria-hidden="true" />}
           {view.config.frozen ? "Frozen" : "Active"}
         </span>
-        <span className="inline-flex flex-wrap items-baseline gap-1.5">
+        <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
           owned by <AccountId id={view.config.owner} link className="text-[13px]" />
         </span>
-        <span className="inline-flex flex-wrap items-baseline gap-1.5">
+        <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
           pays in <AccountId id={view.config.token} link className="text-[13px]" />
         </span>
-        <span className="inline-flex items-baseline gap-1.5">
+        <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
           code
           {view.codeHash ? (
             <Tooltip>

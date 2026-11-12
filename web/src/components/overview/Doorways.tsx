@@ -92,7 +92,7 @@ function HeldPreview({ view }: { view: Overview }) {
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <ProvenanceBadge badge={held.badge} compact />
-        <span className={cn("inline-flex h-7 items-center rounded-full border px-3 text-small font-semibold", a.border, a.soft, a.text)}>
+        <span className={cn("chip-ink inline-flex h-7 items-center rounded-full border px-3 text-small font-semibold", a.border, a.soft, a.text)}>
           {LEVEL_WORD[held.risk.level]}
         </span>
       </div>

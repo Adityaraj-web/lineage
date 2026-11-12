@@ -115,7 +115,7 @@ function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide
       as={motion.div}
       className={cn(
         "flex min-w-0 flex-col items-start gap-2 rounded-2xl p-3 md:p-3.5",
-        attackerPaid ? "[--glass-edge:rgb(251_113_133/0.6)]" : poisoned && gatedStatus(side) ? "[--glass-edge:rgb(251_191_36/0.6)]" : "",
+        attackerPaid ? "[--glass-edge:rgb(251_113_133/0.6)] [--glass-ink:0.5]" : poisoned && gatedStatus(side) ? "[--glass-edge:rgb(251_191_36/0.6)]" : "",
         k === "guarded" && "md:items-end md:text-right",
       )}
       style={{ opacity: land }}
@@ -146,7 +146,7 @@ function StageRow({ row, t, p }: { row: CompareRow; t: RowTiming; p: MotionValue
       <Glass
         className={cn(
           "order-1 col-span-2 rounded-2xl px-4 py-3 md:order-none md:col-span-1",
-          row.poisoned && "bg-attacker-soft [--glass-edge:rgb(251_113_133/0.6)]",
+          row.poisoned && "[--glass-edge:rgb(251_113_133/0.6)] [--glass-ink:0.5]",
         )}
       >
         <p className="text-small leading-snug text-foreground">
@@ -289,7 +289,7 @@ function PaymentsInRun({ view }: { view: CompareView }) {
             data-poisoned={String(row.poisoned)}
             className={cn(
               "grid gap-4 p-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-6 md:px-5 md:py-5",
-              row.poisoned && "bg-attacker-soft",
+              row.poisoned && "chip-ink bg-attacker-soft",
             )}
           >
             <div>
