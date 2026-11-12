@@ -10,6 +10,7 @@ import { fmtUsdc } from "@/lib/format";
 import type { CompareRow, CompareSide, CompareView } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { CountUp } from "../CountUp";
+import { Shared } from "../transitions";
 import { Memo } from "../Memo";
 import { EASE_IN_OUT, EASE_OUT } from "../motion";
 import { ProvenanceBadge } from "../ProvenanceBadge";
@@ -388,14 +389,19 @@ function AttackerCounter({ vault, view }: { vault: VaultKey; view: CompareView }
       className={cn("flex flex-col gap-1", vault === "guarded" ? "items-end text-right" : "items-start")}
     >
       <span className="label">{vault === "vault" ? "from Lineage" : "from LimitsOnly"}</span>
-      <CountUp
-        value={v}
-        format={fmtUsdc}
-        delay={T.counters}
-        align={vault === "guarded" ? "end" : "start"}
-        className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")}
-       
-      />
+      {vault === "guarded" ? (
+        <Shared name="attacker-guarded">
+          <CountUp
+            value={v}
+            format={fmtUsdc}
+            delay={T.counters}
+            align="end"
+            className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")}
+          />
+        </Shared>
+      ) : (
+        <CountUp value={v} format={fmtUsdc} delay={T.counters} className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")} />
+      )}
     </div>
   );
 }

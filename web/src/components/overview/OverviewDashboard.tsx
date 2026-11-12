@@ -9,6 +9,7 @@ import type { Overview } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { CountUp } from "../CountUp";
 import { Section } from "../live/ScreenState";
+import { needsYouText, Shared } from "../transitions";
 import { AgentKeyCard } from "./AgentKeyCard";
 
 const NAMES: Record<VaultKey, string> = { vault: "Lineage vault", guarded: "LimitsOnly vault" };
@@ -26,7 +27,9 @@ function AttackerHeadline({ view }: { view: Overview }) {
           </p>
         </div>
         <div>
-          <CountUp value={r.guarded} format={fmtUsdc} className="text-stat text-attacker" />
+          <Shared name="attacker-guarded">
+            <CountUp value={r.guarded} format={fmtUsdc} className="text-stat text-attacker" />
+          </Shared>
           <p className="mt-2 flex items-center gap-1.5 text-small text-muted-foreground">
             <ShieldOff className="size-3.5 text-attacker" aria-hidden="true" /> from the LimitsOnly vault
           </p>
@@ -48,12 +51,15 @@ function NeedsYouCard({ count }: { count: number }) {
       href="/vault/vault#inbox"
       className={cn(
         "surface group flex flex-col justify-between gap-6 p-6 transition-colors outline-none focus-visible:ring-2 md:p-8",
-        count > 0 ? "border-p3-ring animate-glow-amber motion-reduce:animate-none" : "",
+        count > 0 ? "border-p3-ring" : "",
       )}
     >
       <p className="label text-p3">Needs you</p>
       <div>
         <p className={cn("num text-stat", count > 0 ? "text-p3" : "text-muted-foreground")}>{count}</p>
+        <Shared name="needs-you">
+          <span className="mt-2 inline-block text-small text-foreground">{needsYouText(count)}</span>
+        </Shared>
         <p className="mt-2 text-small text-muted-foreground">
           {count === 1 ? "untrusted payment waits" : "untrusted payments wait"} for you in the Lineage vault inbox
         </p>

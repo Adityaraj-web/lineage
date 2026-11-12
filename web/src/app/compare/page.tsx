@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { CompareScreen } from "@/components/screens/CompareScreen";
+import { PageTransition } from "@/components/transitions";
 
 export const metadata: Metadata = { title: "Compare" };
 
 export default function ComparePage() {
   return (
+    <PageTransition>
     <div className="flex flex-col gap-10 pt-14 md:gap-12 md:pt-20">
       <header>
         <p className="label">The demo run, side by side</p>
@@ -19,5 +21,6 @@ export default function ComparePage() {
       </header>
       <CompareScreen />
     </div>
+    </PageTransition>
   );
 }

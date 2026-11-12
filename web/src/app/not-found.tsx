@@ -3,8 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <section className="pt-24">
-      <p className="label">404</p>
-      <h1 className="mt-3 font-serif text-title">
+      <h1 className="font-serif text-title">
         No such page
       </h1>
       <p className="mt-4 text-muted-foreground">

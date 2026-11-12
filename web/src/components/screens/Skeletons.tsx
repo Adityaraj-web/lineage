@@ -1,11 +1,14 @@
 import { cn } from "@/components/cn";
+import { needsYouText, Shared } from "../transitions";
 
 // Placeholders sized like the real sections, so data arriving doesn't shift the page much.
 export function Block({ className }: { className?: string }) {
   return <div className={cn("animate-pulse rounded-2xl bg-white/[0.04] motion-reduce:animate-none", className)} />;
 }
 
-export function VaultSkeleton() {
+// `awaiting` (from the Overview's cached data) puts the real inbox heading in place before the vault
+// loads, so "1 payment needs you" can morph across from the Overview.
+export function VaultSkeleton({ awaiting = null }: { awaiting?: number | null }) {
   return (
     <div className="flex flex-col gap-16 pt-14 md:gap-20 md:pt-20" aria-busy="true" aria-label="Loading vault from testnet">
       <div>
@@ -14,7 +17,18 @@ export function VaultSkeleton() {
         <Block className="mt-4 h-5 w-full max-w-2xl" />
         <Block className="mt-10 h-56" />
       </div>
-      <Block className="h-[34rem]" />
+      {awaiting !== null ? (
+        <div id="inbox" className="scroll-mt-24">
+          <h2 className="mb-6 font-serif text-title">
+            <Shared name="needs-you">
+              <span className="inline-block">{needsYouText(awaiting)}</span>
+            </Shared>
+          </h2>
+          <Block className="h-[34rem]" />
+        </div>
+      ) : (
+        <Block className="h-[34rem]" />
+      )}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <Block className="h-96" />
         <Block className="h-96" />

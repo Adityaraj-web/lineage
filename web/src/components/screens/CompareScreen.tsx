@@ -10,7 +10,7 @@ import { CompareSkeleton } from "./Skeletons";
 
 export function CompareScreen() {
   const load = useCallback(() => loadCompareView(liveDeps()), []);
-  const { data, error, refresh } = usePolling(load);
+  const { data, error, refresh } = usePolling(load, 5000, { cacheKey: "compare" });
   if (!data) return error ? <LoadError error={error} onRetry={refresh} /> : <CompareSkeleton />;
   return (
     <>

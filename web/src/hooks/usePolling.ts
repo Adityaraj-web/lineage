@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fingerprint } from "@/lib/changes";
 import { useLiveStore, type PollError } from "./live-store";
+import { readPollCache, seedPollCache } from "./poll-cache";
 
 const MAX_BACKOFF_MS = 30_000;
 
@@ -21,9 +22,16 @@ export interface Polled<T> {
 
 // Polls `load` every `intervalMs` while the tab is visible. Identical results keep the previous
 // `data` reference (no re-render); errors keep the last good data and retry with backoff.
-export function usePolling<T>(load: () => Promise<T>, intervalMs = 5000): Polled<T> {
+// With `cacheKey`, the first render shows the last data any screen stored under that key.
+export function usePolling<T>(
+  load: () => Promise<T>,
+  intervalMs = 5000,
+  { cacheKey }: { cacheKey?: string } = {},
+): Polled<T> {
   const store = useLiveStore();
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null>(() => (cacheKey ? readPollCache<T>(cacheKey) : null));
+  const keyRef = useRef(cacheKey);
+  keyRef.current = cacheKey;
   const [error, setError] = useState<PollError | null>(null);
 
   const loadRef = useRef(load);
@@ -60,6 +68,7 @@ export function usePolling<T>(load: () => Promise<T>, intervalMs = 5000): Polled
         lastFp.current = fp;
         setData(result);
       }
+      if (keyRef.current) seedPollCache(keyRef.current, result);
       failures.current = 0;
       lastOkAt.current = now;
       setError(null);

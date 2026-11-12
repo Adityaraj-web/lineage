@@ -3,6 +3,7 @@ import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RpcError } from "@/lib/rpc";
 import { createLiveStore, LiveStoreContext, type LiveStore } from "./live-store";
+import { clearPollCache, readPollCache, seedPollCache } from "./poll-cache";
 import { usePolling } from "./usePolling";
 
 let visibility: DocumentVisibilityState = "visible";
@@ -146,5 +147,36 @@ describe("usePolling", () => {
     unmount();
     await advance(60_000);
     expect(load).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("usePolling cache", () => {
+  it("starts from the last data for the same key, then keeps polling", async () => {
+    clearPollCache();
+    const first = renderHook(() => usePolling(async () => ({ n: 1 }), 5000, { cacheKey: "k" }), { wrapper });
+    expect(first.result.current.data).toBeNull();
+    await flush();
+    expect(first.result.current.data).toEqual({ n: 1 });
+    first.unmount();
+
+    let resolve!: (v: { n: number }) => void;
+    const load = vi.fn(() => new Promise<{ n: number }>((r) => (resolve = r)));
+    const second = renderHook(() => usePolling(load, 5000, { cacheKey: "k" }), { wrapper });
+    expect(second.result.current.data).toEqual({ n: 1 }); // first render, before any load resolves
+    expect(load).toHaveBeenCalledTimes(1);
+    await act(async () => resolve({ n: 2 }));
+    expect(second.result.current.data).toEqual({ n: 2 });
+  });
+
+  it("can be seeded by another screen, and keys stay separate", () => {
+    clearPollCache();
+    seedPollCache("compare", { from: "overview" });
+    const a = renderHook(() => usePolling(() => new Promise(() => {}), 5000, { cacheKey: "compare" }), { wrapper });
+    const b = renderHook(() => usePolling(() => new Promise(() => {}), 5000, { cacheKey: "other" }), { wrapper });
+    const c = renderHook(() => usePolling(() => new Promise(() => {})), { wrapper });
+    expect(a.result.current.data).toEqual({ from: "overview" });
+    expect(b.result.current.data).toBeNull();
+    expect(c.result.current.data).toBeNull();
+    expect(readPollCache("compare")).toEqual({ from: "overview" });
   });
 });

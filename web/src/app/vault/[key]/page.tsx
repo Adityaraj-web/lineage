@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { VaultScreen } from "@/components/screens/VaultScreen";
+import { PageTransition } from "@/components/transitions";
 import { VAULT_KEYS, type VaultKey } from "@/lib/config";
 
 export const dynamicParams = false;
@@ -22,5 +23,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function VaultPage({ params }: Props) {
   const { key } = await params;
   if (!isKey(key)) notFound();
-  return <VaultScreen vaultKey={key} />;
+  return (
+    <PageTransition key={key}>
+      <VaultScreen vaultKey={key} />
+    </PageTransition>
+  );
 }

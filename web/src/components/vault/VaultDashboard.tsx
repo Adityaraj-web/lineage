@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Mark } from "@/lib/changes";
 import type { VaultView } from "@/lib/views";
 import { Section } from "../live/ScreenState";
+import { needsYouText, Shared } from "../transitions";
 import { Inbox } from "./InboxCard";
 import { PaymentsTable } from "./PaymentsTable";
 import { TaskCard } from "./TaskCard";
@@ -26,11 +27,14 @@ export function VaultDashboard({
 
       <Section
         id="inbox"
-        label={view.inbox.kind === "lineage" ? `Approval inbox · ${held} waiting` : "Approval inbox"}
         title={
-          <>
-            Needs you
-          </>
+          view.inbox.kind === "lineage" ? (
+            <Shared name="needs-you">
+              <span className="inline-block">{needsYouText(held)}</span>
+            </Shared>
+          ) : (
+            "Approval inbox"
+          )
         }
       >
         <Inbox inbox={view.inbox} />

@@ -10,7 +10,7 @@ describe("VaultDashboard", () => {
   it("Lineage: header, inbox with the held P3, task mandates and payments", () => {
     renderUI(<VaultDashboard view={vaultView("vault")} now={NOW} />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Lineage vault");
-    expect(screen.getByText("Approval inbox · 1 waiting")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "1 payment needs you" })).toBeInTheDocument();
     expect(screen.getByRole("article", { name: /Payment #5/ })).toBeInTheDocument();
     const task2 = screen.getByRole("article", { name: "Task #2" });
     expect(within(task2).getByText("latest demo run")).toBeInTheDocument();

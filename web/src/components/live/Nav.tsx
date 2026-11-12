@@ -1,15 +1,18 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Popover } from "radix-ui";
+import { useState } from "react";
 import { cn } from "@/components/cn";
 import { LiveIndicator } from "./LiveIndicator";
 
 const LINKS = [
   { href: "/", label: "Overview" },
-  { href: "/vault/vault", label: "Lineage vault", short: "Lineage" },
-  { href: "/vault/guarded", label: "LimitsOnly vault", short: "LimitsOnly" },
+  { href: "/vault/vault", label: "Lineage vault" },
+  { href: "/vault/guarded", label: "LimitsOnly vault" },
   { href: "/compare", label: "Compare" },
 ] as const;
 
@@ -25,51 +28,99 @@ export function LineageMark({ className }: { className?: string }) {
   );
 }
 
+function MobileMenu({ path }: { path: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Trigger
+        className="press inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2.5 text-small text-foreground hover-fine:bg-white/[0.06] md:hidden"
+        aria-label="Menu"
+      >
+        {open ? <X className="size-4" aria-hidden="true" /> : <Menu className="size-4" aria-hidden="true" />}
+        <span aria-hidden="true" className="max-[419px]:hidden">Menu</span>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          align="end"
+          sideOffset={10}
+          collisionPadding={16}
+          className="z-50 w-[min(18rem,calc(100vw-2rem))] origin-[var(--radix-popover-content-transform-origin)] rounded-xl border border-hairline bg-raised-2 p-1.5 shadow-2xl shadow-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-150"
+        >
+          <nav aria-label="Pages">
+            <ul className="flex flex-col">
+              {LINKS.map((l) => {
+                const active = path === l.href;
+                return (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex h-11 items-center gap-3 rounded-lg px-3 text-body",
+                        active ? "text-foreground" : "text-muted-foreground hover-fine:bg-white/[0.05] hover-fine:text-foreground",
+                      )}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn("h-px w-3 rounded-full", active ? "bg-foreground" : "bg-transparent")}
+                      />
+                      {l.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+          <p className="mt-1 flex items-center gap-1.5 border-t border-hairline px-3 pt-2.5 pb-1.5 text-micro text-muted-foreground sm:hidden">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-p3" />
+            Testnet
+          </p>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
 export function Nav() {
   const path = norm(usePathname() ?? "/");
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[rgb(7_8_10/0.6)] backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3 md:h-16 md:flex-nowrap md:py-0 md:px-10">
-        <Link href="/" className="flex items-center gap-2 rounded-md outline-none focus-visible:ring-2">
+    <header
+      style={{ viewTransitionName: "site-header" }}
+      className="sticky top-0 z-40 h-16 bg-[rgb(10_13_20/0.82)] shadow-[0_1px_0_var(--hairline)]"
+    >
+      <div className="mx-auto flex h-full max-w-[75rem] items-center gap-3 px-5 sm:gap-6 md:px-10">
+        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-md">
           <LineageMark className="size-5" />
           <span className="text-[1.125rem] leading-none font-semibold">Lineage</span>
         </Link>
-        <span className="inline-flex items-center gap-1.5 text-micro text-muted-foreground">
-          testnet
+        <span className="hidden shrink-0 items-center gap-1.5 text-micro text-muted-foreground sm:inline-flex">
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-p3" />
+          Testnet
         </span>
-        <div className="ml-auto md:order-last">
-          <LiveIndicator />
-        </div>
-        <nav aria-label="Main" className="-mx-1 w-full overflow-x-auto md:mx-0 md:w-auto">
-          <ul className="flex items-center gap-1">
+
+        <nav aria-label="Main" className="ml-auto hidden h-full md:block">
+          <ul className="flex h-full items-center gap-1">
             {LINKS.map((l) => {
               const active = path === l.href;
               return (
-                <li key={l.href} className="relative">
+                <li key={l.href} className="relative flex h-full items-center">
                   <Link
                     href={l.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "block rounded-md px-2.5 py-2 text-small sm:px-3 whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
+                      "rounded-md px-3 py-2 text-small whitespace-nowrap transition-colors duration-150",
                       active ? "text-foreground" : "text-muted-foreground hover-fine:text-foreground",
                     )}
                   >
-                    {"short" in l ? (
-                      <>
-                        <span aria-hidden="true" className="sm:hidden">
-                          {l.short}
-                        </span>
-                        <span className="max-sm:sr-only">{l.label}</span>
-                      </>
-                    ) : (
-                      l.label
-                    )}
+                    {l.label}
                   </Link>
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute inset-x-2.5 -bottom-px sm:inset-x-3 h-px bg-gradient-to-r from-p1 via-p2 to-p3"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      aria-hidden="true"
+                      className="absolute inset-x-3 bottom-0 h-[1.5px] rounded-full bg-foreground shadow-[0_0_8px_rgb(236_238_243/0.5)]"
+                      transition={{ type: "spring", stiffness: 420, damping: 36 }}
                     />
                   )}
                 </li>
@@ -77,6 +128,11 @@ export function Nav() {
             })}
           </ul>
         </nav>
+
+        <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-2">
+          <LiveIndicator />
+          <MobileMenu path={path} />
+        </div>
       </div>
     </header>
   );

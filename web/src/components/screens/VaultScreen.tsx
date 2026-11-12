@@ -5,14 +5,15 @@ import { useChanges } from "@/hooks/useChanges";
 import { usePolling } from "@/hooks/usePolling";
 import type { VaultKey } from "@/lib/config";
 import { liveDeps } from "@/lib/live";
-import { loadVaultView } from "@/lib/views";
+import { loadVaultView, type Overview } from "@/lib/views";
+import { readPollCache } from "@/hooks/poll-cache";
 import { ErrorToast, LoadError } from "../live/ScreenState";
 import { VaultDashboard } from "../vault/VaultDashboard";
 import { VaultSkeleton } from "./Skeletons";
 
 export function VaultScreen({ vaultKey }: { vaultKey: VaultKey }) {
   const load = useCallback(() => loadVaultView(vaultKey, liveDeps()), [vaultKey]);
-  const { data, error, refresh } = usePolling(load);
+  const { data, error, refresh } = usePolling(load, 5000, { cacheKey: `vault:${vaultKey}` });
   const payments = useMemo(() => data?.payments.map((r) => r.payment) ?? null, [data]);
   const marks = useChanges(payments);
 
@@ -25,7 +26,7 @@ export function VaultScreen({ vaultKey }: { vaultKey: VaultKey }) {
     if (id) document.getElementById(id)?.scrollIntoView({ block: "start" });
   }, [data]);
 
-  if (!data) return error ? <LoadError error={error} onRetry={refresh} /> : <VaultSkeleton />;
+  if (!data) return error ? <LoadError error={error} onRetry={refresh} /> : <VaultSkeleton awaiting={vaultKey === "vault" ? (readPollCache<Overview>("overview")?.awaitingCount ?? null) : null} />;
   return (
     <>
       <VaultDashboard view={data} marks={marks} now={Date.now()} />
