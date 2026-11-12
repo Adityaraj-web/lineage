@@ -221,7 +221,7 @@ function SideCell({
       {side.payment && side.badge ? (
         <>
           <div className="relative">
-            <ProvenanceBadge badge={side.badge} compact />
+            <ProvenanceBadge badge={side.badge} compact wrap />
           </div>
           <div className="relative flex flex-wrap items-center justify-between gap-2">
             <StatusPill status={side.payment.status} accent={attackerPaid ? "attacker" : undefined} />

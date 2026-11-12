@@ -17,7 +17,7 @@ import { accentHex, badgeAccent } from "../tone";
 
 const NO_MARKS: ReadonlyMap<number, Mark> = new Map();
 const COLS =
-  "md:grid md:grid-cols-[3.25rem_minmax(14rem,1.35fr)_7.5rem_minmax(11rem,1.1fr)_6.5rem_minmax(11rem,1.3fr)] md:items-center md:gap-x-5";
+  "lg:grid lg:grid-cols-[3rem_minmax(12rem,1.35fr)_7rem_minmax(10rem,1.1fr)_6rem_minmax(9rem,1.3fr)] lg:items-center lg:gap-x-4 xl:gap-x-5";
 
 export function PaymentsTable({
   payments,
@@ -62,7 +62,7 @@ export function PaymentsTable({
       </ToggleGroup>
 
       <div role="table" aria-label="Payments" className="glass overflow-hidden">
-        <div role="rowgroup" className="hidden border-b border-white/[0.06] px-5 py-3 md:block">
+        <div role="rowgroup" className="hidden border-b border-white/[0.06] px-5 py-3 lg:block">
           <div role="row" className={cn(COLS, "eyebrow")}>
             <span role="columnheader">#</span>
             <span role="columnheader">Where the payee came from</span>
@@ -120,7 +120,7 @@ export function PaymentsTable({
                   <span role="cell" className="relative min-w-0">
                     {p.payee ? <AccountId id={p.payee} link /> : <span className="text-faint">resolving…</span>}
                   </span>
-                  <span role="cell" className="relative font-mono text-body tabular-nums md:text-right">
+                  <span role="cell" className="relative font-mono text-body tabular-nums lg:text-right">
                     {r.amount}
                   </span>
                   <span role="cell" className="relative min-w-0 text-small text-muted-foreground">

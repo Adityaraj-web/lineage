@@ -18,7 +18,7 @@ function AttackerHeadline({ view }: { view: Overview }) {
   return (
     <div data-testid="attacker-headline" className="glass hairline-top flex flex-col gap-6 p-6 md:p-8">
       <p className="eyebrow">Latest demo run · what the attacker received</p>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
         <div>
           <CountUp value={r.vault} format={fmtUsdc} className="text-stat text-p1-fg" finalClassName="font-serif" />
           <p className="mt-2 flex items-center gap-1.5 text-small text-muted-foreground">

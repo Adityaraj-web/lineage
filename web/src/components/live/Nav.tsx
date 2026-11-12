@@ -8,8 +8,8 @@ import { LiveIndicator } from "./LiveIndicator";
 
 const LINKS = [
   { href: "/", label: "Overview" },
-  { href: "/vault/vault", label: "Lineage vault" },
-  { href: "/vault/guarded", label: "LimitsOnly vault" },
+  { href: "/vault/vault", label: "Lineage vault", short: "Lineage" },
+  { href: "/vault/guarded", label: "LimitsOnly vault", short: "LimitsOnly" },
   { href: "/compare", label: "Compare" },
 ] as const;
 
@@ -50,16 +50,25 @@ export function Nav() {
                     href={l.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "block rounded-md px-3 py-2 text-small whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
+                      "block rounded-md px-2.5 py-2 text-small sm:px-3 whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
                       active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {l.label}
+                    {"short" in l ? (
+                      <>
+                        <span aria-hidden="true" className="sm:hidden">
+                          {l.short}
+                        </span>
+                        <span className="max-sm:sr-only">{l.label}</span>
+                      </>
+                    ) : (
+                      l.label
+                    )}
                   </Link>
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute inset-x-3 -bottom-px h-px bg-gradient-to-r from-p1 via-p2 to-p3"
+                      className="absolute inset-x-2.5 -bottom-px sm:inset-x-3 h-px bg-gradient-to-r from-p1 via-p2 to-p3"
                       transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}

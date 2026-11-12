@@ -9,10 +9,12 @@ import { accentClass, badgeAccent } from "./tone";
 export function ProvenanceBadge({
   badge,
   compact = false,
+  wrap = false,
   className,
 }: {
   badge: Badge;
   compact?: boolean;
+  wrap?: boolean;
   className?: string;
 }) {
   const a = accentClass[badgeAccent[badge.tone]];
@@ -25,19 +27,20 @@ export function ProvenanceBadge({
         "inline-flex max-w-full items-center gap-2 rounded-full border py-0.5 pr-2.5 pl-1 text-[12.5px] leading-5 whitespace-nowrap",
         a.soft,
         a.border,
+        wrap && "items-start rounded-[11px] whitespace-normal",
         needsYou && "animate-glow-amber motion-reduce:animate-none motion-reduce:shadow-[0_0_14px_1px_rgb(251_191_36/0.28)]",
         className,
       )}
     >
       <span
         className={cn(
-          "rounded-full px-1.5 font-mono text-[10.5px] font-semibold tracking-wide text-[#07080a]",
+          "shrink-0 rounded-full px-1.5 font-mono text-[10.5px] font-semibold tracking-wide text-[#07080a]",
           a.solid,
         )}
       >
         {badge.code}
       </span>
-      <span className={cn("truncate font-medium", a.text)}>{badge.label}</span>
+      <span className={cn("font-medium", !wrap && "truncate", a.text)}>{badge.label}</span>
     </span>
   );
 

@@ -28,7 +28,14 @@ export default function OverviewPage() {
           Prepared statements for <em>money</em>
         </h1>
         <div className="glass-blur mt-10 p-4 md:p-8">
-          <ProvenanceFlow />
+          <div tabIndex={0} role="region" aria-label="Provenance flow" className="-mx-4 overflow-x-auto px-4 outline-none focus-visible:ring-2 md:mx-0 md:overflow-visible md:px-0">
+            <div className="min-w-[600px] md:min-w-0">
+              <ProvenanceFlow />
+            </div>
+          </div>
+          <p className="mt-2 text-center font-mono text-[11px] text-faint md:hidden" aria-hidden="true">
+            swipe to follow the lanes →
+          </p>
         </div>
         <p className="mt-8 max-w-3xl font-serif text-[1.625rem] leading-snug md:text-[2rem]">
           The vault checks <em>where a payee came from</em> before it pays.

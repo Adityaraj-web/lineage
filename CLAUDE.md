@@ -16,6 +16,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - `contracts/mock-usdc`: NEP-141 tUSDC, 6 decimals, `mint` faucet (max 10k per call).
 - `scripts/`: TypeScript deploy/verify scripts (tsx, near-api-js 7.5.x); `scripts/lib/` is shared by every script. The root key is loaded only via `scripts/lib/root-key.ts`.
 - `agent/`: the demo agent. `inbox/*.md` (untrusted emails) → `planner-scripted.ts` (`Planner` interface) → `tools.ts` (tool call → `request_payment` args) → `agent.ts` + `executor.ts` (agent function-call key only). `owner.ts` (root-signed setup) and `run.ts` (orchestrator, report, acceptance) are the only agent files that touch the root key.
+- `web/`: read-only static Next.js dashboard (`output: "export"`, no server, no keys). `src/lib` is pure data logic (rpc with failover, views, provenance, risk); `src/components/screens/*` are the only importers of `lib/live`; pages are server shells. `npm run sync` copies `deployments/*.json` into `web/src/shared/` before dev/build. Agent memos are untrusted: React text nodes only, never `dangerouslySetInnerHTML`.
 - `deployments/demo-run.json`: public record of the latest `npm run demo` (committed).
 - `deployments/testnet.json`: public account ids of the live deployment (committed).
 - `docs/specs/F0X.md`: one spec per feature. **Read the spec for the current feature before planning.**
@@ -26,6 +27,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - Deploy: `LINEAGE_ROOT=<your-account>.testnet npm run deploy` (idempotent; needs ~15 testnet NEAR)
 - Verify the live deployment, no account needed: `npm install && npm run verify:deploy`
 - Upgrade vault code (state kept, no `new` call; idempotent): `npm run build && npm run upgrade:vaults [-- --dry-run]`
+- Web: `npm run web:install` · `npm run web:dev` · `npm run web:test` (vitest: lib in node, components in jsdom) · `npm --prefix web run typecheck` · `npm run web:build` (static site in `web/out/`, serve with `npx serve@14 web/out`) · `npm run verify:web` (live read-only checks, no account needed)
 - Agent: `npm test` (offline unit tests) · `npm run demo [-- --only vault|guarded]` (deployer only: owner setup, a fresh task per vault, agent runs, exits 0 only if acceptance holds) · `npm run demo -- --plan-only` (read-only, prints the plan)
 
 ## Workflow rules
@@ -46,7 +48,16 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - U128 values are JSON strings. Use `BigInt`, never `Number`. `usdc(n) = n * 1_000_000n`.
 - Owner calls (`create_task`, `approve_payment`, `reject_payment`, `unfreeze`, `close_task`, `withdraw`) attach exactly 1 yocto. `freeze` attaches nothing.
 - In a negative test, assert the specific error (e.g. access-key method-name mismatch), not just "it threw".
+- RPC errors: the real reason is `error.cause.name` (e.g. `UNKNOWN_ACCOUNT`); top-level `error.name` is just `HANDLER_ERROR`. A view call that fails in the contract (e.g. `CodeDoesNotExist`) returns HTTP 200 with a string `result.error`, not `error`. Check both.
+- `test.rpc.fastnear.com` accepts browser POSTs (CORS OK); the dashboard needs no proxy.
 - Rust `String::truncate` and string slicing are byte-indexed and panic mid-character (`assertion failed: self.is_char_boundary(new_len)`). Cut untrusted text on `is_char_boundary`.
+
+## Web pitfalls
+
+- Import `cn` from `@/components/cn`, not `cn`: plain tailwind-merge doesn't know the custom type scale and drops `text-stat`/`text-small` when a text colour follows.
+- Type page/layout props by hand (`params: Promise<{ key: string }>`). The generated `PageProps`/`LayoutProps` globals fail `tsc` from a clean `.next`.
+- Reduced motion: use `hooks/useReducedMotionPref`, not motion's `useReducedMotion` (that caches its first answer and misses a later change).
+- Instrument Serif has proportional digits and no `tnum`: count-ups animate in Geist Mono and settle on the serif (`CountUp`).
 
 ## Definition of done (every feature, before its last commit)
 
@@ -56,6 +67,6 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 
 ## Status
 
-- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks)
+- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks) · F06 read-only dashboard in `web/` (Overview, both vaults, Compare; live testnet reads; 133 web tests, 8 verify:web checks)
 - Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run identical code; `npm run verify:deploy` prints the current code hash; task 0 on both, expires 2026-11-25)
-- Next: F06–F08 Next.js dashboard · F09 README, video, X post
+- Next: F07 wallet connection and owner actions · F08 task creation, polish, Vercel deploy · F09 README, video, X post

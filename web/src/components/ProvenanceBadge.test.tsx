@@ -56,3 +56,13 @@ describe("StatusPill", () => {
     expect(screen.getByText("Rejected")).toBeInTheDocument();
   });
 });
+
+describe("ProvenanceBadge wrap", () => {
+  it("lets the label wrap instead of truncating", () => {
+    const { container, rerender } = renderUI(<ProvenanceBadge badge={byId("guarded", 5).badge} />);
+    expect(container.querySelector("[data-code] > span:last-child")).toHaveClass("truncate");
+    rerender(<ProvenanceBadge badge={byId("guarded", 5).badge} wrap />);
+    expect(container.querySelector("[data-code] > span:last-child")).not.toHaveClass("truncate");
+    expect(container.querySelector("[data-code]")).toHaveClass("whitespace-normal");
+  });
+});
