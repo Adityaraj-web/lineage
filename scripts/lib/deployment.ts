@@ -62,6 +62,10 @@ export const DEMO = {
     aliceMax: usdc(20),
     aliceLabel: "Alice — logo",
   },
+  run: {
+    vaultMin: usdc(150),
+    rootMin: usdc(300),
+  },
   agentFunding: 2n,
   agentAllowanceNear: 2,
   agentMethods: ["request_payment"],
