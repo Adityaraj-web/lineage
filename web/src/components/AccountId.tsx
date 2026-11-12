@@ -12,10 +12,15 @@ export function AccountId({ id, link = false, className }: { id: string; link?: 
   const body = (
     <>
       <span className="text-foreground">{head}</span>
-      {tail && <span className="text-faint">{tail}</span>}
+      {tail && (
+        <>
+          <wbr />
+          <span className="whitespace-nowrap text-faint">{tail}</span>
+        </>
+      )}
     </>
   );
-  const cls = cn("font-mono text-[12.5px] break-all", className);
+  const cls = cn("font-mono text-[12.5px] [overflow-wrap:anywhere]", className);
   if (!link) return <span className={cls}>{body}</span>;
   return (
     <a

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Prepared statements for money: a NEAR vault for AI agents that checks where a payee came from before it pays. Live testnet dashboard.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
