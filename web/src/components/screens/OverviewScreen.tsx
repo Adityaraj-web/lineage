@@ -19,7 +19,7 @@ export function OverviewScreen() {
   }, [data]);
   return (
     <>
-      <Hero count={data ? data.awaitingCount : null} />
+      <Hero view={data ?? null} />
       {data ? (
         <OverviewStory view={data} emails={DEMO_EMAILS} />
       ) : error ? (

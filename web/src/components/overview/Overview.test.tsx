@@ -49,15 +49,25 @@ describe("AgentKeyCard", () => {
 
 describe("Hero", () => {
   it("links the live needs-you count to the Lineage inbox and skips to the doorways", () => {
-    renderUI(<Hero count={1} />);
+    renderUI(<Hero view={overview()} />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Prepared statements for money.");
     expect(screen.getByRole("link", { name: "1 payment needs you" })).toHaveAttribute("href", "/vault/vault#inbox");
     expect(screen.getByRole("link", { name: "Skip to the vaults" })).toHaveAttribute("href", "#doorways");
   });
 
-  it("says it is checking before the count arrives", () => {
-    renderUI(<Hero count={null} />);
+  it("the glass vault shows what was paid, what is held and the live balance", () => {
+    renderUI(<Hero view={overview()} />);
+    const group = screen.getByRole("group", { name: "Lineage vault" });
+    expect(group).toHaveTextContent("2 paid");
+    expect(group).toHaveTextContent("1 held for you");
+    expect(within(group).getByText("414 tUSDC")).toBeInTheDocument();
+    for (const label of ["Signed by you", "Your registry", "An email"]) expect(screen.getByText(label)).toBeInTheDocument();
+  });
+
+  it("says it is checking before the data arrives, and the vault is never empty", () => {
+    renderUI(<Hero view={null} />);
     expect(screen.getByRole("link", { name: "Checking the inbox" })).toHaveAttribute("href", "/vault/vault#inbox");
+    expect(within(screen.getByRole("group", { name: "Lineage vault" })).getByText("Reading testnet")).toBeInTheDocument();
   });
 });
 

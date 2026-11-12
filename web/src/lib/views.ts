@@ -3,7 +3,7 @@ import type { Chain, PayeeStats, Service } from "./chain";
 import { VAULT_KEYS, explorerTx, type DemoRun, type VaultKey } from "./config";
 import { fmtUsdc } from "./format";
 import { provenanceBadge, statusLabel, type Badge } from "./provenance";
-import { assessPayment, type RiskCard } from "./risk";
+import { assessPayment, type RiskCard, type RiskFacts } from "./risk";
 import type { AccessKeyInfo, AccountInfo } from "./rpc";
 
 export interface PaymentRow {
@@ -115,6 +115,15 @@ export interface OverviewFacts {
   awaitingCount: number;
   services: Service[];
   compare: CompareView;
+  // Facts for the demo run's held payment on the Lineage vault, when it is still waiting.
+  held?: RiskFacts | null;
+}
+
+export interface HeldPreview {
+  amount: string;
+  payee: string;
+  badge: Badge;
+  risk: RiskCard;
 }
 
 export interface Overview {
@@ -128,7 +137,10 @@ export interface Overview {
     attacker: string;
     attackerReceived: Record<VaultKey, bigint>;
     attackerReceivedText: Record<VaultKey, string>;
+    // Lineage payments of the demo run that were paid.
+    paid: number;
   };
+  held: HeldPreview | null;
   compare: CompareView;
 }
 
@@ -323,8 +335,19 @@ export function buildOverview(f: OverviewFacts): Overview {
       attacker: f.compare.attacker,
       attackerReceived: f.compare.attackerReceived,
       attackerReceivedText: f.compare.attackerReceivedText,
+      paid: f.compare.rows.filter((r) => r.sides.vault.payment?.status === "Paid").length,
     },
+    held: f.held && f.held.payment.payee ? heldPreview(f.held) : null,
     compare: f.compare,
+  };
+}
+
+function heldPreview(facts: RiskFacts): HeldPreview {
+  return {
+    amount: fmtUsdc(facts.payment.amount),
+    payee: facts.payment.payee!,
+    badge: provenanceBadge(facts.payment, facts.task, facts.mode),
+    risk: assessPayment(facts),
   };
 }
 
@@ -398,7 +421,22 @@ export async function loadOverview(deps: LoadDeps): Promise<Overview> {
     chain.listServices(),
     compareFacts(deps),
   ]);
+  const attacker = deps.demoRun.attacker.account;
+  const waiting = facts.payments.vault.find((x) => x?.payee === attacker && x.status === "AwaitingApproval") ?? null;
+  let held: RiskFacts | null = null;
+  if (waiting?.payee) {
+    const [account, stats] = await Promise.all([chain.viewAccount(waiting.payee), chain.getPayeeStats(vaultIds.vault, waiting.payee)]);
+    held = {
+      payment: waiting,
+      task: facts.tasks.vault,
+      mode: configV.mode,
+      taskPayments: facts.payments.vault.filter((x): x is Payment => !!x),
+      account,
+      stats,
+    };
+  }
   return buildOverview({
+    held,
     vaultIds,
     configs: { vault: configV, guarded: configG },
     codeHashes: facts.codeHashes,

@@ -502,11 +502,8 @@ html.lenis body {
   animation: scroll-cue 1.8s var(--ease-in-out) infinite;
 }
 @keyframes scroll-cue {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(250%);
+  50% {
+    transform: translateY(3px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

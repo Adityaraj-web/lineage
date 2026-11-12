@@ -208,5 +208,28 @@ describe("buildOverview", () => {
     expect(o.vaults.vault.balance).toBe("414 tUSDC");
     expect(o.compare.rows).toHaveLength(3);
     expect(o.compare.attackerReceivedText.guarded).toBe("49 tUSDC");
+    expect(o.demo.paid).toBe(2);
+    expect(o.held).toBeNull();
+  });
+
+  it("assesses the held payment for the doorway preview", () => {
+    const task = demoTask();
+    const taskPayments = [p3Translation(), p4Alice(), p5Poisoned()];
+    const o = buildOverview({
+      vaultIds: { vault: VAULT, guarded: GUARDED },
+      configs: { vault: config("Lineage"), guarded: config("LimitsOnly") },
+      codeHashes: { vault: CODE_HASH, guarded: CODE_HASH },
+      keys: { vault: [agentKey(VAULT)], guarded: [agentKey(GUARDED)] },
+      awaitingCount: 1,
+      services: [],
+      compare: buildCompareView(compareFacts()),
+      held: { payment: p5Poisoned(), task, mode: "Lineage", taskPayments, account: PLAIN_ACCOUNT, stats: NO_STATS },
+    });
+    expect(o.held).not.toBeNull();
+    expect(o.held!.amount).toBe("49 tUSDC");
+    expect(o.held!.payee).toBe(ATTACKER);
+    expect(o.held!.badge.code).toBe("P3");
+    expect(o.held!.risk.level).toBe("high");
+    expect(o.held!.risk.findings.map((f) => f.id)).toContain("duplicate-reference");
   });
 });
