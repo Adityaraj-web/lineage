@@ -12,6 +12,7 @@ import { NeedsYou, Shared } from "../transitions";
 import type { OwnerAction, OwnerControls } from "../wallet/useOwnerAction";
 import { AttackerPaid } from "./AttackerPaid";
 import { Inbox } from "./InboxCard";
+import { LastAction } from "./LastAction";
 import { PaymentsTable } from "./PaymentsTable";
 import { TaskCard } from "./TaskCard";
 import { VaultHeader } from "./VaultHeader";
@@ -50,7 +51,10 @@ export function VaultDashboard({
             </Shared>
           }
         >
-          <Inbox inbox={view.inbox} owner={owner} />
+          <div className="flex flex-col gap-5">
+            {owner && <LastAction action={owner.action} inbox={view.inbox} payments={view.payments} />}
+            <Inbox inbox={view.inbox} owner={owner} />
+          </div>
         </Section>
       ) : (
         <AttackerPaid paid={attackerPayments(view, demoRun.attacker.account)} attacker={demoRun.attacker.account} note={view.inbox.message} />

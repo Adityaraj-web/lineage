@@ -14,9 +14,19 @@ export interface WalletState {
 const WalletContext = createContext<WalletState>({ status: "loading", port: null });
 export const useWallet = (): WalletState => useContext(WalletContext);
 
+// In `next dev`, ?fakewallet=owner|viewer swaps in a fake wallet. NODE_ENV is inlined at build time, so
+// the branch and the dev-wallet chunk are not in the production export.
+async function defaultLoad(): Promise<WalletDriver> {
+  if (process.env.NODE_ENV === "development") {
+    const mode = new URLSearchParams(window.location.search).get("fakewallet");
+    if (mode) return (await import("./dev-wallet")).devWallet(mode);
+  }
+  return loadNearConnect();
+}
+
 // Loads the wallet library on the client, restores a saved session silently, and follows sign-in/out.
 // Any failure leaves the site read-only, exactly as without a wallet.
-export function WalletProvider({ children, load = loadNearConnect }: { children: React.ReactNode; load?: () => Promise<WalletDriver> }) {
+export function WalletProvider({ children, load = defaultLoad }: { children: React.ReactNode; load?: () => Promise<WalletDriver> }) {
   const loadRef = useRef(load);
   const [driver, setDriver] = useState<WalletDriver | null>(null);
   const [status, setStatus] = useState<WalletStatus>("loading");

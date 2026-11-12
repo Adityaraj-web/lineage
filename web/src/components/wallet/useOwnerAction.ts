@@ -76,3 +76,11 @@ export function useOwnerAction(send: ((tx: OwnerTx) => Promise<unknown>) | null,
 
   return useMemo(() => ({ state, busy: state.kind === "signing", run, clear }), [state, run, clear]);
 }
+
+// Ids of actions on a held payment: "approve:5", "reject:5".
+export type HeldVerb = "approve" | "reject";
+export const heldActionId = (verb: HeldVerb, paymentId: number): string => `${verb}:${paymentId}`;
+export function heldAction(id: string): { verb: HeldVerb; paymentId: number } | null {
+  const m = /^(approve|reject):(\d+)$/.exec(id);
+  return m ? { verb: m[1] as HeldVerb, paymentId: Number(m[2]) } : null;
+}

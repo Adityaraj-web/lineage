@@ -1,11 +1,12 @@
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { freezeTx, unfreezeTx } from "@/lib/actions";
 import { LIMITS_ONLY_INBOX, type VaultView } from "@/lib/views";
 import type { Role } from "@/lib/wallet";
-import { AGENT_G, ALICE, ATTACKER, DEMO_RUN_SNAPSHOT, GUARDED, NOW, ROOT, p3Translation, p4Alice, payment } from "@/lib/test-fixtures";
-import { WithOwnerAction } from "@/test/owner";
-import { FakeWallet } from "../wallet/test-wallet";
+import { explorerTx } from "@/lib/config";
+import { AGENT_G, ALICE, ATTACKER, DEMO_RUN_SNAPSHOT, GUARDED, NOW, ROOT, p3Translation, p4Alice, p5Poisoned, payment } from "@/lib/test-fixtures";
+import { OwnerDashboard, WithOwnerAction, live } from "@/test/owner";
+import { FAKE_HASH, FakeWallet } from "../wallet/test-wallet";
 import { renderUI } from "@/test/render";
 import { demoPayments, vaultView } from "@/test/views";
 import { VaultDashboard } from "./VaultDashboard";
@@ -97,6 +98,7 @@ describe("VaultDashboard", () => {
       for (const key of ["vault", "guarded"] as const) {
         const { unmount } = asRole(vaultView(key), "disconnected", null);
         expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        expect(screen.queryByRole("switch")).toBeNull();
         expect(screen.queryByText(/Connected as/)).toBeNull();
         unmount();
       }
@@ -106,6 +108,7 @@ describe("VaultDashboard", () => {
       for (const key of ["vault", "guarded"] as const) {
         const { unmount } = render(vaultView(key));
         expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        expect(screen.queryByRole("switch")).toBeNull();
         unmount();
       }
     });
@@ -114,40 +117,87 @@ describe("VaultDashboard", () => {
       for (const key of ["vault", "guarded"] as const) {
         const { unmount } = asRole(vaultView(key), "viewer", ALICE);
         expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        expect(screen.queryByRole("switch")).toBeNull();
         const line = screen.getByText(/Connected as/).closest("p")!;
         expect(line).toHaveTextContent(`Connected as ${ALICE}. Only the owner ${ROOT} can act on this vault.`);
         unmount();
       }
     });
 
-    it("owner on the Lineage vault: Reject on the inbox card and Freeze in the header", () => {
+    it("owner on the Lineage vault: Reject and Approve on the inbox card, the freeze switch in the header", () => {
       asRole(vaultView("vault"), "owner", ROOT);
-      expect(within(screen.getByRole("article", { name: /Payment #5/ })).getByRole("button", { name: "Reject" })).toBeInTheDocument();
-      expect(within(screen.getByRole("banner", { name: "Lineage vault" })).getByRole("button", { name: "Freeze" })).toBeInTheDocument();
+      const card = screen.getByRole("article", { name: /Payment #5/ });
+      expect(within(card).getByRole("button", { name: "Reject" })).toBeInTheDocument();
+      expect(within(card).getByRole("button", { name: "Approve" })).toBeInTheDocument();
+      const header = screen.getByRole("banner", { name: "Lineage vault" });
+      expect(within(header).getByRole("switch", { name: "Freeze vault" })).toHaveAttribute("aria-checked", "false");
+      expect(within(header).getAllByText("Active")).toHaveLength(1);
       expect(screen.queryByText(/Connected as/)).toBeNull();
     });
 
-    it("owner on the LimitsOnly vault: Freeze only (it has no inbox)", () => {
+    it("owner on the LimitsOnly vault: the switch only (it has no inbox)", () => {
       asRole(vaultView("guarded"), "owner", ROOT);
-      expect(screen.getByRole("button", { name: "Freeze" })).toBeInTheDocument();
+      expect(screen.getByRole("switch", { name: "Freeze vault" })).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /approve|reject/i })).toBeNull();
     });
 
-    it("Freeze sends freezeTx (no deposit); a frozen vault offers Unfreeze (1 yocto)", async () => {
+    it("freeze: no confirm, sends freezeTx (no deposit); the switch waits for the chain", async () => {
       const fake = new FakeWallet({ account: ROOT });
-      const { unmount } = asRole(vaultView("guarded"), "owner", ROOT, fake);
-      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Freeze" })));
+      renderUI(<OwnerDashboard initial={vaultView("guarded")} fake={fake} />);
+      const sw = screen.getByRole("switch", { name: "Freeze vault" });
+      await act(async () => fireEvent.click(sw));
       expect(fake.sent).toStrictEqual([freezeTx(GUARDED)]);
-      unmount();
+      expect(fake.sent[0].actions[0].params.deposit).toBe("0");
+      expect(screen.getByRole("status")).toHaveTextContent("Sent");
+      expect(sw).toHaveAttribute("aria-checked", "false");
+      const v = vaultView("guarded");
+      act(() => live.setView({ ...v, config: { ...v.config, frozen: true } }));
+      expect(screen.getByRole("switch", { name: "Freeze vault" })).toHaveAttribute("aria-checked", "true");
+    });
 
-      const frozen = { ...vaultView("guarded") };
-      frozen.config = { ...frozen.config, frozen: true };
-      const fake2 = new FakeWallet({ account: ROOT });
-      asRole(frozen, "owner", ROOT, fake2);
-      expect(screen.queryByRole("button", { name: "Freeze" })).toBeNull();
-      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Unfreeze" })));
-      expect(fake2.sent).toStrictEqual([unfreezeTx(GUARDED)]);
+    it("unfreeze: a one-line confirm, then unfreezeTx (1 yocto)", async () => {
+      const fake = new FakeWallet({ account: ROOT });
+      const v = vaultView("guarded");
+      renderUI(<OwnerDashboard initial={{ ...v, config: { ...v.config, frozen: true } }} fake={fake} />);
+      const sw = screen.getByRole("switch", { name: "Freeze vault" });
+      expect(sw).toHaveAttribute("aria-checked", "true");
+      act(() => fireEvent.click(sw));
+      expect(fake.sent).toEqual([]);
+      expect(screen.getByText("Unfreeze? The agent can spend again within its caps.")).toBeInTheDocument();
+      act(() => fireEvent.click(screen.getByRole("button", { name: "Back" })));
+      expect(screen.queryByText(/Unfreeze\?/)).toBeNull();
+      act(() => fireEvent.click(sw));
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Unfreeze and sign" })));
+      expect(fake.sent).toStrictEqual([unfreezeTx(GUARDED)]);
+      expect(fake.sent[0].actions[0].params.deposit).toBe("1");
+      expect(sw).toHaveAttribute("aria-checked", "true");
+    });
+
+    it("Last action keeps the hash after a rejected card leaves the inbox", async () => {
+      const fake = new FakeWallet({ account: ROOT });
+      renderUI(<OwnerDashboard initial={vaultView("vault")} fake={fake} />);
+      const card = screen.getByRole("article", { name: /Payment #5/ });
+      act(() => fireEvent.click(within(card).getByRole("button", { name: "Reject" })));
+      await act(async () => fireEvent.click(within(card).getByRole("button", { name: "Reject and sign" })));
+      expect(screen.queryByText(/Last action/)).toBeNull();
+      act(() => live.setView(vaultView("vault", [p3Translation(), p4Alice(), { ...p5Poisoned("Rejected"), reason: "wrong payee" }])));
+      await waitFor(() => expect(screen.queryByRole("article", { name: /Payment #5/ })).toBeNull());
+      const last = screen.getByTestId("last-action");
+      expect(last).toHaveTextContent("Last action: rejected payment #5");
+      expect(within(last).getByText("Rejected")).toBeInTheDocument();
+      expect(within(last).getByRole("link")).toHaveAttribute("href", explorerTx(FAKE_HASH));
+    });
+
+    it("an approve the vault blocks shows the chain's reason in Last action", async () => {
+      const fake = new FakeWallet({ account: ROOT });
+      renderUI(<OwnerDashboard initial={vaultView("vault")} fake={fake} />);
+      act(() => fireEvent.click(screen.getByRole("button", { name: "Approve" })));
+      act(() => fireEvent.click(screen.getByRole("checkbox")));
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Approve and sign" })));
+      act(() => live.setView(vaultView("vault", [p3Translation(), p4Alice(), { ...p5Poisoned("Blocked"), reason: "Vault is frozen by the owner" }])));
+      const last = await screen.findByTestId("last-action");
+      expect(last).toHaveTextContent("Last action: approved payment #5");
+      expect(last).toHaveTextContent("Vault is frozen by the owner");
     });
   });
 });
-
