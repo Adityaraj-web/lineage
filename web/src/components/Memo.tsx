@@ -33,7 +33,7 @@ export function Memo({
             key={i}
             ref={ref}
             data-token={part}
-            className={cn("rounded-[3px] bg-attacker-soft px-0.5 text-attacker-fg", markClassName)}
+            className={cn("rounded-[3px] bg-attacker-soft px-0.5 text-attacker", markClassName)}
           >
             {part}
           </mark>

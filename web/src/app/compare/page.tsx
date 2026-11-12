@@ -7,9 +7,9 @@ export default function ComparePage() {
   return (
     <div className="flex flex-col gap-10 pt-14 md:gap-12 md:pt-20">
       <header>
-        <p className="eyebrow">The demo run, side by side</p>
+        <p className="label">The demo run, side by side</p>
         <h1 className="mt-3 font-serif text-display">
-          One poisoned <em>invoice</em>
+          One poisoned invoice
         </h1>
         <p className="mt-4 max-w-2xl text-[1.0625rem] leading-relaxed text-muted-foreground">
           The agent read three emails and asked both vaults to pay the same three payments. One email was an

@@ -64,7 +64,7 @@ export function ReferenceLink({
   const drawn = reduced || play;
   return (
     <div ref={box} className="relative flex flex-col">
-      <p className="eyebrow mb-1.5">Memo · written by the agent&apos;s source, untrusted</p>
+      <p className="label mb-1.5">Memo · written by the agent&apos;s source, untrusted</p>
       <p className="text-body text-foreground">
         &ldquo;
         <Memo text={row.payment.memo} tokens={tokens} markRef={(el) => void (markA.current = el)} />
@@ -84,11 +84,11 @@ export function ReferenceLink({
               &rdquo;
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-muted-foreground">
-              <span className="text-attacker-fg">Already paid in this task</span>
-              <span className="font-mono">#{related.payment.id}</span>
+              <span className="text-attacker">Already paid in this task</span>
+              <span className="num">#{related.payment.id}</span>
               <ProvenanceBadge badge={related.badge} compact />
               {related.payment.payee && <AccountId id={related.payment.payee} className="text-[12px]" />}
-              <span className="font-mono text-foreground tabular-nums">{related.amount}</span>
+              <span className="num text-foreground">{related.amount}</span>
             </div>
           </div>
           {geo && (

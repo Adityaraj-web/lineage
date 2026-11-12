@@ -55,15 +55,15 @@ export function PaymentsTable({
             value={String(t.task.id)}
             className="h-8 rounded-full px-3.5 text-small data-[state=on]:bg-white/[0.09]"
           >
-            <span className="font-mono">#{t.task.id}</span>
-            {t.label && <span className="text-muted-foreground">· {t.label}</span>}
+            <span className="num">Task {t.task.id}</span>
+            {t.label && <span className="text-muted-foreground">, {t.label}</span>}
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
 
-      <div role="table" aria-label="Payments" className="glass overflow-hidden">
+      <div role="table" aria-label="Payments" className="surface overflow-hidden">
         <div role="rowgroup" className="hidden border-b border-white/[0.06] px-5 py-3 lg:block">
-          <div role="row" className={cn(COLS, "eyebrow")}>
+          <div role="row" className={cn(COLS, "label")}>
             <span role="columnheader">#</span>
             <span role="columnheader">Where the payee came from</span>
             <span role="columnheader">Status</span>
@@ -103,7 +103,7 @@ export function PaymentsTable({
                       transition={{ duration: 1.6, ease: "easeOut" }}
                     />
                   )}
-                  <span role="cell" className="relative font-mono text-small text-muted-foreground">
+                  <span role="cell" className="relative num text-small text-muted-foreground">
                     #{p.id}
                   </span>
                   <span role="cell" className="relative min-w-0">
@@ -112,7 +112,7 @@ export function PaymentsTable({
                   <span role="cell" className="relative flex flex-wrap items-center gap-2">
                     <StatusPill status={p.status} />
                     {mark && (
-                      <span className="rounded bg-white/10 px-1 text-[10px] tracking-wide text-foreground uppercase">
+                      <span className="rounded bg-white/10 px-1 text-micro text-foreground">
                         {mark.kind === "added" ? "New" : "Updated"}
                       </span>
                     )}
@@ -120,12 +120,12 @@ export function PaymentsTable({
                   <span role="cell" className="relative min-w-0">
                     {p.payee ? <AccountId id={p.payee} link /> : <span className="text-faint">resolving…</span>}
                   </span>
-                  <span role="cell" className="relative font-mono text-body tabular-nums lg:text-right">
+                  <span role="cell" className="relative num text-body lg:text-right">
                     {r.amount}
                   </span>
                   <span role="cell" className="relative min-w-0 text-small text-muted-foreground">
                     <Memo text={p.memo} className="line-clamp-2" />
-                    <span className="mt-0.5 block font-mono text-[11px] text-faint">
+                    <span className="mt-0.5 block text-micro text-faint">
                       task #{p.task_id} · {fmtDate(p.updated_at_ms)}
                     </span>
                   </span>

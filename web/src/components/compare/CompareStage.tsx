@@ -75,7 +75,7 @@ function SameCodeSeal({ view, p }: { view: CompareView; p: Play }) {
     <motion.div
       data-testid="same-code-seal"
       className={cn(
-        "relative grid size-32 place-items-center rounded-full border bg-[#0b0d10]",
+        "relative grid size-32 place-items-center rounded-full border bg-ink",
         same ? "border-p1-ring shadow-[0_0_40px_-8px_rgb(52_211_153/0.45)]" : "border-attacker-ring",
       )}
       {...play(
@@ -90,7 +90,7 @@ function SameCodeSeal({ view, p }: { view: CompareView; p: Play }) {
           <path id="seal-ring" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
         </defs>
         <circle cx="64" cy="64" r="58" fill="none" stroke={ring} strokeOpacity="0.25" strokeDasharray="2 4" />
-        <text className="fill-muted-foreground font-mono text-[8.5px] tracking-[0.28em] uppercase">
+        <text className="fill-muted-foreground text-[10px] font-medium">
           <textPath href="#seal-ring">same agent · same plan · same contract ·</textPath>
         </text>
       </svg>
@@ -100,7 +100,7 @@ function SameCodeSeal({ view, p }: { view: CompareView; p: Play }) {
         ) : (
           <X className="size-4 text-attacker" aria-hidden="true" />
         )}
-        <span className={cn("font-serif text-[1.125rem] leading-tight italic", same ? "text-p1-fg" : "text-attacker-fg")}>
+        <span className={cn("text-[1rem] leading-tight font-semibold", same ? "text-p1" : "text-attacker")}>
           {same ? "same code" : "different code"}
         </span>
         {same && view.codeHashes.vault && (
@@ -206,7 +206,7 @@ function SideCell({
       data-testid={`side-${vault}`}
       className={cn(
         "relative flex min-w-0 flex-col gap-2.5 overflow-hidden rounded-2xl border p-4",
-        poisoned ? cn(a.border, "bg-[#0d0e12]") : "border-white/[0.07] bg-white/[0.02]",
+        poisoned ? cn(a.border, "bg-raised") : "border-white/[0.07] bg-white/[0.02]",
       )}
     >
       {poisoned && (
@@ -217,7 +217,7 @@ function SideCell({
           {...play(p, { opacity: 0 }, { opacity: 1 }, { duration: 0.5, delay: arriveAt })}
         />
       )}
-      <p className="eyebrow md:hidden">{vault === "vault" ? "Lineage" : "LimitsOnly"}</p>
+      <p className="label md:hidden">{vault === "vault" ? "Lineage" : "LimitsOnly"}</p>
       {side.payment && side.badge ? (
         <>
           <div className="relative">
@@ -225,7 +225,7 @@ function SideCell({
           </div>
           <div className="relative flex flex-wrap items-center justify-between gap-2">
             <StatusPill status={side.payment.status} accent={attackerPaid ? "attacker" : undefined} />
-            <span className="font-mono text-body tabular-nums">{side.amount}</span>
+            <span className="num text-body">{side.amount}</span>
           </div>
           <div className="relative flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             {side.payee ? <AccountId id={side.payee} className="text-[12px]" /> : <span className="text-faint">no payee</span>}
@@ -235,7 +235,7 @@ function SideCell({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View the ${vault === "vault" ? "Lineage" : "LimitsOnly"} transaction on NEAR Blocks`}
-                className="inline-flex items-center gap-0.5 font-mono text-[11px] text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:outline-none"
+                className="inline-flex items-center gap-0.5 text-micro text-muted-foreground hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
               >
                 tx <ArrowUpRight className="size-3" aria-hidden="true" />
               </a>
@@ -258,12 +258,12 @@ function MessageCell({ row, p, index }: { row: CompareRow; p: Play; index: numbe
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Mail className={cn("size-3.5", row.poisoned ? "text-attacker-fg" : "text-muted-foreground")} aria-hidden="true" />
+        <Mail className={cn("size-3.5", row.poisoned ? "text-attacker" : "text-muted-foreground")} aria-hidden="true" />
         <span className="font-mono text-[11px] text-muted-foreground">
           {String(index + 1).padStart(2, "0")} · {row.message.replace(/^\d+-/, "")}
         </span>
         {row.poisoned && (
-          <span className="rounded-full bg-attacker px-1.5 py-px font-mono text-[9.5px] font-semibold tracking-wide text-[#07080a] uppercase">
+          <span className="rounded-full bg-attacker px-1.5 py-px text-micro font-semibold text-ink">
             poisoned
           </span>
         )}
@@ -300,7 +300,7 @@ function Stage({ view, p }: { view: CompareView; p: Play }) {
 
       <div className={cn(GRID, "items-end pb-6")}>
         <div className="hidden md:block">
-          <p className="flex items-center gap-2 font-serif text-h2">
+          <p className="flex items-center gap-2 font-serif text-title">
             <ShieldCheck className="size-5 text-p1" aria-hidden="true" /> Lineage
           </p>
           <AccountId id={VAULT_IDS.vault} className="text-[11.5px]" />
@@ -311,7 +311,7 @@ function Stage({ view, p }: { view: CompareView; p: Play }) {
         </div>
         <span className="hidden md:block" />
         <div className="hidden text-right md:block">
-          <p className="flex items-center justify-end gap-2 font-serif text-h2">
+          <p className="flex items-center justify-end gap-2 font-serif text-title">
             LimitsOnly <ShieldOff className="size-5 text-attacker" aria-hidden="true" />
           </p>
           <AccountId id={VAULT_IDS.guarded} className="text-[11.5px]" />
@@ -363,7 +363,7 @@ function Stage({ view, p }: { view: CompareView; p: Play }) {
         <AttackerCounter vault="vault" view={view} />
         <span className="hidden md:block" />
         <p className="col-span-2 order-first text-center md:order-none md:col-span-1">
-          <span className="eyebrow block">attacker received</span>
+          <span className="label block">attacker received</span>
           <AccountId id={view.attacker} className="text-[11.5px]" />
         </p>
         <span className="hidden md:block" />
@@ -371,7 +371,7 @@ function Stage({ view, p }: { view: CompareView; p: Play }) {
       </div>
 
       <motion.p
-        className="mt-10 text-center font-serif text-[1.5rem] leading-snug md:text-[1.75rem]"
+        className="mt-10 text-center text-lead md:text-[1.5rem] md:leading-snug"
         {...play(p, { opacity: 0, y: 6 }, { opacity: 1, y: 0 }, { duration: 0.5, delay: T.summary, ease: EASE_OUT })}
       >
         {compareSummary(view)}
@@ -387,14 +387,14 @@ function AttackerCounter({ vault, view }: { vault: VaultKey; view: CompareView }
       data-testid={`attacker-${vault}`}
       className={cn("flex flex-col gap-1", vault === "guarded" ? "items-end text-right" : "items-start")}
     >
-      <span className="eyebrow">{vault === "vault" ? "from Lineage" : "from LimitsOnly"}</span>
+      <span className="label">{vault === "vault" ? "from Lineage" : "from LimitsOnly"}</span>
       <CountUp
         value={v}
         format={fmtUsdc}
         delay={T.counters}
         align={vault === "guarded" ? "end" : "start"}
-        className={cn("text-stat", v > 0n ? "text-attacker-fg" : "text-p1-fg")}
-        finalClassName="font-serif"
+        className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")}
+       
       />
     </div>
   );
@@ -408,12 +408,12 @@ export function CompareStage({ view }: { view: CompareView }) {
   const p: Play = { on: inView, reduced };
 
   return (
-    <section ref={ref} aria-label="The demo run, side by side" className="glass-blur relative p-5 md:p-10">
+    <section ref={ref} aria-label="The demo run, side by side" className="stage relative p-5 md:p-10">
       {!reduced && (
         <button
           type="button"
           onClick={() => setPlayId((n) => n + 1)}
-          className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:outline-none"
+          className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
         >
           <RotateCcw className="size-3.5" aria-hidden="true" /> Replay
         </button>

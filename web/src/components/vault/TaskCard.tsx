@@ -5,7 +5,7 @@ import { AccountId } from "../AccountId";
 
 function Chip({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("rounded-full border px-2 py-0.5 font-mono text-[10.5px] tracking-wide uppercase", className)}>
+    <span className={cn("rounded-full border px-2 py-0.5 text-micro font-medium", className)}>
       {children}
     </span>
   );
@@ -16,15 +16,15 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
   const spent = Math.min(100, row.spentPct);
   const inFlight = Math.min(100 - spent, row.inFlightPct);
   return (
-    <article className="glass flex flex-col gap-5 p-6" aria-labelledby={`task-${t.id}-title`}>
+    <article className="surface flex flex-col gap-5 p-6" aria-labelledby={`task-${t.id}-title`}>
       <header className="flex flex-wrap items-center gap-2">
-        <h3 id={`task-${t.id}-title`} className="font-mono text-small text-muted-foreground">
+        <h3 id={`task-${t.id}-title`} className="num text-small text-muted-foreground">
           Task #{t.id}
         </h3>
         {row.label && (
           <Chip
             className={
-              row.label === "latest demo run" ? "border-p2-ring bg-p2-soft text-p2-fg" : "border-white/10 text-muted-foreground"
+              row.label === "latest demo run" ? "border-p2-ring bg-p2-soft text-p2" : "border-white/10 text-muted-foreground"
             }
           >
             {row.label}
@@ -48,9 +48,9 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
             style={{ width: `${inFlight}%` }}
           />
         </div>
-        <p className="mt-2 flex flex-wrap justify-between gap-x-4 font-mono text-[12px] text-muted-foreground tabular-nums">
+        <p className="mt-2 flex flex-wrap justify-between gap-x-4 num text-micro text-muted-foreground">
           <span>
-            <span className="text-foreground">{row.spent}</span> spent · <span className="text-p3-fg">{row.inFlight}</span> in
+            <span className="text-foreground">{row.spent}</span> spent · <span className="text-p3">{row.inFlight}</span> in
             flight
           </span>
           <span>of {row.budget}</span>
@@ -59,11 +59,11 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
 
       <dl className="grid grid-cols-2 gap-4 text-small">
         <div>
-          <dt className="eyebrow">Cap per payment</dt>
-          <dd className="mt-1 font-mono tabular-nums">{row.cap}</dd>
+          <dt className="label">Cap per payment</dt>
+          <dd className="mt-1 num">{row.cap}</dd>
         </div>
         <div>
-          <dt className="eyebrow">Expires</dt>
+          <dt className="label">Expires</dt>
           <dd className="mt-1 font-mono text-[12.5px]">
             {fmtDate(t.expires_at_ms)} <span className="text-muted-foreground">({fmtAgo(t.expires_at_ms, now)})</span>
           </dd>
@@ -71,8 +71,8 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
       </dl>
 
       <div className="flex flex-col gap-2">
-        <p className="eyebrow">
-          <span className="text-p1-fg">P1</span> Payees you signed
+        <p className="label">
+          <span className="text-p1">P1</span> Payees you signed
         </p>
         {t.signed_payees.length === 0 ? (
           <p className="text-small text-faint">None.</p>
@@ -80,9 +80,9 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
           <ul className="flex flex-col gap-2">
             {t.signed_payees.map((s, i) => (
               <li key={i} className="rounded-xl border border-p1-ring/50 bg-p1-soft/60 px-3 py-2">
-                <p className="text-small text-p1-fg">{s.label}</p>
+                <p className="text-small text-p1">{s.label}</p>
                 <AccountId id={s.account_id} link />
-                <p className="mt-0.5 font-mono text-[11.5px] text-muted-foreground tabular-nums">
+                <p className="mt-0.5 num text-micro text-muted-foreground">
                   max {fmtUsdc(s.max_amount)} · committed {fmtUsdc(s.committed)}
                 </p>
               </li>
@@ -92,8 +92,8 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="eyebrow">
-          <span className="text-p2-fg">P2</span> Resolvers you pinned
+        <p className="label">
+          <span className="text-p2">P2</span> Resolvers you pinned
         </p>
         {t.resolvers.length === 0 ? (
           <p className="text-small text-faint">None.</p>

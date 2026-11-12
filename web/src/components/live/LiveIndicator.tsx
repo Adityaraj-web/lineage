@@ -50,7 +50,7 @@ export function LiveIndicator() {
 
   const label = (
     <span
-      className="flex items-center gap-2.5 font-mono text-[12px] text-muted-foreground tabular-nums"
+      className="flex items-center gap-2.5 num text-micro text-muted-foreground"
       data-status={live.status}
     >
       <span className="relative grid size-2.5 place-items-center" aria-hidden="true">
@@ -83,7 +83,7 @@ export function LiveIndicator() {
               {label}
             </button>
           </TooltipTrigger>
-          <TooltipContent className="max-w-sm font-mono text-[11px]">
+          <TooltipContent className="max-w-sm text-micro">
             {live.error.name}: {live.error.message}. Showing the last good data.
           </TooltipContent>
         </Tooltip>
@@ -94,7 +94,7 @@ export function LiveIndicator() {
         type="button"
         onClick={() => store.refresh()}
         aria-label="Refresh now"
-        className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:outline-none"
+        className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover-fine:bg-white/[0.06] hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
       >
         <RotateCw className="size-3.5" />
       </button>

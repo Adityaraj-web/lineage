@@ -42,7 +42,7 @@ export function RiskMeter({ level, play }: { level: RiskLevel; play: boolean }) 
           </span>
         ))}
       </div>
-      <span className={cn("font-mono text-[12px] font-medium tracking-[0.08em] uppercase", a.text)}>
+      <span className={cn("text-small font-semibold", a.text)}>
         {LEVEL_WORD[level]}
       </span>
     </div>
@@ -61,7 +61,7 @@ export function RiskCard({ risk, play }: { risk: Risk; play?: boolean }) {
   return (
     <div ref={ref} className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="eyebrow">Risk card</p>
+        <p className="label">Risk card</p>
         <RiskMeter level={risk.level} play={on} />
       </div>
 

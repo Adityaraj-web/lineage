@@ -28,7 +28,7 @@ export function AccountId({ id, link = false, className }: { id: string; link?: 
       target="_blank"
       rel="noopener noreferrer"
       title={id}
-      className={cn(cls, "group inline rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2")}
+      className={cn(cls, "group inline rounded-sm underline-offset-4 outline-none hover-fine:underline focus-visible:ring-2")}
     >
       {body}
       <ArrowUpRight

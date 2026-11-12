@@ -24,7 +24,7 @@ export function ProvenanceBadge({
       data-tone={badge.tone}
       data-code={badge.code}
       className={cn(
-        "inline-flex max-w-full items-center gap-2 rounded-full border py-0.5 pr-2.5 pl-1 text-[12.5px] leading-5 whitespace-nowrap",
+        "inline-flex max-w-full items-center gap-2 rounded-full border py-0.5 pr-2.5 pl-1 text-micro leading-5 whitespace-nowrap",
         a.soft,
         a.border,
         wrap && "items-start rounded-[11px] whitespace-normal",
@@ -34,7 +34,7 @@ export function ProvenanceBadge({
     >
       <span
         className={cn(
-          "shrink-0 rounded-full px-1.5 font-mono text-[10.5px] font-semibold tracking-wide text-[#07080a]",
+          "shrink-0 rounded-full px-1.5 num text-[11px] font-semibold text-ink",
           a.solid,
         )}
       >
@@ -54,7 +54,7 @@ export function ProvenanceBadge({
               {chip}
             </span>
           </TooltipTrigger>
-          <TooltipContent className="max-w-xs font-mono text-[11px]" aria-hidden="true">
+          <TooltipContent className="max-w-xs text-micro" aria-hidden="true">
             {badge.detail}
           </TooltipContent>
         </Tooltip>
@@ -65,7 +65,7 @@ export function ProvenanceBadge({
   return (
     <span className="inline-flex max-w-full flex-col items-start gap-1">
       {chip}
-      <span className="max-w-full pl-1 font-mono text-[11.5px] break-words text-muted-foreground">{badge.detail}</span>
+      <span className="max-w-full pl-1 text-micro break-words text-muted-foreground">{badge.detail}</span>
     </span>
   );
 }

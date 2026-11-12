@@ -7,20 +7,20 @@ import { CountUp } from "../CountUp";
 
 const COPY = {
   vault: {
-    eyebrow: "Lineage mode",
+    label: "Lineage mode",
     title: (
       <>
-        Lineage <em>vault</em>
+        Lineage vault
       </>
     ),
     blurb:
       "Pays payees you signed, and payees a resolver you pinned returns, within your caps. A raw address from the agent waits for you.",
   },
   guarded: {
-    eyebrow: "LimitsOnly mode · the comparison guardrail wallet",
+    label: "LimitsOnly mode · the comparison guardrail wallet",
     title: (
       <>
-        LimitsOnly <em>vault</em>
+        LimitsOnly vault
       </>
     ),
     blurb:
@@ -31,7 +31,7 @@ const COPY = {
 function Stat({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
-      <dt className="eyebrow">{label}</dt>
+      <dt className="label">{label}</dt>
       <dd className="min-w-0">{children}</dd>
     </div>
   );
@@ -42,20 +42,20 @@ export function VaultHeader({ view }: { view: VaultView }) {
   const lineage = view.config.mode === "Lineage";
   return (
     <header className="pt-14 md:pt-20">
-      <p className="eyebrow">{c.eyebrow}</p>
+      <p className="label">{c.label}</p>
       <h1 className="mt-3 font-serif text-display">{c.title}</h1>
       <p className="mt-4 max-w-2xl text-[1.0625rem] leading-relaxed text-muted-foreground">{c.blurb}</p>
       <div className="mt-4">
         <AccountId id={view.vaultId} link className="text-[14px]" />
       </div>
 
-      <dl className="glass mt-10 grid grid-cols-2 gap-x-6 gap-y-7 p-6 md:grid-cols-4 md:p-8">
+      <dl className="surface mt-10 grid grid-cols-2 gap-x-6 gap-y-7 p-6 md:grid-cols-4 md:p-8">
         <Stat label="Balance">
           <CountUp
             value={BigInt(view.config.balance)}
             format={fmtUsdc}
             className="text-[1.875rem] leading-none"
-            finalClassName="font-serif"
+           
           />
         </Stat>
         <Stat label="In flight">
@@ -63,14 +63,14 @@ export function VaultHeader({ view }: { view: VaultView }) {
             value={BigInt(view.config.total_reserved)}
             format={fmtUsdc}
             className="text-[1.875rem] leading-none"
-            finalClassName="font-serif"
+           
           />
         </Stat>
         <Stat label="Mode">
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-small",
-              lineage ? "border-p1-ring bg-p1-soft text-p1-fg" : "border-attacker-ring bg-attacker-soft text-attacker-fg",
+              lineage ? "border-p1-ring bg-p1-soft text-p1" : "border-attacker-ring bg-attacker-soft text-attacker",
             )}
           >
             {lineage ? <ShieldCheck className="size-3.5" aria-hidden="true" /> : <ShieldOff className="size-3.5" aria-hidden="true" />}
@@ -81,7 +81,7 @@ export function VaultHeader({ view }: { view: VaultView }) {
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-small",
-              view.config.frozen ? "border-p2-ring bg-p2-soft text-p2-fg" : "border-white/10 bg-white/[0.04]",
+              view.config.frozen ? "border-p2-ring bg-p2-soft text-p2" : "border-white/10 bg-white/[0.04]",
             )}
           >
             {view.config.frozen ? <Snowflake className="size-3.5" aria-hidden="true" /> : <Activity className="size-3.5" aria-hidden="true" />}

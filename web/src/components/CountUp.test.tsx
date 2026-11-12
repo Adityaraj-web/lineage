@@ -17,12 +17,13 @@ describe("CountUp", () => {
     expect(fmtUsdc(big)).toBe("1152921504606.846977 tUSDC");
   });
 
-  it("settles on the final value in the final face", () => {
+  it("settles on the final value in one face with tabular figures, never the serif", () => {
     setReducedMotion(true);
-    const { container } = renderUI(<CountUp value={49_000_000n} format={fmtUsdc} finalClassName="font-serif" />);
+    const { container } = renderUI(<CountUp value={49_000_000n} format={fmtUsdc} className="text-stat" />);
     const visible = container.querySelector("[data-countup='final']");
     expect(visible).toHaveTextContent("49 tUSDC");
-    expect(visible).toHaveClass("font-serif");
+    expect(container.firstElementChild).toHaveClass("num");
+    expect(container.querySelector(".font-serif, .font-mono")).toBeNull();
   });
 });
 

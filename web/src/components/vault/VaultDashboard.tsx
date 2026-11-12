@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Mark } from "@/lib/changes";
 import type { VaultView } from "@/lib/views";
@@ -27,10 +26,10 @@ export function VaultDashboard({
 
       <Section
         id="inbox"
-        eyebrow={view.inbox.kind === "lineage" ? `Approval inbox · ${held} waiting` : "Approval inbox"}
+        label={view.inbox.kind === "lineage" ? `Approval inbox · ${held} waiting` : "Approval inbox"}
         title={
           <>
-            Needs <em>you</em>
+            Needs you
           </>
         }
       >
@@ -39,10 +38,10 @@ export function VaultDashboard({
 
       <Section
         id="tasks"
-        eyebrow={`${view.tasks.length} task mandates, signed by the owner`}
+        label={`${view.tasks.length} task mandates, signed by the owner`}
         title={
           <>
-            Task <em>mandates</em>
+            Task mandates
           </>
         }
       >
@@ -55,18 +54,18 @@ export function VaultDashboard({
 
       <Section
         id="payments"
-        eyebrow={`${view.payments.length} payments · newest first`}
+        label={`${view.payments.length} payments · newest first`}
         title={
           <>
-            Every payment, with its <em>lineage</em>
+            Every payment, with its lineage
           </>
         }
         aside={
           <Link
             href="/compare"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-small text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:outline-none"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-small text-muted-foreground transition-colors hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
           >
-            Compare the two vaults <ArrowRight className="size-3.5" aria-hidden="true" />
+            Compare the two vaults
           </Link>
         }
       >

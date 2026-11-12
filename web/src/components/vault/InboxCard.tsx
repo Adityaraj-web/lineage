@@ -25,18 +25,18 @@ export function InboxCard({ item }: { item: InboxItem }) {
     <article
       ref={ref}
       aria-labelledby={headingId}
-      className="glass hairline-top relative overflow-hidden border-p3-ring/70 [--hairline:var(--color-p3)]"
+      className="surface relative overflow-hidden border-p3-ring/70"
     >
       <div className="grid md:grid-cols-[1.05fr_1fr]">
         <div className="flex flex-col gap-5 p-6 md:border-r md:border-white/[0.06] md:p-8">
           <div className="flex flex-wrap items-center gap-3">
-            <h3 id={headingId} className="eyebrow">
+            <h3 id={headingId} className="label">
               Payment #{p.id} · held for you · task #{p.task_id}
             </h3>
             <StatusPill status={p.status} />
           </div>
           <div>
-            <p className="font-serif text-h1 tabular-nums">{item.row.amount}</p>
+            <p className="num text-stat">{item.row.amount}</p>
             <p className="mt-2 flex flex-wrap items-baseline gap-2 text-muted-foreground">
               <span>to</span>
               {p.payee ? <AccountId id={p.payee} link className="text-[14px]" /> : <span>an unresolved payee</span>}
@@ -54,7 +54,7 @@ export function InboxCard({ item }: { item: InboxItem }) {
             play={play}
             delay={findingDelay(Math.max(0, dupIndex)) + 0.3}
           />
-          <p className="font-mono text-[11px] text-faint">
+          <p className="text-micro text-faint">
             requested {fmtDate(p.created_at_ms)} by <AccountId id={p.agent} className="text-[11px]" />
           </p>
         </div>
@@ -69,10 +69,10 @@ export function InboxCard({ item }: { item: InboxItem }) {
 export function Inbox({ inbox }: { inbox: InboxModel }) {
   if (inbox.kind === "limits-only") {
     return (
-      <div className="glass flex items-start gap-4 border-attacker-ring/50 p-6 md:p-8">
-        <ShieldOff className="mt-1 size-5 shrink-0 text-attacker-fg" aria-hidden="true" />
+      <div className="surface flex items-start gap-4 border-attacker-ring/50 p-6 md:p-8">
+        <ShieldOff className="mt-1 size-5 shrink-0 text-attacker" aria-hidden="true" />
         <div>
-          <p className="font-serif text-h2">No inbox. It never asks.</p>
+          <p className="font-serif text-title">No inbox. It never asks.</p>
           <p className="mt-2 max-w-prose text-muted-foreground">{inbox.message}</p>
         </div>
       </div>
@@ -80,10 +80,10 @@ export function Inbox({ inbox }: { inbox: InboxModel }) {
   }
   if (inbox.items.length === 0) {
     return (
-      <div className="glass flex items-start gap-4 p-6 md:p-8">
+      <div className="surface flex items-start gap-4 p-6 md:p-8">
         <InboxIcon className="mt-1 size-5 shrink-0 text-p1" aria-hidden="true" />
         <div>
-          <p className="font-serif text-h2">Nothing is waiting for you.</p>
+          <p className="font-serif text-title">Nothing is waiting for you.</p>
           <p className="mt-2 max-w-prose text-muted-foreground">
             Untrusted payees land here for your decision. Everything else was signed by you or resolved by a
             resolver you pinned.

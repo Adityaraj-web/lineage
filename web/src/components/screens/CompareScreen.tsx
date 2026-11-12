@@ -15,7 +15,7 @@ export function CompareScreen() {
   return (
     <>
       <CompareStage view={data} />
-      <p className="mt-6 text-center font-mono text-[11.5px] text-faint">
+      <p className="mt-6 text-center text-micro text-faint">
         demo run {data.runId} · task #{data.taskIds.vault ?? "?"} on the Lineage vault, #{data.taskIds.guarded ?? "?"} on
         the LimitsOnly vault · statuses are read live from testnet
       </p>

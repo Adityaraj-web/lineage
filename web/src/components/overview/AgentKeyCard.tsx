@@ -32,10 +32,10 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
   const vaultName = vault === "vault" ? "Lineage vault" : "LimitsOnly vault";
 
   return (
-    <article ref={ref} className="glass flex flex-col gap-5 p-6" aria-labelledby={`key-${vault}-title`}>
+    <article ref={ref} className="surface flex flex-col gap-5 p-6" aria-labelledby={`key-${vault}-title`}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 id={`key-${vault}-title`} className="eyebrow flex items-center gap-2">
+          <h3 id={`key-${vault}-title`} className="label flex items-center gap-2">
             <KeyRound className="size-3.5" aria-hidden="true" /> Agent key · {vaultName}
           </h3>
           <AccountId id={agentId} link className="mt-1.5 block text-[13px]" />
@@ -43,7 +43,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
         <span
           className={cn(
             "rounded-full border px-2.5 py-0.5 text-[12px]",
-            proof.ok ? "border-p1-ring bg-p1-soft text-p1-fg" : "border-attacker-ring bg-attacker-soft text-attacker-fg",
+            proof.ok ? "border-p1-ring bg-p1-soft text-p1" : "border-attacker-ring bg-attacker-soft text-attacker",
           )}
         >
           {proof.ok ? "1 key · function-call only" : "Key check failed"}
@@ -53,7 +53,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
       {proof.ok ? (
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <p className="eyebrow mb-2 text-p1-fg">Can</p>
+            <p className="label mb-2 text-p1">Can</p>
             <ul aria-label="The agent's key can" className="flex flex-col gap-2">
               <li className="flex items-start gap-2 rounded-xl border border-p1-ring/50 bg-p1-soft/50 px-3 py-2.5">
                 <Check className="mt-0.5 size-4 shrink-0 text-p1" aria-hidden="true" />
@@ -67,16 +67,16 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
                 </span>
               </li>
             </ul>
-            <p className="mt-2 font-mono text-[11px] text-faint">
+            <p className="mt-2 text-micro text-faint">
               {proof.allowance ? `${fmtNear(proof.allowance)} allowance left for gas` : "unlimited gas allowance"}
             </p>
           </div>
           <div>
-            <p className="eyebrow mb-2 text-attacker-fg">Cannot</p>
+            <p className="label mb-2 text-attacker">Cannot</p>
             <ul aria-label="The agent's key cannot" className="flex flex-col gap-1.5">
               {CANNOT.map((c, i) => (
                 <li key={c.method} className="flex items-start gap-2 px-1 py-1 text-small">
-                  <X className="mt-0.5 size-4 shrink-0 text-attacker-fg" aria-hidden="true" />
+                  <X className="mt-0.5 size-4 shrink-0 text-attacker" aria-hidden="true" />
                   <span className="min-w-0">
                     <span className="relative inline-block">
                       <del className="font-mono text-muted-foreground decoration-attacker/70">{c.method}</del>
@@ -96,7 +96,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
           </div>
         </div>
       ) : (
-        <ul className="flex flex-col gap-1.5 text-small text-attacker-fg" aria-label="Key problems">
+        <ul className="flex flex-col gap-1.5 text-small text-attacker" aria-label="Key problems">
           {proof.problems.map((p) => (
             <li key={p}>{p}</li>
           ))}

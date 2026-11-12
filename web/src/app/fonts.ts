@@ -1,24 +1,23 @@
 import localFont from "next/font/local";
 
-export const geistSans = localFont({
-  src: "../fonts/Geist-Variable.woff2",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+export const jakarta = localFont({
+  src: "../fonts/PlusJakartaSans-Variable.woff2",
+  variable: "--font-jakarta",
+  weight: "200 800",
   display: "swap",
 });
 
-export const geistMono = localFont({
-  src: "../fonts/GeistMono-Variable.woff2",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+export const jetbrains = localFont({
+  src: "../fonts/JetBrainsMono-Variable.woff2",
+  variable: "--font-jetbrains",
+  weight: "100 800",
   display: "swap",
 });
 
 export const instrumentSerif = localFont({
-  src: [
-    { path: "../fonts/InstrumentSerif-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/InstrumentSerif-Italic.woff2", weight: "400", style: "italic" },
-  ],
+  src: "../fonts/InstrumentSerif-Regular.woff2",
+  weight: "400",
+  style: "normal",
   variable: "--font-instrument-serif",
   display: "swap",
 });

@@ -37,7 +37,7 @@ const P3_PATH = `M ${SRC_R} ${L3} L ${GATE_X - 16} ${L3}`;
 
 const END = { p1: { x: IN_VAULT, y: L1 }, p2: { x: IN_VAULT, y: L2 }, p3: { x: GATE_X - 16, y: L3 } };
 
-const C = { p1: "var(--color-p1)", p2: "var(--color-p2)", p3: "var(--color-p3)", fg: "#ededef", muted: "#a1a1aa" };
+const C = { p1: "var(--color-p1)", p2: "var(--color-p2)", p3: "var(--color-p3)", fg: "#eceef3", muted: "#9aa3b5" };
 
 // One 9 s loop; every value below is [seconds, value] keyframes on the same clock.
 const LOOP = 9;
@@ -100,7 +100,7 @@ function LaneCode({ y, code, color }: { y: number; code: string; color: string }
   return (
     <g>
       <rect x={SRC_R + 14} y={y - 22} width={26} height={15} rx={7.5} fill={color} />
-      <text x={SRC_R + 27} y={y - 11} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#07080a" style={{ fontFamily: "var(--font-mono)" }}>
+      <text x={SRC_R + 27} y={y - 11} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#0a0d14" style={{ fontFamily: "var(--font-mono)" }}>
         {code}
       </text>
     </g>

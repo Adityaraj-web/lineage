@@ -16,15 +16,13 @@ export function countQuantum(a: bigint, b: bigint, max = 1_000_000n): bigint {
   return q;
 }
 
-// Counts from the previous value (0 on mount) to `value`. While counting, digits render in Geist
-// Mono (fixed width); at rest the value renders in `finalClassName` (e.g. the display serif, which
-// has no tabular figures). Hidden sizers in the same grid cell hold the widest of both, so the
-// layout never shifts. Screen readers get only the final value.
+// Counts from the previous value (0 on mount) to `value`, in tabular figures, so the width only
+// changes with the digit count. A hidden sizer holds the wider of the two ends: no layout shift.
+// Screen readers get only the final value.
 export function CountUp({
   value,
   format,
   className,
-  finalClassName,
   align = "start",
   duration,
   delay = 0,
@@ -32,7 +30,6 @@ export function CountUp({
   value: bigint;
   format: (v: bigint) => string;
   className?: string;
-  finalClassName?: string;
   align?: "start" | "end" | "center";
   duration?: number;
   delay?: number;
@@ -76,26 +73,17 @@ export function CountUp({
   return (
     <span
       className={cn(
-        "inline-grid whitespace-nowrap tabular-nums",
+        "num inline-grid whitespace-nowrap",
         align === "end" ? "justify-items-end" : align === "center" ? "justify-items-center" : "justify-items-start",
         className,
       )}
     >
-      <span aria-hidden="true" className={cn(cell, "invisible", finalClassName)}>
-        {final}
-      </span>
-      <span aria-hidden="true" className={cn(cell, "invisible font-mono")}>
+      <span aria-hidden="true" className={cn(cell, "invisible")}>
         {format(from > value ? from : value)}
       </span>
-      {animating ? (
-        <span aria-hidden="true" data-countup="counting" className={cn(cell, "font-mono")}>
-          {format(shown)}
-        </span>
-      ) : (
-        <span aria-hidden="true" data-countup="final" className={cn(cell, finalClassName)}>
-          {final}
-        </span>
-      )}
+      <span aria-hidden="true" data-countup={animating ? "counting" : "final"} className={cell}>
+        {animating ? format(shown) : final}
+      </span>
       <span className="sr-only">{final}</span>
     </span>
   );

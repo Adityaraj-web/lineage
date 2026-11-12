@@ -32,9 +32,9 @@ export function Nav() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3 md:h-16 md:flex-nowrap md:py-0 md:px-10">
         <Link href="/" className="flex items-center gap-2 rounded-md outline-none focus-visible:ring-2">
           <LineageMark className="size-5" />
-          <span className="font-serif text-[1.375rem] leading-none tracking-[-0.01em]">Lineage</span>
+          <span className="text-[1.125rem] leading-none font-semibold">Lineage</span>
         </Link>
-        <span className="rounded-full border border-p3-ring/60 bg-p3-soft px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] text-p3-fg uppercase">
+        <span className="inline-flex items-center gap-1.5 text-micro text-muted-foreground">
           testnet
         </span>
         <div className="ml-auto md:order-last">
@@ -51,7 +51,7 @@ export function Nav() {
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "block rounded-md px-2.5 py-2 text-small sm:px-3 whitespace-nowrap transition-colors outline-none focus-visible:ring-2",
-                      active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                      active ? "text-foreground" : "text-muted-foreground hover-fine:text-foreground",
                     )}
                   >
                     {"short" in l ? (

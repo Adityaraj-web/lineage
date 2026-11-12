@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/live/Nav";
 import { Providers } from "@/components/Providers";
-import { geistMono, geistSans, instrumentSerif } from "./fonts";
+import { instrumentSerif, jakarta, jetbrains } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,10 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+      className={`dark ${jakarta.variable} ${jetbrains.variable} ${instrumentSerif.variable}`}
     >
       <body>
-        <div className="grain" aria-hidden="true" />
         <Providers>
           <Nav />
           <main className="mx-auto w-full max-w-6xl px-5 pb-24 md:px-10">{children}</main>

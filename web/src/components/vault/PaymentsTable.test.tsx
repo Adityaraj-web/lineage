@@ -29,9 +29,9 @@ describe("PaymentsTable", () => {
     expect(view.tasks.some((t) => t.task.id === fixtureTask0().id)).toBe(true);
     renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);
     expect(rowIds()).toEqual(["5", "4", "3", "1"]);
-    act(() => screen.getByRole("radio", { name: /#0/ }).click());
+    act(() => screen.getByRole("radio", { name: /^Task 0/ }).click());
     expect(rowIds()).toEqual(["1"]);
-    act(() => screen.getByRole("radio", { name: /#2/ }).click());
+    act(() => screen.getByRole("radio", { name: /^Task 2/ }).click());
     expect(rowIds()).toEqual(["5", "4", "3"]);
     act(() => screen.getByRole("radio", { name: /All/ }).click());
     expect(rowIds()).toHaveLength(4);
