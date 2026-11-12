@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Nav } from "@/components/live/Nav";
 import { Providers } from "@/components/Providers";
 import { geistMono, geistSans, instrumentSerif } from "./fonts";
 import "./globals.css";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <div className="grain" aria-hidden="true" />
         <Providers>
+          <Nav />
           <main className="mx-auto w-full max-w-6xl px-5 pb-24 md:px-10">{children}</main>
         </Providers>
       </body>
