@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import {
   Account,
@@ -25,6 +24,7 @@ import {
   type VaultKey,
 } from "./lib/deployment.js";
 import { info, skip, step } from "./lib/log.js";
+import { RootKeyError, loadRootKey } from "./lib/root-key.js";
 import {
   accountExists,
   errorMessage,
@@ -78,17 +78,6 @@ async function send(
   const hash = txHash(res);
   info(explorerTx(hash));
   return { hash, result: getTransactionLastResult(res) };
-}
-
-function loadRootKey(root: string): KeyPairString {
-  if (process.env.LINEAGE_ROOT_KEY) return process.env.LINEAGE_ROOT_KEY as KeyPairString;
-  const file = path.join(os.homedir(), ".near-credentials", "testnet", `${root}.json`);
-  if (!fs.existsSync(file)) {
-    throw new DeployError(`no key for ${root}: set LINEAGE_ROOT_KEY or create ${file}`);
-  }
-  const key = JSON.parse(fs.readFileSync(file, "utf8")).private_key;
-  if (!key) throw new DeployError(`${file} has no private_key field`);
-  return key as KeyPairString;
 }
 
 async function main(): Promise<void> {
@@ -427,6 +416,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((e) => {
-  console.error(`\n✘ ${e instanceof DeployError ? e.message : errorMessage(e)}`);
+  console.error(`\n✘ ${e instanceof DeployError || e instanceof RootKeyError ? e.message : errorMessage(e)}`);
   process.exit(1);
 });
