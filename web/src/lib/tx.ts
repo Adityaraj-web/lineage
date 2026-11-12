@@ -5,8 +5,9 @@ export interface TxResult {
 }
 
 const MAX_MESSAGE = 160;
+export const CANCELLED = "Cancelled in the wallet";
 const NO_RESULT = "The wallet returned no result. The refresh shows what happened.";
-const CANCELLED = /user (rejected|cancel|closed|denied)|rejected by (the )?user|cancel+ed|(window|popup|modal) (was )?closed/i;
+const CANCELLED_RE = /user (rejected|cancel|closed|denied)|rejected by (the )?user|cancel+ed|(window|popup|modal) (was )?closed/i;
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -56,6 +57,6 @@ export function parseOutcome(raw: unknown): TxResult {
 export function walletErrorMessage(e: unknown): string {
   const msg = typeof e === "string" ? e : isObj(e) ? str(e.message) : null;
   if (!msg) return "Wallet error";
-  if (CANCELLED.test(msg)) return "Cancelled in the wallet";
+  if (CANCELLED_RE.test(msg)) return CANCELLED;
   return cut(msg);
 }

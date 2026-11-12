@@ -1,11 +1,16 @@
-import { screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { LIMITS_ONLY_INBOX } from "@/lib/views";
-import { AGENT_G, ATTACKER, DEMO_RUN_SNAPSHOT, NOW, p3Translation, p4Alice, payment } from "@/lib/test-fixtures";
+import { freezeTx, unfreezeTx } from "@/lib/actions";
+import { LIMITS_ONLY_INBOX, type VaultView } from "@/lib/views";
+import type { Role } from "@/lib/wallet";
+import { AGENT_G, ALICE, ATTACKER, DEMO_RUN_SNAPSHOT, GUARDED, NOW, ROOT, p3Translation, p4Alice, payment } from "@/lib/test-fixtures";
+import { WithOwnerAction } from "@/test/owner";
+import { FakeWallet } from "../wallet/test-wallet";
 import { renderUI } from "@/test/render";
 import { demoPayments, vaultView } from "@/test/views";
 import { VaultDashboard } from "./VaultDashboard";
 
+const CONTROLS = /approve|reject|freeze|unfreeze|withdraw|create/i;
 const render = (view = vaultView("vault")) => renderUI(<VaultDashboard view={view} demoRun={DEMO_RUN_SNAPSHOT} now={NOW} />);
 
 // Task 1 is an earlier demo run on the LimitsOnly vault that also paid the attacker 49.
@@ -80,12 +85,69 @@ describe("VaultDashboard", () => {
     }
   });
 
-  it("has no owner-action controls on either vault (F07)", () => {
-    for (const key of ["vault", "guarded"] as const) {
-      const { unmount } = render(vaultView(key));
-      expect(screen.queryByRole("button", { name: /approve|reject|freeze|unfreeze|withdraw|create/i })).toBeNull();
+  describe("controls only for the owner", () => {
+    const asRole = (view: VaultView, role: Role, accountId: string | null, fake = new FakeWallet({ account: accountId })) =>
+      renderUI(
+        <WithOwnerAction fake={fake}>
+          {(action) => <VaultDashboard view={view} demoRun={DEMO_RUN_SNAPSHOT} now={NOW} wallet={{ role, accountId, action }} />}
+        </WithOwnerAction>,
+      );
+
+    it("disconnected: no controls on either vault, and no Connected line", () => {
+      for (const key of ["vault", "guarded"] as const) {
+        const { unmount } = asRole(vaultView(key), "disconnected", null);
+        expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        expect(screen.queryByText(/Connected as/)).toBeNull();
+        unmount();
+      }
+    });
+
+    it("no wallet prop at all: exactly the F06 page", () => {
+      for (const key of ["vault", "guarded"] as const) {
+        const { unmount } = render(vaultView(key));
+        expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        unmount();
+      }
+    });
+
+    it("viewer: no controls, one line naming the connected account and the owner", () => {
+      for (const key of ["vault", "guarded"] as const) {
+        const { unmount } = asRole(vaultView(key), "viewer", ALICE);
+        expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+        const line = screen.getByText(/Connected as/).closest("p")!;
+        expect(line).toHaveTextContent(`Connected as ${ALICE}. Only the owner ${ROOT} can act on this vault.`);
+        unmount();
+      }
+    });
+
+    it("owner on the Lineage vault: Reject on the inbox card and Freeze in the header", () => {
+      asRole(vaultView("vault"), "owner", ROOT);
+      expect(within(screen.getByRole("article", { name: /Payment #5/ })).getByRole("button", { name: "Reject" })).toBeInTheDocument();
+      expect(within(screen.getByRole("banner", { name: "Lineage vault" })).getByRole("button", { name: "Freeze" })).toBeInTheDocument();
+      expect(screen.queryByText(/Connected as/)).toBeNull();
+    });
+
+    it("owner on the LimitsOnly vault: Freeze only (it has no inbox)", () => {
+      asRole(vaultView("guarded"), "owner", ROOT);
+      expect(screen.getByRole("button", { name: "Freeze" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /approve|reject/i })).toBeNull();
+    });
+
+    it("Freeze sends freezeTx (no deposit); a frozen vault offers Unfreeze (1 yocto)", async () => {
+      const fake = new FakeWallet({ account: ROOT });
+      const { unmount } = asRole(vaultView("guarded"), "owner", ROOT, fake);
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Freeze" })));
+      expect(fake.sent).toStrictEqual([freezeTx(GUARDED)]);
       unmount();
-    }
+
+      const frozen = { ...vaultView("guarded") };
+      frozen.config = { ...frozen.config, frozen: true };
+      const fake2 = new FakeWallet({ account: ROOT });
+      asRole(frozen, "owner", ROOT, fake2);
+      expect(screen.queryByRole("button", { name: "Freeze" })).toBeNull();
+      await act(async () => fireEvent.click(screen.getByRole("button", { name: "Unfreeze" })));
+      expect(fake2.sent).toStrictEqual([unfreezeTx(GUARDED)]);
+    });
   });
 });
 

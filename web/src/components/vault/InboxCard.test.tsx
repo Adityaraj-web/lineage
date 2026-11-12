@@ -1,10 +1,16 @@
-import { screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { p3Translation, p4Alice, p5Poisoned } from "@/lib/test-fixtures";
+import { rejectTx } from "@/lib/actions";
+import { ROOT, VAULT, p3Translation, p4Alice, p5Poisoned } from "@/lib/test-fixtures";
 import { LIMITS_ONLY_INBOX } from "@/lib/views";
 import { renderUI } from "@/test/render";
 import { vaultView } from "@/test/views";
+import { WithOwnerAction } from "@/test/owner";
+import { FakeWallet } from "../wallet/test-wallet";
 import { Inbox } from "./InboxCard";
+
+const CONTROLS = /approve|reject|freeze|withdraw/i;
+const HIGH_REASON = "Payee not in the signed mandate; payout change not confirmed with the payee";
 
 describe("Inbox", () => {
   it("shows the held P3 with its risk card and the earlier A-102 payment to Alice", () => {
@@ -38,8 +44,30 @@ describe("Inbox", () => {
     expect(screen.getByText(/Nothing is waiting for you/)).toBeInTheDocument();
   });
 
-  it("offers no approve or reject controls (F07)", () => {
-    renderUI(<Inbox inbox={vaultView("vault").inbox} />);
-    expect(screen.queryByRole("button", { name: /approve|reject|freeze|withdraw/i })).toBeNull();
+  describe("controls only for the owner", () => {
+    it("without owner controls: no approve or reject buttons", () => {
+      renderUI(<Inbox inbox={vaultView("vault").inbox} />);
+      expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+    });
+
+    it("owner: Reject on the held card sends rejectTx with the high-risk reason", async () => {
+      const fake = new FakeWallet({ account: ROOT });
+      renderUI(
+        <WithOwnerAction fake={fake}>{(action) => <Inbox inbox={vaultView("vault").inbox} owner={{ vault: VAULT, action }} />}</WithOwnerAction>,
+      );
+      const card = screen.getByRole("article", { name: /Payment #5/ });
+      await act(async () => fireEvent.click(within(card).getByRole("button", { name: "Reject" })));
+      expect(fake.sent).toStrictEqual([rejectTx(VAULT, 5, HIGH_REASON)]);
+      expect(within(card).getByRole("status")).toHaveTextContent("Sent");
+    });
+
+    it("owner: no Approve button yet (it needs the Phase 3 confirm)", () => {
+      renderUI(
+        <WithOwnerAction fake={new FakeWallet({ account: ROOT })}>
+          {(action) => <Inbox inbox={vaultView("vault").inbox} owner={{ vault: VAULT, action }} />}
+        </WithOwnerAction>,
+      );
+      expect(screen.queryByRole("button", { name: /approve/i })).toBeNull();
+    });
   });
 });

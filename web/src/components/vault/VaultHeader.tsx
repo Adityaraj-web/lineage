@@ -6,6 +6,8 @@ import { AccountId } from "../AccountId";
 import { CountUp } from "../CountUp";
 import { shortHash } from "../Seal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import type { OwnerControls } from "../wallet/useOwnerAction";
+import { FreezeSwitch } from "./FreezeSwitch";
 import { StoryStrip } from "./StoryStrip";
 
 const COPY = {
@@ -30,7 +32,17 @@ function Stat({ label, value, tone }: { label: string; value: bigint; tone?: str
   );
 }
 
-export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | null }) {
+export function VaultHeader({
+  view,
+  strip,
+  owner,
+  viewer,
+}: {
+  view: VaultView;
+  strip: Strip | null;
+  owner?: OwnerControls;
+  viewer?: string | null;
+}) {
   const c = COPY[view.key];
   return (
     <header aria-label={c.title} className="flex flex-col gap-10 pt-14 md:pt-20">
@@ -76,6 +88,13 @@ export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | n
         </span>
         <AccountId id={view.vaultId} link className="text-[13px]" />
       </p>
+      {owner && <FreezeSwitch frozen={view.config.frozen} owner={owner} />}
+      {viewer && (
+        <p className="-mt-6 text-small text-muted-foreground">
+          Connected as <AccountId id={viewer} className="text-[13px]" />. Only the owner{" "}
+          <AccountId id={view.config.owner} className="text-[13px]" /> can act on this vault.
+        </p>
+      )}
     </header>
   );
 }

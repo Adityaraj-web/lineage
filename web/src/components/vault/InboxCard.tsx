@@ -10,9 +10,11 @@ import { EASE_OUT } from "../motion";
 import { ProvenanceBadge } from "../ProvenanceBadge";
 import { StatusPill } from "../StatusPill";
 import { ReferenceLink } from "./ReferenceLink";
+import type { OwnerControls } from "../wallet/useOwnerAction";
+import { OwnerActions } from "./OwnerActions";
 import { findingDelay, RiskCard } from "./RiskCard";
 
-export function InboxCard({ item }: { item: InboxItem }) {
+export function InboxCard({ item, owner }: { item: InboxItem; owner?: OwnerControls }) {
   const ref = useRef<HTMLElement>(null);
   const play = useInView(ref, { once: true, amount: 0.3 });
   const p = item.row.payment;
@@ -54,13 +56,14 @@ export function InboxCard({ item }: { item: InboxItem }) {
         </div>
         <div className="bg-white/[0.012] p-6 md:p-8">
           <RiskCard risk={item.risk} play={play} />
+          {owner && <OwnerActions item={item} owner={owner} />}
         </div>
       </div>
     </Glass>
   );
 }
 
-export function Inbox({ inbox }: { inbox: InboxModel }) {
+export function Inbox({ inbox, owner }: { inbox: InboxModel; owner?: OwnerControls }) {
   if (inbox.kind === "limits-only") {
     return (
       <Glass className="flex items-start gap-4 p-6 [--glass-edge:rgb(251_113_133/0.45)] md:p-8">
@@ -97,7 +100,7 @@ export function Inbox({ inbox }: { inbox: InboxModel }) {
             exit={{ opacity: 0, transform: "translateY(-8px)" }}
             transition={{ duration: 0.22, ease: EASE_OUT }}
           >
-            <InboxCard item={item} />
+            <InboxCard item={item} owner={owner} />
           </motion.div>
         ))}
       </AnimatePresence>

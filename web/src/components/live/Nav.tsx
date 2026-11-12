@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Popover } from "radix-ui";
 import { useState } from "react";
 import { cn } from "@/components/cn";
+import { ConnectButton } from "../wallet/ConnectButton";
 
 const LINKS = [
   { href: "/", label: "Overview" },
@@ -120,8 +121,11 @@ export function Nav() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center lg:hidden">
-          <MobileMenu path={path} />
+        <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1 sm:gap-2 lg:ml-0">
+          <ConnectButton />
+          <div className="lg:hidden">
+            <MobileMenu path={path} />
+          </div>
         </div>
       </div>
     </header>

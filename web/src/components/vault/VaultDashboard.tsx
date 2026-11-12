@@ -6,8 +6,10 @@ import type { Mark } from "@/lib/changes";
 import type { DemoRun } from "@/lib/config";
 import { attackerPayments, splitTasks, storyStrip } from "@/lib/story";
 import type { VaultView } from "@/lib/views";
+import type { Role } from "@/lib/wallet";
 import { Section } from "../live/ScreenState";
 import { NeedsYou, Shared } from "../transitions";
+import type { OwnerAction, OwnerControls } from "../wallet/useOwnerAction";
 import { AttackerPaid } from "./AttackerPaid";
 import { Inbox } from "./InboxCard";
 import { PaymentsTable } from "./PaymentsTable";
@@ -19,18 +21,23 @@ export function VaultDashboard({
   demoRun,
   marks,
   now,
+  wallet,
 }: {
   view: VaultView;
   demoRun: DemoRun;
   marks?: ReadonlyMap<number, Mark>;
   now: number;
+  wallet?: { role: Role; accountId: string | null; action: OwnerAction };
 }) {
+  // The single gate: controls exist only when the connected account is this vault's owner.
+  const owner: OwnerControls | undefined = wallet?.role === "owner" ? { vault: view.vaultId, action: wallet.action } : undefined;
+  const viewer = wallet?.role === "viewer" ? wallet.accountId : null;
   const strip = storyStrip(view, demoRun);
   const { latest, earlier } = splitTasks(view);
   const held = view.inbox.kind === "lineage" ? view.inbox.items.length : 0;
   return (
     <div className="flex flex-col gap-24">
-      <VaultHeader view={view} strip={strip} />
+      <VaultHeader view={view} strip={strip} owner={owner} viewer={viewer} />
 
       {view.inbox.kind === "lineage" ? (
         <Section
@@ -43,7 +50,7 @@ export function VaultDashboard({
             </Shared>
           }
         >
-          <Inbox inbox={view.inbox} />
+          <Inbox inbox={view.inbox} owner={owner} />
         </Section>
       ) : (
         <AttackerPaid paid={attackerPayments(view, demoRun.attacker.account)} attacker={demoRun.attacker.account} note={view.inbox.message} />

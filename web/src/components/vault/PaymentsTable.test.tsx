@@ -1,9 +1,14 @@
 import { act, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { fixtureTask0, payment, p5Poisoned } from "@/lib/test-fixtures";
+import { ALICE, DEMO_RUN_SNAPSHOT, NOW, ROOT, fixtureTask0, payment, p5Poisoned } from "@/lib/test-fixtures";
 import { renderUI } from "@/test/render";
 import { demoPayments, vaultView } from "@/test/views";
+import { WithOwnerAction } from "@/test/owner";
+import { FakeWallet } from "../wallet/test-wallet";
 import { PaymentsTable } from "./PaymentsTable";
+import { VaultDashboard } from "./VaultDashboard";
+
+const CONTROLS = /approve|reject|freeze|unfreeze|withdraw/i;
 
 const rowIds = () =>
   screen
@@ -64,9 +69,20 @@ describe("PaymentsTable", () => {
     expect(container.querySelector("[data-paid-without-asking]")).toBeNull();
   });
 
-  it("has no owner-action controls (those are F07)", () => {
+  it("never has owner controls, in any role (they live on the inbox card)", () => {
     const view = vaultView("vault");
-    renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);
-    expect(screen.queryByRole("button", { name: /approve|reject|freeze|withdraw/i })).toBeNull();
+    const { unmount } = renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);
+    expect(screen.queryByRole("button", { name: CONTROLS })).toBeNull();
+    unmount();
+    for (const [role, accountId] of [["disconnected", null], ["viewer", ALICE], ["owner", ROOT]] as const) {
+      const { unmount: done } = renderUI(
+        <WithOwnerAction fake={new FakeWallet({ account: accountId })}>
+          {(action) => <VaultDashboard view={view} demoRun={DEMO_RUN_SNAPSHOT} now={NOW} wallet={{ role, accountId, action }} />}
+        </WithOwnerAction>,
+      );
+      const table = screen.getByRole("table", { name: "Payments" });
+      expect(within(table).queryByRole("button", { name: CONTROLS })).toBeNull();
+      done();
+    }
   });
 });
