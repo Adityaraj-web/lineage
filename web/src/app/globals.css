@@ -1,0 +1,505 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-heading: var(--font-serif);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-faint: var(--faint);
+
+  --color-ink: var(--ink);
+  --color-raised: var(--raised);
+  --color-raised-2: var(--raised-2);
+  --color-hairline: var(--hairline);
+
+  /* Thread colours. Each passes 7:1 on ink, so text uses the colour itself. -soft: wash, -ring: border/glow. */
+  --color-p1: #34d399;
+  --color-p1-soft: rgb(52 211 153 / 0.08);
+  --color-p1-ring: rgb(52 211 153 / 0.35);
+  --color-p2: #38bdf8;
+  --color-p2-soft: rgb(56 189 248 / 0.08);
+  --color-p2-ring: rgb(56 189 248 / 0.35);
+  --color-p3: #fbbf24;
+  --color-p3-soft: rgb(251 191 36 / 0.08);
+  --color-p3-ring: rgb(251 191 36 / 0.35);
+  --color-attacker: #fb7185;
+  --color-attacker-soft: rgb(251 113 133 / 0.08);
+  --color-attacker-ring: rgb(251 113 133 / 0.35);
+  --color-neutral: #a8b0c0;
+  --color-neutral-soft: rgb(168 176 192 / 0.08);
+  --color-neutral-ring: rgb(168 176 192 / 0.28);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  --radius-stage: 1.75rem;
+
+  /* Serif only at 36px and up, never for numbers. Numbers: sans with tabular figures (.num). */
+  --text-hero: clamp(3rem, 7.2vw, 6.5rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: 0.012em;
+  --text-display: clamp(2.5rem, 4.4vw, 4rem);
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: 0.015em;
+  --text-title: 2.25rem;
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: 0.01em;
+  --text-stat: clamp(2.75rem, 5vw, 4.5rem);
+  --text-stat--line-height: 1;
+  --text-stat--letter-spacing: -0.02em;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.5;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-micro: 0.8125rem;
+  --text-micro--line-height: 1.45;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --animate-breathe: breathe 2.4s ease-in-out infinite;
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.6);
+    }
+  }
+}
+
+:root {
+  --radius: 0.75rem;
+  --ink: #0a0d14;
+  --raised: #111622;
+  --raised-2: #171d2b;
+  --hairline: rgb(255 255 255 / 0.07);
+  --background: var(--ink);
+  --foreground: #eceef3;
+  --card: var(--raised);
+  --card-foreground: #eceef3;
+  --popover: var(--raised-2);
+  --popover-foreground: #eceef3;
+  --primary: #eceef3;
+  --primary-foreground: var(--ink);
+  --secondary: rgb(255 255 255 / 0.06);
+  --secondary-foreground: #eceef3;
+  --muted: rgb(255 255 255 / 0.05);
+  --muted-foreground: #a8b0c0;
+  --faint: #98a1b3;
+  --accent: rgb(255 255 255 / 0.07);
+  --accent-foreground: #eceef3;
+  --destructive: #fb7185;
+  --border: var(--hairline);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: rgb(236 238 243 / 0.6);
+  color-scheme: dark;
+}
+
+/* Hover only where a real pointer hovers. */
+/* A pinned stage on a short screen: tighter spacing so the whole stage fits under the nav. */
+@custom-variant short (@media (min-width: 768px) and (max-height: 820px));
+
+@custom-variant hover-fine {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    background: var(--background);
+  }
+  body {
+    @apply min-h-dvh text-body text-foreground antialiased;
+    background: var(--background);
+    /* Plus Jakarta's tabular "1" has a foot; the proportional one reads as "l". */
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgb(56 189 248 / 0.3);
+  }
+}
+
+@layer components {
+  /* Sentence-case label: replaces the tracked all-caps eyebrow. */
+  .label {
+    @apply text-small font-medium text-muted-foreground;
+  }
+  /* Coloured chips on glass: a dark base under the tint keeps small coloured text at 4.5:1. */
+  .chip-ink {
+    background-image: linear-gradient(rgb(7 10 18 / 0.5), rgb(7 10 18 / 0.5));
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  .press {
+    transition: transform 140ms var(--ease-out);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Glass (components/Glass.tsx). A thin ink underlay keeps the gradient vivid; the gradient border
+   is a masked ::before; glare sits under the content. Secondary text on glass is a lighter muted,
+   and faint text is never used on it. */
+@layer components {
+  :root {
+    --glass-blur: 24px;
+    --hue: 59 68 168;
+  }
+  :root[data-tier="low"] {
+    --glass-blur: 12px;
+  }
+  :root[data-mood="lineage"] {
+    --hue: 20 140 120;
+  }
+  :root[data-mood="limits"] {
+    --hue: 150 50 90;
+  }
+  :root[data-mood="compare"] {
+    --hue: 40 110 140;
+  }
+  .glass {
+    --muted-foreground: #b8c0cf;
+    --faint: #b8c0cf;
+    --glass-fill: 0.06;
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--radius);
+    background:
+      linear-gradient(rgb(255 255 255 / var(--glass-fill)), rgb(255 255 255 / var(--glass-fill))),
+      rgb(7 10 18 / var(--glass-ink, 0.2));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 20px 60px -30px rgb(var(--hue) / 0.4);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--glass-edge, rgb(255 255 255 / 0.22)), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.06));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  .glass-stage {
+    --glass-fill: 0.07;
+    border-radius: var(--radius-stage);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 30px 80px -30px rgb(var(--hue) / 0.4);
+  }
+  .glass-chip {
+    --glass-fill: 0.07;
+    border-radius: 9999px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  }
+  /* Glass inside glass: the outer panel already blurred the backdrop. */
+  .glass .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    --glass-fill: 0.04;
+    --glass-ink: 0.12;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+  .glass-glare-clip {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .glass-glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03) 60%, transparent);
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out);
+    will-change: transform;
+  }
+}
+
+/* Page transitions (React <ViewTransition>, see components/transitions.tsx). */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-old(.page-out) {
+  animation: 120ms var(--ease-out) both vt-fade-out;
+}
+::view-transition-new(.page-in) {
+  animation: 220ms var(--ease-out) 60ms both vt-rise-in;
+}
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-in-out);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: vt-via-blur;
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes vt-via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* Backdrop (components/backdrop): WebGL mesh gradient, a CSS gradient in the same colours under it
+   (shown when WebGL is off), static grain and the cursor light. The glass above blurs all of it. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: #070a12;
+}
+.backdrop-gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+.backdrop[data-gl="on"] .backdrop-gl {
+  opacity: 1;
+}
+.backdrop-css {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 800ms var(--ease-in-out);
+}
+.backdrop[data-gl="off"][data-mood="overview"] .backdrop-css-overview,
+.backdrop[data-gl="off"][data-mood="lineage"] .backdrop-css-lineage,
+.backdrop[data-gl="off"][data-mood="limits"] .backdrop-css-limits,
+.backdrop[data-gl="off"][data-mood="compare"] .backdrop-css-compare {
+  opacity: 1;
+}
+.backdrop-css-overview {
+  background:
+    radial-gradient(45% 55% at 8% 12%, #1a1f4d, transparent 70%),
+    radial-gradient(40% 50% at 92% 30%, #0e3b43, transparent 70%),
+    radial-gradient(45% 45% at 62% 95%, #1a1f4d, transparent 70%),
+    radial-gradient(25% 25% at 12% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-lineage {
+  background:
+    radial-gradient(45% 55% at 6% 10%, #0e3b43, transparent 70%),
+    radial-gradient(38% 45% at 94% 28%, #0d3f32, transparent 70%),
+    radial-gradient(45% 45% at 60% 98%, #0e3b43, transparent 70%),
+    radial-gradient(25% 25% at 90% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-limits {
+  background:
+    radial-gradient(45% 55% at 6% 10%, #1a1f4d, transparent 70%),
+    radial-gradient(38% 45% at 94% 30%, #4a1830, transparent 70%),
+    radial-gradient(45% 45% at 60% 98%, #1a1f4d, transparent 70%),
+    radial-gradient(25% 25% at 88% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-compare {
+  background:
+    radial-gradient(38% 60% at 4% 30%, #0e3b43, transparent 70%),
+    radial-gradient(38% 60% at 96% 30%, #4a1830, transparent 70%),
+    radial-gradient(30% 30% at 50% 105%, #3a2a0c, transparent 70%);
+}
+.backdrop-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.025) 55%, transparent);
+  opacity: 0;
+  will-change: transform;
+}
+.backdrop-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Big numbers: sized against their container so they never overflow it. Put .stat inside a
+   .stat-box that sets --stat-chars (the longest text it will show). The size is the box width over
+   the text's width in em (tabular figures run about 0.6em a character), clamped to the type scale.
+   In a flex row, a box's basis is its text at --stat-min, so two stats wrap before either shrinks
+   below the minimum. */
+.stat-box {
+  container-type: inline-size;
+  min-width: 0;
+  flex-basis: calc(var(--stat-chars, 8) * 0.6 * var(--stat-min, 2.25rem));
+}
+.stat {
+  font-size: clamp(var(--stat-min, 2.25rem), calc(100cqi / (var(--stat-chars, 8) * 0.6)), var(--stat-max, 4.5rem));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* The P3 "needs you" glow: an opacity pulse on a pre-drawn shadow, never a box-shadow animation. */
+.glow-amber {
+  position: relative;
+  isolation: isolate;
+}
+.glow-amber::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 0 18px 2px rgb(251 191 36 / 0.32);
+  opacity: 0.3;
+  pointer-events: none;
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-amber::after {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Lenis (smooth wheel). Its stopped-state overflow:clip is left out on purpose: it would drop the
+   scrollbar and shift the page while Replay runs. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Doorways: the background tint shifts on hover or keyboard focus. */
+.door-tint {
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .door:hover .door-tint {
+    opacity: 1;
+  }
+}
+.door:focus-visible .door-tint {
+  opacity: 1;
+}
+
+.scroll-cue {
+  animation: scroll-cue 1.8s var(--ease-in-out) infinite;
+}
+@keyframes scroll-cue {
+  50% {
+    transform: translateY(3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
+    animation: none;
+  }
+}
