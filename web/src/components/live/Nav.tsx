@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { LiveIndicator } from "./LiveIndicator";
 
 const LINKS = [

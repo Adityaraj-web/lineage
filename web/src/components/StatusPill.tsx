@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { statusLabel } from "@/lib/provenance";
 import type { PaymentStatus } from "@/shared/vault-types";
 import { DUR, EASE_OUT } from "./motion";

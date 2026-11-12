@@ -1,5 +1,5 @@
 import { Snowflake, ShieldCheck, ShieldOff, Activity } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { fmtUsdc } from "@/lib/format";
 import type { VaultView } from "@/lib/views";
 import { AccountId } from "../AccountId";

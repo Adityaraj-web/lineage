@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import { announceChanges, type Mark } from "@/lib/changes";

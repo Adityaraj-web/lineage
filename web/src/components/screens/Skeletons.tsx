@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 
 // Placeholders sized like the real sections, so data arriving doesn't shift the page much.
 export function Block({ className }: { className?: string }) {

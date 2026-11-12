@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { fmtAgo, fmtDate, fmtUsdc } from "@/lib/format";
 import type { TaskRow } from "@/lib/views";
 import { AccountId } from "../AccountId";

@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

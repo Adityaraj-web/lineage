@@ -3,7 +3,7 @@
 import { RotateCw } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLiveStatus, useLiveStore } from "@/hooks/live-store";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";

@@ -3,7 +3,7 @@
 import { CircleCheck, Info, ShieldAlert, TriangleAlert } from "lucide-react";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import { RISK_DISCLAIMER, type FindingTone, type RiskCard as Risk, type RiskLevel } from "@/lib/risk";
 import { EASE_OUT } from "../motion";

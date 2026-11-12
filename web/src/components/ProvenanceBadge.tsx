@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Badge } from "@/lib/provenance";
 import { accentClass, badgeAccent } from "./tone";

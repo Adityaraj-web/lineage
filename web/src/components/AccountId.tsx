@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { cn } from "cn";
+import { cn } from "@/components/cn";
 import { DEPLOYMENT, explorerAccount } from "@/lib/config";
 
 const SUFFIX = `.${DEPLOYMENT.root}`;
