@@ -98,20 +98,22 @@ function paths(i: number, code: Code) {
   };
 }
 
-function EmailCard({ step, result, className, style }: { step: EmailStep; result: MotionValue<number> | number; className?: string; style?: MotionStyle }) {
+function EmailCard({ step, result, className, style, stage = false }: { step: EmailStep; result: MotionValue<number> | number; className?: string; style?: MotionStyle; stage?: boolean }) {
   const e = step.email;
+  // In the pinned stage the card shrinks with the box: drop the sender and excerpt, then the subject.
+  const minor = stage && "@max-[62rem]:hidden";
   return (
     <Glass as={motion.article} className={cn("flex flex-col gap-1.5 overflow-hidden p-[clamp(0.75rem,1.6cqi,1.25rem)]", className)} style={style}>
       {e && (
-        <p className="truncate text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">
+        <p className={cn("shrink-0 truncate text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground", minor)}>
           {e.fromName} <span className="text-faint">{e.fromAddress}</span>
         </p>
       )}
-      <h3 className="line-clamp-2 text-[clamp(0.8125rem,1.4cqi,1rem)] leading-snug font-semibold">{e?.subject || step.subject}</h3>
+      <h3 className={cn("line-clamp-2 shrink-0 text-[clamp(0.8125rem,1.4cqi,1rem)] leading-snug font-semibold", stage && "@max-[46rem]:sr-only")}>{e?.subject || step.subject}</h3>
       {e?.excerpt && (
-        <p className="line-clamp-1 text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">{e.excerpt}</p>
+        <p className={cn("line-clamp-1 shrink-0 text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground", minor)}>{e.excerpt}</p>
       )}
-      <motion.div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1" style={{ opacity: result }}>
+      <motion.div className="mt-auto flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 pt-1" style={{ opacity: result }}>
         {step.side.badge && <ProvenanceBadge badge={step.side.badge} compact />}
         <span className={cn("num text-[clamp(0.75rem,1.2cqi,0.875rem)] font-medium", step.code === "P3" ? "text-p3" : "text-foreground")}>
           {step.result}
@@ -139,6 +141,7 @@ function Row({ step, i, n, p }: { step: EmailStep; i: number; n: number; p: Moti
   return (
     <>
       <EmailCard
+        stage
         step={step}
         result={result}
         className="absolute"
@@ -162,8 +165,24 @@ function Row({ step, i, n, p }: { step: EmailStep; i: number; n: number; p: Moti
           </>
         )}
       </svg>
+      <motion.div
+        className="absolute flex flex-col justify-center leading-tight whitespace-nowrap"
+        style={{ opacity: result, left: pct(VAULT.x + 14, W), width: pct(VAULT.w - 20, W), top: pct(ENTRY[step.code] - 22, H), height: pct(44, H) }}
+      >
+        <p className="flex items-center gap-1.5 text-[clamp(0.6875rem,1.1cqi,0.875rem)] font-semibold">
+          <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full" style={{ background: color }} />
+          {landed(step)}
+        </p>
+        <p className="num pl-3 text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-foreground">{step.side.amount}</p>
+      </motion.div>
     </>
   );
+}
+
+// What the vault shows where a thread lands: one short word, the amount under it.
+function landed(step: EmailStep): string {
+  const s = step.side.payment?.status;
+  return s === "Paid" ? "Paid" : s === "AwaitingApproval" ? "Held" : s === "Rejected" ? "Rejected" : step.side.statusLabel;
 }
 
 function Stage({ steps, labels, p, fit }: { steps: EmailStep[]; labels: ReturnType<typeof originLabels>; p: MotionValue<number>; fit: boolean }) {
@@ -186,7 +205,7 @@ function Stage({ steps, labels, p, fit }: { steps: EmailStep[]; labels: ReturnTy
         <p className="text-[clamp(0.75rem,1.2cqi,0.9375rem)] font-semibold">Your signature</p>
         <p className="text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">{labels.signature}</p>
       </motion.div>
-      <motion.div className="absolute text-center" style={{ opacity: nodesIn, left: pct(REG.x - 190, W), width: pct(380, W), top: pct(REG.y - 82, H) }}>
+      <motion.div className="absolute text-center" style={{ opacity: nodesIn, left: pct(REG.x - 190, W), width: pct(380, W), bottom: pct(H - (REG.y - 24), H) }}>
         <p className="text-[clamp(0.75rem,1.2cqi,0.9375rem)] font-semibold">Registry you pinned</p>
         <p className="text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">{labels.registry}</p>
       </motion.div>

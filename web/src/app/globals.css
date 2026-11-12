@@ -131,6 +131,9 @@
 }
 
 /* Hover only where a real pointer hovers. */
+/* A pinned stage on a short screen: tighter spacing so the whole stage fits under the nav. */
+@custom-variant short (@media (min-width: 768px) and (max-height: 820px));
+
 @custom-variant hover-fine {
   @media (hover: hover) and (pointer: fine) {
     &:hover {

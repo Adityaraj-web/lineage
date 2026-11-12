@@ -97,6 +97,14 @@ const MODES: [string, () => void][] = [
 ];
 
 describe("OverviewStory", () => {
+  it("scene 2's vault shows where each thread landed", () => {
+    setPinned(true);
+    renderUI(<OverviewStory view={overview()} emails={EMAILS} />);
+    const scene = screen.getByRole("region", { name: "Three emails reach the agent." });
+    expect(within(scene).getAllByText("Paid", { exact: true })).toHaveLength(2);
+    expect(within(scene).getByText("Held", { exact: true })).toBeInTheDocument();
+  });
+
   for (const [mode, set] of MODES) {
     describe(`(${mode})`, () => {
       it("scene 2 shows every email with its badge, result and origin", () => {

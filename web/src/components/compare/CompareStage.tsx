@@ -114,7 +114,7 @@ function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide
     <Glass
       as={motion.div}
       className={cn(
-        "flex min-w-0 flex-col items-start gap-2 rounded-2xl p-3 md:p-3.5",
+        "flex min-w-0 flex-col items-start gap-2 rounded-2xl p-3 md:p-3.5 short:py-2",
         attackerPaid ? "[--glass-edge:rgb(251_113_133/0.6)] [--glass-ink:0.5]" : poisoned && gatedStatus(side) ? "[--glass-edge:rgb(251_191_36/0.6)]" : "",
         k === "guarded" && "md:items-end md:text-right",
       )}
@@ -180,7 +180,7 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
   let clean = 0;
 
   return (
-    <Glass tier="stage" className="overflow-hidden p-4 md:p-8">
+    <Glass tier="stage" className="overflow-hidden p-4 md:p-8 short:p-5">
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[radial-gradient(70%_60%_at_30%_70%,rgb(52_211_153/0.08),transparent_70%)]" style={{ opacity: split }} />
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(70%_60%_at_70%_70%,rgb(251_113_133/0.10),transparent_70%)]" style={{ opacity: split }} />
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(60%_50%_at_80%_80%,rgb(251_113_133/0.18),transparent_70%)]" style={{ opacity: flash }} />
@@ -201,7 +201,7 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
         />
       </div>
 
-      <div className="relative mt-6 flex flex-col gap-3 md:mt-8" aria-hidden="true">
+      <div className="relative mt-6 flex flex-col gap-3 md:mt-8 short:mt-4 short:gap-2" aria-hidden="true">
         <div className="hidden grid-cols-[minmax(0,1fr)_minmax(2.5rem,5rem)_minmax(12rem,17rem)_minmax(2.5rem,5rem)_minmax(0,1fr)] text-small font-semibold md:grid">
           <span>Lineage vault</span>
           <span />
@@ -214,9 +214,9 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
         ))}
       </div>
 
-      <div className="relative mt-6 flex items-center justify-center gap-6 md:mt-8">
+      <div className="relative mt-6 flex items-center justify-center gap-6 md:mt-8 short:mt-4">
         <motion.div style={{ opacity: seal, transform: sealT }}>
-          <Seal hashes={view.codeHashes} sameCode={view.sameCode} />
+          <Seal hashes={view.codeHashes} sameCode={view.sameCode} shortPill />
         </motion.div>
         {onReplay && (
           <motion.button

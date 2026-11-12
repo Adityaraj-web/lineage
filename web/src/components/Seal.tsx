@@ -8,10 +8,13 @@ export function Seal({
   hashes,
   sameCode,
   className,
+  shortPill = false,
 }: {
   hashes: { vault: string | null; guarded: string | null };
   sameCode: boolean;
   className?: string;
+  // On short screens, a one-line pill instead of the round seal.
+  shortPill?: boolean;
 }) {
   const ring = sameCode ? "var(--color-p1)" : "var(--color-attacker)";
   return (
@@ -21,10 +24,11 @@ export function Seal({
       className={cn(
         "relative grid size-32 place-items-center rounded-full border bg-ink",
         sameCode ? "border-p1-ring" : "border-attacker-ring",
+        shortPill && "short:flex short:h-10 short:w-auto short:gap-2 short:px-4",
         className,
       )}
     >
-      <svg viewBox="0 0 128 128" className="absolute inset-0 size-full" aria-hidden="true">
+      <svg viewBox="0 0 128 128" className={cn("absolute inset-0 size-full", shortPill && "short:hidden")} aria-hidden="true">
         <defs>
           <path id="seal-ring" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
           <radialGradient id="seal-glow">
@@ -38,9 +42,9 @@ export function Seal({
           <textPath href="#seal-ring">same agent, same plan, same contract,</textPath>
         </text>
       </svg>
-      <div className="relative flex flex-col items-center gap-0.5 text-center">
+      <div className={cn("relative flex flex-col items-center gap-0.5 text-center", shortPill && "short:flex-row short:gap-2")}>
         {sameCode ? <Check className="size-4 text-p1" aria-hidden="true" /> : <X className="size-4 text-attacker" aria-hidden="true" />}
-        <span className={cn("text-[1rem] leading-tight font-semibold", sameCode ? "text-p1" : "text-attacker")}>
+        <span className={cn("text-[1rem] leading-tight font-semibold", shortPill && "short:text-small", sameCode ? "text-p1" : "text-attacker")}>
           {sameCode ? "same code" : "different code"}
         </span>
         {sameCode && hashes.vault && (
