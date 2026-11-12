@@ -49,7 +49,6 @@ function Door({
         className="door press flex h-full flex-col justify-between gap-8 overflow-hidden p-6 outline-none focus-visible:ring-2 md:p-8"
       >
         <span aria-hidden="true" className={cn("door-tint pointer-events-none absolute inset-0", TINT[tint])} />
-        <span aria-hidden="true" className="door-thread pointer-events-none absolute inset-x-0 bottom-0 h-[1.5px]" style={{ background: thread }} />
         <h3 className="relative text-[1.375rem] leading-tight font-semibold">{title}</h3>
         <div className="relative">{children}</div>
       </Glass>

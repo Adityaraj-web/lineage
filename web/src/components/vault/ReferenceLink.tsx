@@ -97,6 +97,17 @@ export function ReferenceLink({
                 d={geo.d}
                 fill="none"
                 stroke="var(--color-attacker)"
+                strokeWidth={6}
+                strokeOpacity={0.16}
+                strokeLinecap="round"
+                initial={reduced ? false : { pathLength: 0, opacity: 0 }}
+                animate={drawn ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
+                transition={{ duration: 0.45, delay: reduced ? 0 : delay, ease: EASE_IN_OUT }}
+              />
+              <motion.path
+                d={geo.d}
+                fill="none"
+                stroke="var(--color-attacker)"
                 strokeWidth={1.5}
                 strokeDasharray="1 0"
                 strokeLinecap="round"

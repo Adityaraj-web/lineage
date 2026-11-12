@@ -12,6 +12,7 @@ import { fmtUsdc } from "@/lib/format";
 import type { CompareRow, CompareSide } from "@/lib/views";
 import { shortId } from "../AccountId";
 import { ProvenanceBadge } from "../ProvenanceBadge";
+import { GlowPath } from "../story/GlowPath";
 import { pct, useSceneProgress, useStep } from "../story/progress";
 import { PinnedSection, SceneBox, useInViewProgress } from "../story/Scene";
 
@@ -151,8 +152,8 @@ function Row({ step, i, n, p }: { step: EmailStep; i: number; n: number; p: Moti
         }}
       />
       <svg viewBox={`0 0 ${W} ${H}`} className="pointer-events-none absolute inset-0 size-full overflow-visible" aria-hidden="true" fill="none">
-        <motion.path d={geo.a} stroke={color} strokeWidth="2" strokeLinecap="round" style={{ pathLength: a, opacity: aOn }} />
-        {geo.b && <motion.path d={geo.b} stroke={color} strokeWidth="2" strokeLinecap="round" style={{ pathLength: b, opacity: bOn }} />}
+        <GlowPath d={geo.a} color={color} style={{ pathLength: a, opacity: aOn }} />
+        {geo.b && <GlowPath d={geo.b} color={color} style={{ pathLength: b, opacity: bOn }} />}
         {geo.node && <motion.circle cx={geo.node.x} cy={geo.node.y} r="13" fill={color} style={{ opacity: nodeGlow }} />}
         {step.code === "P3" && (
           <>
@@ -219,13 +220,13 @@ function StackedStep({ step, labels, reduced }: { step: EmailStep; labels: Retur
       <EmailCard step={step} result={result} />
       <div className="flex gap-4 pl-6">
         <svg viewBox="0 0 12 150" className="h-[150px] w-3 shrink-0 overflow-visible" aria-hidden="true" fill="none">
-          <motion.path d="M 6 0 L 6 64" stroke={color} strokeWidth="2" strokeLinecap="round" style={{ pathLength: a }} />
+          <GlowPath d="M 6 0 L 6 64" color={color} style={{ pathLength: a }} />
           {step.code === "P3" ? (
             <motion.rect x="0" y="118" width="12" height="4" rx="2" fill="var(--color-p3)" style={{ opacity: result }} />
           ) : (
-            <motion.path d="M 6 86 L 6 150" stroke={color} strokeWidth="2" strokeLinecap="round" style={{ pathLength: b }} />
+            <GlowPath d="M 6 86 L 6 150" color={color} style={{ pathLength: b }} />
           )}
-          {step.code === "P3" && <motion.path d="M 6 64 L 6 114" stroke={color} strokeWidth="2" strokeLinecap="round" style={{ pathLength: b }} />}
+          {step.code === "P3" && <GlowPath d="M 6 64 L 6 114" color={color} style={{ pathLength: b }} />}
         </svg>
         <motion.div className="flex flex-col justify-center py-3" style={{ opacity: a }}>
           <p className="text-small font-semibold">{originTitle}</p>

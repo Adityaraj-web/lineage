@@ -467,35 +467,18 @@ html.lenis body {
   pointer-events: none;
 }
 
-/* Doorways: the panel's thread draws across its foot on hover or keyboard focus. */
-.door-thread {
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 320ms var(--ease-out);
-}
+/* Doorways: the background tint shifts on hover or keyboard focus. */
 .door-tint {
   opacity: 0;
   transition: opacity 200ms var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .door:hover .door-thread {
-    transform: scaleX(1);
-  }
   .door:hover .door-tint {
     opacity: 1;
   }
 }
-.door:focus-visible .door-thread {
-  transform: scaleX(1);
-}
 .door:focus-visible .door-tint {
   opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .door-thread {
-    transform: scaleX(0.3);
-    transition: none;
-  }
 }
 
 .scroll-cue {

@@ -15,6 +15,8 @@ export function Counter({
   testId,
   label,
   className,
+  labelClassName,
+  chars,
 }: {
   vault: "vault" | "guarded";
   value: bigint;
@@ -22,6 +24,9 @@ export function Counter({
   testId: string;
   label: string;
   className?: string;
+  labelClassName?: string;
+  // Size basis in characters; pass the same value to counters that sit side by side.
+  chars?: number;
 }) {
   const visible = (
     <span className={cn("stat", value > 0n ? "text-attacker" : "text-p1")} aria-hidden="true">
@@ -29,8 +34,8 @@ export function Counter({
     </span>
   );
   return (
-    <div data-testid={testId} className={cn("stat-box", className)} style={{ "--stat-chars": fmtUsdc(value).length } as React.CSSProperties}>
-      <p className="text-micro text-muted-foreground">{label}</p>
+    <div data-testid={testId} className={cn("stat-box", className)} style={{ "--stat-chars": chars ?? fmtUsdc(value).length } as React.CSSProperties}>
+      <p className={cn("text-micro text-muted-foreground", labelClassName)}>{label}</p>
       <div className="mt-1.5">{vault === "guarded" ? <Shared name="attacker-guarded">{visible}</Shared> : visible}</div>
       <span className="sr-only">{fmtUsdc(value)}</span>
     </div>

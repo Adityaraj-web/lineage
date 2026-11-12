@@ -88,7 +88,7 @@ function Track({ dir, side, t, k, p }: { dir: "left" | "right"; side: CompareSid
   return (
     <div className="relative hidden h-full min-h-14 md:block" aria-hidden="true">
       <span className="absolute inset-x-0 top-1/2 h-px bg-white/[0.07]" />
-      <motion.span className={cn("absolute top-1/2 h-[2px] w-[60%] -translate-y-1/2", near, origin)} style={{ background: color, transform: aT }} />
+      <motion.span className={cn("absolute top-1/2 h-[2px] w-[60%] -translate-y-1/2", near, origin)} style={{ background: color, boxShadow: `0 0 8px 1px ${color}40`, transform: aT }} />
       {gated ? (
         <>
           <motion.span
@@ -101,7 +101,7 @@ function Track({ dir, side, t, k, p }: { dir: "left" | "right"; side: CompareSid
           />
         </>
       ) : (
-        <motion.span className={cn("absolute top-1/2 h-[2px] w-[40%] -translate-y-1/2", far, origin)} style={{ background: color, transform: bT }} />
+        <motion.span className={cn("absolute top-1/2 h-[2px] w-[40%] -translate-y-1/2", far, origin)} style={{ background: color, boxShadow: `0 0 8px 1px ${color}40`, transform: bT }} />
       )}
     </div>
   );
