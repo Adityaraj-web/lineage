@@ -1,0 +1,33 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync": "node scripts/sync-shared.mjs",
+    "predev": "npm run sync",
+    "dev": "next dev",
+    "prebuild": "npm run sync",
+    "build": "next build",
+    "pretest": "npm run sync",
+    "test": "vitest run",
+    "pretypecheck": "npm run sync",
+    "typecheck": "tsc --noEmit",
+    "preverify": "npm run sync",
+    "verify": "tsx scripts/verify-web.ts"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  }
+}

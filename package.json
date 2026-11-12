@@ -14,7 +14,12 @@
     "upgrade:vaults": "tsx scripts/upgrade-vaults.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"agent/**/*.test.ts\"",
-    "demo": "tsx agent/run.ts"
+    "demo": "tsx agent/run.ts",
+    "web:install": "npm --prefix web install",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:test": "npm --prefix web test",
+    "verify:web": "npm --prefix web run verify"
   },
   "dependencies": {
     "dotenv": "^18.0.10",
