@@ -3,6 +3,7 @@ import type { AttackerPayments } from "@/lib/story";
 import { AccountId, shortId } from "../AccountId";
 import { CountUp } from "../CountUp";
 import { Memo } from "../Memo";
+import { Glass } from "@/components/Glass";
 
 // LimitsOnly has no inbox: what stands in its place is what it paid the attacker, over every run.
 export function AttackerPaid({ paid, attacker, note }: { paid: AttackerPayments; attacker: string; note: string }) {
@@ -23,7 +24,7 @@ export function AttackerPaid({ paid, attacker, note }: { paid: AttackerPayments;
           <p className="mt-6 max-w-[34rem] text-body text-muted-foreground">{note}</p>
         </div>
         {paid.payments.length > 0 && (
-          <ul aria-label="Payments to the attacker" className="surface divide-y divide-white/[0.05] overflow-hidden">
+          <Glass as="ul" aria-label="Payments to the attacker" className="divide-y divide-white/[0.05] overflow-hidden">
             {paid.payments.map((r) => (
               <li key={r.payment.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 bg-attacker-soft px-5 py-4">
                 <span className="num text-small text-muted-foreground">#{r.payment.id}</span>
@@ -36,7 +37,7 @@ export function AttackerPaid({ paid, attacker, note }: { paid: AttackerPayments;
                 <span className="num text-body whitespace-nowrap text-attacker">{r.amount}</span>
               </li>
             ))}
-          </ul>
+          </Glass>
         )}
       </div>
     </section>

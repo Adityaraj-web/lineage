@@ -2,6 +2,7 @@ import { cn } from "@/components/cn";
 import { fmtAgo, fmtDate, fmtUsdc } from "@/lib/format";
 import type { TaskRow } from "@/lib/views";
 import { AccountId } from "../AccountId";
+import { Glass } from "@/components/Glass";
 
 function Chip({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -16,7 +17,7 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
   const spent = Math.min(100, row.spentPct);
   const inFlight = Math.min(100 - spent, row.inFlightPct);
   return (
-    <article className="surface flex flex-col gap-5 p-6" aria-labelledby={`task-${t.id}-title`}>
+    <Glass as="article" className="flex flex-col gap-5 p-6" aria-labelledby={`task-${t.id}-title`}>
       <header className="flex flex-wrap items-center gap-2">
         <h3 id={`task-${t.id}-title`} className="num text-small text-muted-foreground">
           Task #{t.id}
@@ -107,6 +108,6 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
           </ul>
         )}
       </div>
-    </article>
+    </Glass>
   );
 }

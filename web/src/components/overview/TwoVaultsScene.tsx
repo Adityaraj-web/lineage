@@ -5,6 +5,7 @@ import { motion, useTransform, type MotionValue } from "motion/react";
 import Link from "next/link";
 import { useRef } from "react";
 import { cn } from "@/components/cn";
+import { Glass } from "@/components/Glass";
 import { usePinned } from "@/hooks/useMediaQuery";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import type { Email } from "@/lib/emails";
@@ -60,15 +61,15 @@ function Stage({ view, emails, p, fit }: { view: CompareView; emails: Record<str
   const btnT = useTransform(labels, (v) => `translateY(${(1 - v) * 8}px)`);
 
   return (
-    <motion.div className="stage relative overflow-hidden p-[clamp(1rem,2.5vw,2.5rem)]" style={{ opacity: stageIn, transform: stageT }}>
+    <Glass as={motion.div} tier="stage" className="overflow-hidden p-[clamp(1rem,2.5vw,2.5rem)]" style={{ opacity: stageIn, transform: stageT }}>
       <motion.div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(60%_60%_at_70%_70%,rgb(251_113_133/0.16),transparent_70%)]" style={{ opacity: flash }} aria-hidden="true" />
       <motion.div className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[radial-gradient(50%_40%_at_50%_62%,rgb(251_191_36/0.12),transparent_70%)]" style={{ opacity: hold }} aria-hidden="true" />
       <SceneBox w={W} h={H} fit={fit} reserve="34rem">
-        <div className="surface absolute flex flex-col items-center justify-center gap-1 px-4 text-center" style={{ left: pct(300, W), width: pct(600, W), top: 0, height: pct(130, H) }}>
+        <Glass className="absolute flex flex-col items-center justify-center gap-1 px-4 text-center" style={{ left: pct(300, W), width: pct(600, W), top: 0, height: pct(130, H) }}>
           {email && <p className="truncate text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">{email.fromAddress}</p>}
           <p className="line-clamp-2 text-[clamp(0.8125rem,1.4cqi,1rem)] leading-snug font-semibold">{email?.subject || d.row?.subject}</p>
           <p className="num text-[clamp(0.75rem,1.2cqi,0.9375rem)] text-p3">{d.amount}</p>
-        </div>
+        </Glass>
         <svg viewBox={`0 0 ${W} ${H}`} className="pointer-events-none absolute inset-0 size-full overflow-visible" aria-hidden="true" fill="none">
           <defs>
             <radialGradient id="scene3-amber">
@@ -123,7 +124,7 @@ function Stage({ view, emails, p, fit }: { view: CompareView; emails: Record<str
           Watch it side by side <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </motion.div>
-    </motion.div>
+    </Glass>
   );
 }
 
@@ -141,13 +142,13 @@ function Stacked({ view, emails, reduced }: { view: CompareView; emails: Record<
   const rText = useCount(count, d.received.guarded);
   return (
     <div ref={ref} className="mt-10 flex flex-col gap-4">
-      <div className="surface p-4 [container-type:inline-size]">
+      <Glass className="p-4 [container-type:inline-size]">
         {email && <p className="truncate text-micro text-muted-foreground">{email.fromAddress}</p>}
         <p className="mt-1 text-body font-semibold">{email?.subject || d.row?.subject}</p>
         <p className="num mt-1 text-small text-p3">{d.amount}</p>
-      </div>
+      </Glass>
       {(["vault", "guarded"] as const).map((k) => (
-        <div key={k} className="surface flex gap-4 p-4">
+        <Glass key={k} className="flex gap-4 p-4">
           <svg viewBox="0 0 12 96" className="h-24 w-3 shrink-0 overflow-visible" aria-hidden="true" fill="none">
             <motion.path d="M 6 0 L 6 44" stroke="var(--color-p3)" strokeWidth="2" strokeLinecap="round" style={{ pathLength: thread }} />
             {k === "vault" ? (
@@ -166,7 +167,7 @@ function Stacked({ view, emails, reduced }: { view: CompareView; emails: Record<
               {k === "vault" ? (d.lineageHeld ? "Held for you" : "Paid after your approval") : d.limitsPaid ? "Paid without asking" : "Not paid"}
             </motion.p>
           </div>
-        </div>
+        </Glass>
       ))}
       <motion.div className="mt-2" style={{ opacity: labels }}>
         <Link href="/compare" className="press inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-5 text-small font-semibold text-ink">

@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ProvenanceBadge } from "../ProvenanceBadge";
 import { StatusPill } from "../StatusPill";
 import { accentHex, badgeAccent } from "../tone";
+import { Glass } from "@/components/Glass";
 
 const NO_MARKS: ReadonlyMap<number, Mark> = new Map();
 const COLS =
@@ -64,7 +65,7 @@ export function PaymentsTable({
         ))}
       </ToggleGroup>
 
-      <div role="table" aria-label="Payments" className="surface overflow-hidden">
+      <Glass role="table" aria-label="Payments" className="overflow-hidden">
         <div role="rowgroup" className="hidden border-b border-white/[0.06] px-5 py-3 lg:block">
           <div role="row" className={cn(COLS, "label")}>
             <span role="columnheader">#</span>
@@ -149,7 +150,7 @@ export function PaymentsTable({
           </AnimatePresence>
           {rows.length === 0 && <p className="px-5 py-10 text-center text-muted-foreground">No payments in this task yet.</p>}
         </div>
-      </div>
+      </Glass>
       <p className="sr-only" aria-live="polite">
         {announceChanges(marks)}
       </p>

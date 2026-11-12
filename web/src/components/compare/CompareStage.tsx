@@ -4,6 +4,7 @@ import { ArrowUpRight, RotateCcw } from "lucide-react";
 import { animate, motion, useInView, useMotionValue, useScroll, useTransform, type AnimationPlaybackControls, type MotionValue } from "motion/react";
 import { useCallback, useEffect, useRef } from "react";
 import { cn } from "@/components/cn";
+import { Glass } from "@/components/Glass";
 import { usePinned } from "@/hooks/useMediaQuery";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import { type VaultKey } from "@/lib/config";
@@ -110,10 +111,11 @@ function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide
   const land = useStep(p, t.land[k][0], t.land[k][1]);
   const attackerPaid = poisoned && k === "guarded" && side.payment?.status === "Paid";
   return (
-    <motion.div
+    <Glass
+      as={motion.div}
       className={cn(
-        "flex min-w-0 flex-col items-start gap-2 rounded-2xl border p-3 md:p-3.5",
-        attackerPaid ? "border-attacker-ring bg-raised-2" : poisoned && gatedStatus(side) ? "border-p3-ring bg-raised-2" : "border-white/[0.07] bg-raised-2",
+        "flex min-w-0 flex-col items-start gap-2 rounded-2xl p-3 md:p-3.5",
+        attackerPaid ? "[--glass-edge:rgb(251_113_133/0.6)]" : poisoned && gatedStatus(side) ? "[--glass-edge:rgb(251_191_36/0.6)]" : "",
         k === "guarded" && "md:items-end md:text-right",
       )}
       style={{ opacity: land }}
@@ -128,9 +130,9 @@ function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide
           </span>
         </>
       ) : (
-        <p className="text-small text-faint">{side.statusLabel}</p>
+        <p className="text-small text-muted-foreground">{side.statusLabel}</p>
       )}
-    </motion.div>
+    </Glass>
   );
 }
 
@@ -141,17 +143,17 @@ function StageRow({ row, t, p }: { row: CompareRow; t: RowTiming; p: MotionValue
         <StageSide k="vault" side={row.sides.vault} t={t} p={p} poisoned={row.poisoned} />
       </div>
       <Track dir="left" side={row.sides.vault} t={t} k="vault" p={p} />
-      <div
+      <Glass
         className={cn(
-          "order-1 col-span-2 rounded-2xl border px-4 py-3 md:order-none md:col-span-1",
-          row.poisoned ? "border-dashed border-attacker-ring bg-attacker-soft" : "border-white/[0.07] bg-raised",
+          "order-1 col-span-2 rounded-2xl px-4 py-3 md:order-none md:col-span-1",
+          row.poisoned && "bg-attacker-soft [--glass-edge:rgb(251_113_133/0.6)]",
         )}
       >
         <p className="text-small leading-snug text-foreground">
           <Memo text={row.subject} />
         </p>
         {row.poisoned && <p className="mt-1 text-micro text-attacker">Poisoned: new payout details</p>}
-      </div>
+      </Glass>
       <Track dir="right" side={row.sides.guarded} t={t} k="guarded" p={p} />
       <div className="order-3 md:order-none">
         <StageSide k="guarded" side={row.sides.guarded} t={t} p={p} poisoned={row.poisoned} />
@@ -178,7 +180,7 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
   let clean = 0;
 
   return (
-    <div className="stage relative overflow-hidden p-4 md:p-8">
+    <Glass tier="stage" className="overflow-hidden p-4 md:p-8">
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[radial-gradient(70%_60%_at_30%_70%,rgb(52_211_153/0.08),transparent_70%)]" style={{ opacity: split }} />
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(70%_60%_at_70%_70%,rgb(251_113_133/0.10),transparent_70%)]" style={{ opacity: split }} />
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(60%_50%_at_80%_80%,rgb(251_113_133/0.18),transparent_70%)]" style={{ opacity: flash }} />
@@ -227,7 +229,7 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
           </motion.button>
         )}
       </div>
-    </div>
+    </Glass>
   );
 }
 
@@ -273,21 +275,21 @@ function PaymentsInRun({ view }: { view: CompareView }) {
       <h2 id="run-payments-title" className="font-serif text-title">
         Every payment in this run
       </h2>
-      <div className="mt-6 md:overflow-hidden md:rounded-[var(--radius)] md:border md:border-hairline md:bg-raised">
+      <Glass className="mt-6 overflow-hidden">
       <div className="hidden grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b border-hairline px-5 py-3 text-small text-muted-foreground md:grid">
         <span>What the agent asked</span>
         <span>Lineage vault</span>
         <span>LimitsOnly vault</span>
       </div>
-      <ol className="flex flex-col gap-3 md:gap-0 md:divide-y md:divide-white/[0.05]">
+      <ol className="flex flex-col divide-y divide-white/[0.05]">
         {view.rows.map((row, i) => (
           <li
             key={row.message}
             data-testid={`compare-row-${i}`}
             data-poisoned={String(row.poisoned)}
             className={cn(
-              "surface grid gap-4 p-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-6 md:rounded-none md:border-0 md:bg-transparent md:px-5 md:py-5",
-              row.poisoned && "md:bg-attacker-soft",
+              "grid gap-4 p-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-6 md:px-5 md:py-5",
+              row.poisoned && "bg-attacker-soft",
             )}
           >
             <div>
@@ -301,7 +303,7 @@ function PaymentsInRun({ view }: { view: CompareView }) {
           </li>
         ))}
       </ol>
-      </div>
+      </Glass>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import type { VaultKey } from "@/lib/config";
 import type { KeyProof } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { EASE_OUT } from "../motion";
+import { Glass } from "@/components/Glass";
 
 // Owner-only vault methods: each needs a full-access key, which the agent doesn't have.
 const CANNOT = [
@@ -32,7 +33,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
   const vaultName = vault === "vault" ? "Lineage vault" : "LimitsOnly vault";
 
   return (
-    <article ref={ref} className="surface flex flex-col gap-5 p-6" aria-labelledby={`key-${vault}-title`}>
+    <Glass as="article" ref={ref} className="flex flex-col gap-5 p-6" aria-labelledby={`key-${vault}-title`}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id={`key-${vault}-title`} className="label flex items-center gap-2">
@@ -102,6 +103,6 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
           ))}
         </ul>
       )}
-    </article>
+    </Glass>
   );
 }

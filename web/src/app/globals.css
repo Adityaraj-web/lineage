@@ -161,18 +161,6 @@
 }
 
 @layer components {
-  /* One object: raised tone, 12px, a hairline only where tone alone is not enough. */
-  .surface {
-    background: var(--raised);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-  }
-  /* The two stages (Overview scene 3, Compare). */
-  .stage {
-    background: rgb(17 22 34 / 0.94);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius-stage);
-  }
   /* Sentence-case label: replaces the tracked all-caps eyebrow. */
   .label {
     @apply text-small font-medium text-muted-foreground;
@@ -186,6 +174,103 @@
   }
   .press:active {
     transform: scale(0.97);
+  }
+}
+
+/* Glass (components/Glass.tsx). A thin ink underlay keeps the gradient vivid; the gradient border
+   is a masked ::before; glare sits under the content. Secondary text on glass is a lighter muted,
+   and faint text is never used on it. */
+@layer components {
+  :root {
+    --glass-blur: 24px;
+    --hue: 59 68 168;
+  }
+  :root[data-tier="low"] {
+    --glass-blur: 12px;
+  }
+  :root[data-mood="lineage"] {
+    --hue: 20 140 120;
+  }
+  :root[data-mood="limits"] {
+    --hue: 150 50 90;
+  }
+  :root[data-mood="compare"] {
+    --hue: 40 110 140;
+  }
+  .glass {
+    --muted-foreground: #b8c0cf;
+    --faint: #b8c0cf;
+    --glass-fill: 0.06;
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--radius);
+    background:
+      linear-gradient(rgb(255 255 255 / var(--glass-fill)), rgb(255 255 255 / var(--glass-fill))),
+      rgb(7 10 18 / var(--glass-ink, 0.2));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 20px 60px -30px rgb(var(--hue) / 0.4);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--glass-edge, rgb(255 255 255 / 0.22)), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.06));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  .glass-stage {
+    --glass-fill: 0.07;
+    border-radius: var(--radius-stage);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 30px 80px -30px rgb(var(--hue) / 0.4);
+  }
+  .glass-chip {
+    --glass-fill: 0.07;
+    border-radius: 9999px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  }
+  /* Glass inside glass: the outer panel already blurred the backdrop. */
+  .glass .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    --glass-fill: 0.04;
+    --glass-ink: 0.12;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+  .glass-glare-clip {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .glass-glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03) 60%, transparent);
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out);
+    will-change: transform;
   }
 }
 

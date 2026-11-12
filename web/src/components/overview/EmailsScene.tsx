@@ -3,6 +3,7 @@
 import { motion, useTransform, type MotionStyle, type MotionValue } from "motion/react";
 import { useRef } from "react";
 import { cn } from "@/components/cn";
+import { Glass } from "@/components/Glass";
 import { usePinned } from "@/hooks/useMediaQuery";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import type { Service } from "@/lib/chain";
@@ -99,7 +100,7 @@ function paths(i: number, code: Code) {
 function EmailCard({ step, result, className, style }: { step: EmailStep; result: MotionValue<number> | number; className?: string; style?: MotionStyle }) {
   const e = step.email;
   return (
-    <motion.article className={cn("surface flex flex-col gap-1.5 overflow-hidden p-[clamp(0.75rem,1.6cqi,1.25rem)]", className)} style={style}>
+    <Glass as={motion.article} className={cn("flex flex-col gap-1.5 overflow-hidden p-[clamp(0.75rem,1.6cqi,1.25rem)]", className)} style={style}>
       {e && (
         <p className="truncate text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">
           {e.fromName} <span className="text-faint">{e.fromAddress}</span>
@@ -115,7 +116,7 @@ function EmailCard({ step, result, className, style }: { step: EmailStep; result
           {step.result}
         </span>
       </motion.div>
-    </motion.article>
+    </Glass>
   );
 }
 
@@ -188,12 +189,15 @@ function Stage({ steps, labels, p, fit }: { steps: EmailStep[]; labels: ReturnTy
         <p className="text-[clamp(0.75rem,1.2cqi,0.9375rem)] font-semibold">Registry you pinned</p>
         <p className="text-[clamp(0.6875rem,1.05cqi,0.8125rem)] text-muted-foreground">{labels.registry}</p>
       </motion.div>
-      <motion.div
-        className="absolute flex flex-col items-center justify-start rounded-[clamp(0.75rem,1.4cqi,1.25rem)] border border-hairline bg-raised pt-[clamp(0.5rem,1.4cqi,1rem)]"
+      <Glass
+        as={motion.div}
+        tier="stage"
+        glare={false}
+        className="absolute flex flex-col items-center justify-start rounded-[clamp(0.75rem,1.4cqi,1.25rem)] pt-[clamp(0.5rem,1.4cqi,1rem)]"
         style={{ opacity: nodesIn, left: pct(VAULT.x, W), top: pct(VAULT.y, H), width: pct(VAULT.w, W), height: pct(VAULT.h, H) }}
       >
         <p className="text-[clamp(0.75rem,1.2cqi,0.9375rem)] font-semibold">Vault</p>
-      </motion.div>
+      </Glass>
       {steps.map((s, i) => (
         <Row key={s.key} step={s} i={i} n={steps.length} p={p} />
       ))}

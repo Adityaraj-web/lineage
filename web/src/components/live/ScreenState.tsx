@@ -4,6 +4,7 @@ import { AlertTriangle, RotateCw } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { PollError } from "@/hooks/live-store";
 import { EASE_OUT } from "../motion";
+import { Glass } from "@/components/Glass";
 
 // A poll failed while older data is on screen: fixed position, so nothing shifts.
 export function ErrorToast({ error }: { error: PollError | null }) {
@@ -35,7 +36,7 @@ export function ErrorToast({ error }: { error: PollError | null }) {
 // First load failed: nothing to show yet.
 export function LoadError({ error, onRetry }: { error: PollError; onRetry: () => void }) {
   return (
-    <div className="surface mt-16 flex flex-col items-start gap-4 p-8">
+    <Glass className="mt-16 flex flex-col items-start gap-4 p-8">
       <p className="label text-p3">Can&apos;t reach testnet RPC</p>
       <p className="max-w-prose text-muted-foreground">
         The dashboard reads the chain straight from public NEAR RPC in your browser. Every endpoint failed; it
@@ -51,7 +52,7 @@ export function LoadError({ error, onRetry }: { error: PollError; onRetry: () =>
       >
         <RotateCw className="size-3.5" aria-hidden="true" /> Retry now
       </button>
-    </div>
+    </Glass>
   );
 }
 

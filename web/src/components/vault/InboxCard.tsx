@@ -4,6 +4,7 @@ import { Inbox as InboxIcon, ShieldOff } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useRef } from "react";
 import type { Inbox as InboxModel, InboxItem } from "@/lib/views";
+import { Glass } from "@/components/Glass";
 import { AccountId } from "../AccountId";
 import { EASE_OUT } from "../motion";
 import { ProvenanceBadge } from "../ProvenanceBadge";
@@ -21,10 +22,11 @@ export function InboxCard({ item }: { item: InboxItem }) {
   const headingId = `inbox-${p.id}-title`;
 
   return (
-    <article
+    <Glass
+      as="article"
       ref={ref}
       aria-labelledby={headingId}
-      className="surface relative overflow-hidden border-p3-ring/70"
+      className="overflow-hidden [--glass-edge:rgb(251_191_36/0.55)]"
     >
       <div className="grid md:grid-cols-[1.05fr_1fr]">
         <div className="flex flex-col gap-7 p-6 md:border-r md:border-white/[0.06] md:p-8">
@@ -54,25 +56,25 @@ export function InboxCard({ item }: { item: InboxItem }) {
           <RiskCard risk={item.risk} play={play} />
         </div>
       </div>
-    </article>
+    </Glass>
   );
 }
 
 export function Inbox({ inbox }: { inbox: InboxModel }) {
   if (inbox.kind === "limits-only") {
     return (
-      <div className="surface flex items-start gap-4 border-attacker-ring/50 p-6 md:p-8">
+      <Glass className="flex items-start gap-4 p-6 [--glass-edge:rgb(251_113_133/0.45)] md:p-8">
         <ShieldOff className="mt-1 size-5 shrink-0 text-attacker" aria-hidden="true" />
         <div>
           <p className="font-serif text-title">No inbox. It never asks.</p>
           <p className="mt-2 max-w-prose text-muted-foreground">{inbox.message}</p>
         </div>
-      </div>
+      </Glass>
     );
   }
   if (inbox.items.length === 0) {
     return (
-      <div className="surface flex items-start gap-4 p-6 md:p-8">
+      <Glass className="flex items-start gap-4 p-6 md:p-8">
         <InboxIcon className="mt-1 size-5 shrink-0 text-p1" aria-hidden="true" />
         <div>
           <p className="font-serif text-title">Nothing is waiting for you.</p>
@@ -81,7 +83,7 @@ export function Inbox({ inbox }: { inbox: InboxModel }) {
             resolver you pinned.
           </p>
         </div>
-      </div>
+      </Glass>
     );
   }
   return (
