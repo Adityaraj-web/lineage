@@ -1,6 +1,6 @@
 import type { ConfigView, Payment, Task } from "../shared/vault-types";
-import { chain as defaultChain, type Chain, type PayeeStats, type Service } from "./chain";
-import { AGENT_IDS, DEMO_RUN, VAULT_IDS, VAULT_KEYS, explorerTx, type DemoRun, type VaultKey } from "./config";
+import type { Chain, PayeeStats, Service } from "./chain";
+import { VAULT_KEYS, explorerTx, type DemoRun, type VaultKey } from "./config";
 import { fmtUsdc } from "./format";
 import { provenanceBadge, statusLabel, type Badge } from "./provenance";
 import { assessPayment, type RiskCard } from "./risk";
@@ -138,14 +138,6 @@ export interface LoadDeps {
   agentIds: Record<VaultKey, string>;
   now: () => number;
 }
-
-export const defaultDeps = (): LoadDeps => ({
-  chain: defaultChain(),
-  demoRun: DEMO_RUN,
-  vaultIds: VAULT_IDS,
-  agentIds: AGENT_IDS,
-  now: Date.now,
-});
 
 const AGENT_METHODS = ["request_payment"];
 
@@ -334,7 +326,7 @@ export function buildOverview(f: OverviewFacts): Overview {
   };
 }
 
-export async function loadVaultView(key: VaultKey, deps: LoadDeps = defaultDeps()): Promise<VaultView> {
+export async function loadVaultView(key: VaultKey, deps: LoadDeps): Promise<VaultView> {
   const { chain, demoRun } = deps;
   const vaultId = deps.vaultIds[key];
   const [config, codeHash, tasks, payments] = await Promise.all([
@@ -389,11 +381,11 @@ async function compareFacts(deps: LoadDeps): Promise<CompareFacts> {
   };
 }
 
-export async function loadCompareView(deps: LoadDeps = defaultDeps()): Promise<CompareView> {
+export async function loadCompareView(deps: LoadDeps): Promise<CompareView> {
   return buildCompareView(await compareFacts(deps));
 }
 
-export async function loadOverview(deps: LoadDeps = defaultDeps()): Promise<Overview> {
+export async function loadOverview(deps: LoadDeps): Promise<Overview> {
   const { chain, vaultIds, agentIds } = deps;
   const [configV, configG, keysV, keysG, awaiting, services, facts] = await Promise.all([
     chain.getConfig(vaultIds.vault),

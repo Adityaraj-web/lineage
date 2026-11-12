@@ -1,5 +1,4 @@
 import testnet from "../shared/testnet.json";
-import demoRunJson from "../shared/demo-run.json";
 import type { PaymentStatus, Provenance } from "../shared/vault-types";
 
 export type VaultKey = "vault" | "guarded";
@@ -33,7 +32,6 @@ export interface DemoRun {
 }
 
 export const DEPLOYMENT = testnet;
-export const DEMO_RUN = demoRunJson as unknown as DemoRun;
 
 export const CONTRACTS = testnet.contracts;
 export const VAULT_IDS: Record<VaultKey, string> = { vault: testnet.contracts.vault, guarded: testnet.contracts.guarded };
