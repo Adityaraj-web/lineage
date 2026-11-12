@@ -24,6 +24,7 @@ export const PAGE = 50;
 
 export interface Chain {
   getConfig(vault: string): Promise<ConfigView>;
+  getTask(vault: string, id: number): Promise<Task | null>;
   getAllTasks(vault: string): Promise<Task[]>;
   getAllPayments(vault: string): Promise<Payment[]>;
   getPayment(vault: string, id: number): Promise<Payment | null>;
@@ -48,6 +49,7 @@ async function pageAll<T>(fetchPage: (from_index: number, limit: number) => Prom
 export function makeChain(rpc: RpcClient, contracts: { registry: string; usdc: string } = CONTRACTS): Chain {
   return {
     getConfig: (vault) => rpc.callView<ConfigView>(vault, "get_config"),
+    getTask: (vault, id) => rpc.callView<Task | null>(vault, "get_task", { task_id: id }),
     getAllTasks: (vault) => pageAll((from_index, limit) => rpc.callView<Task[]>(vault, "get_tasks", { from_index, limit })),
     getAllPayments: (vault) =>
       pageAll((from_index, limit) => rpc.callView<Payment[]>(vault, "get_payments", { from_index, limit })),
