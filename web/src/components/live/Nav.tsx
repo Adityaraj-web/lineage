@@ -33,7 +33,7 @@ function MobileMenu({ path }: { path: string }) {
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        className="press inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2.5 text-small text-foreground hover-fine:bg-white/[0.06] md:hidden"
+        className="press inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2.5 text-small text-foreground hover-fine:bg-white/[0.06] lg:hidden"
         aria-label="Menu"
       >
         {open ? <X className="size-4" aria-hidden="true" /> : <Menu className="size-4" aria-hidden="true" />}
@@ -99,7 +99,7 @@ export function Nav() {
           Testnet
         </span>
 
-        <nav aria-label="Main" className="ml-auto hidden h-full md:block">
+        <nav aria-label="Main" className="ml-auto hidden h-full lg:block">
           <ul className="flex h-full items-center gap-1">
             {LINKS.map((l) => {
               const active = path === l.href;
@@ -129,7 +129,7 @@ export function Nav() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-2">
           <LiveIndicator />
           <MobileMenu path={path} />
         </div>

@@ -16,7 +16,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - `contracts/mock-usdc`: NEP-141 tUSDC, 6 decimals, `mint` faucet (max 10k per call).
 - `scripts/`: TypeScript deploy/verify scripts (tsx, near-api-js 7.5.x); `scripts/lib/` is shared by every script. The root key is loaded only via `scripts/lib/root-key.ts`.
 - `agent/`: the demo agent. `inbox/*.md` (untrusted emails) → `planner-scripted.ts` (`Planner` interface) → `tools.ts` (tool call → `request_payment` args) → `agent.ts` + `executor.ts` (agent function-call key only). `owner.ts` (root-signed setup) and `run.ts` (orchestrator, report, acceptance) are the only agent files that touch the root key.
-- `web/`: read-only static Next.js dashboard (`output: "export"`, no server, no keys). `src/lib` is pure data logic (rpc with failover, views, provenance, risk); `src/components/screens/*` are the only importers of `lib/live`; pages are server shells. `npm run sync` copies `deployments/*.json` into `web/src/shared/` before dev/build. Agent memos are untrusted: React text nodes only, never `dangerouslySetInnerHTML`.
+- `web/`: read-only static Next.js dashboard (`output: "export"`, no server, no keys). `src/lib` is pure data logic (rpc with failover, views, provenance, risk); `src/components/screens/*` are the only importers of `lib/live`; pages are server shells. `npm run sync` copies `deployments/*.json` and `agent/inbox/*.md` (as `inbox.json`) into `web/src/shared/` before dev/build. `lib/story.ts` (story strip, attacker totals, task split) and `lib/emails.ts` (parse the synced emails) are pure. `components/field/` is the canvas background (`engine.ts` pure and seeded, `LedgerField.tsx` the one rAF loop; `?fieldstats` exposes draw time on `window.__field`). `components/story/` holds the scroll-scene helpers (pinned section, progress, `Counter`). Agent memos and emails are untrusted: React text nodes only, never `dangerouslySetInnerHTML`.
 - `deployments/demo-run.json`: public record of the latest `npm run demo` (committed).
 - `deployments/testnet.json`: public account ids of the live deployment (committed).
 - `docs/specs/F0X.md`: one spec per feature. **Read the spec for the current feature before planning.**
@@ -57,7 +57,11 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - Import `cn` from `@/components/cn`, not `cn`: plain tailwind-merge doesn't know the custom type scale and drops `text-stat`/`text-small` when a text colour follows.
 - Type page/layout props by hand (`params: Promise<{ key: string }>`). The generated `PageProps`/`LayoutProps` globals fail `tsc` from a clean `.next`.
 - Reduced motion: use `hooks/useReducedMotionPref`, not motion's `useReducedMotion` (that caches its first answer and misses a later change).
-- Instrument Serif has proportional digits and no `tnum`: count-ups animate in Geist Mono and settle on the serif (`CountUp`).
+- Numbers are Plus Jakarta Sans with `tabular-nums` (`.num`); Instrument Serif has proportional digits, so it is never used for numbers or below 36px.
+- Big numbers use `.stat` inside a `.stat-box` that sets `--stat-chars` (the text length): the size is the box width over the text width, clamped, so it never overflows; in a flex row the box's basis makes two stats wrap before shrinking below `--stat-min`. `.stat` and `.surface` are plain classes, not utilities: no `md:` variants on them.
+- View transitions: `<ViewTransition>` wrappers go in each `page.tsx` (`PageTransition`), not the layout. A shared element (`Shared`) pairs only if the old and new elements are both on screen in the same commit, so the destination needs cached data (`usePolling(..., { cacheKey })`, `poll-cache.ts`) and must render at its final value (Compare's `settled`). Next scrolls after the commit: `ScrollOnEnter` handles hash and top.
+- Pinned scroll scenes need `(min-width: 768px) and (min-height: 620px)` (`usePinned`); below that they are stacked steps, and under reduced motion the settled frame. Lenis (`SmoothScroll`) runs only for fine pointers without reduced motion; Replay stops and restarts it via `useSmoothScroll`. In jsdom, `setPinned`/`setReducedMotion` in `test/media.ts` flip the queries.
+- Closed `<details>` content still has layout boxes: browser checks must skip elements where `checkVisibility()` is false.
 
 ## Definition of done (every feature, before its last commit)
 
@@ -67,6 +71,6 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 
 ## Status
 
-- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks) · F06 read-only dashboard in `web/` (Overview, both vaults, Compare; live testnet reads; 133 web tests, 8 verify:web checks)
+- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks) · F06 read-only dashboard in `web/` (Overview scroll story, both vaults, Compare scroll stage over a canvas ledger field; live testnet reads; 192 web tests, 8 verify:web checks)
 - Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run identical code; `npm run verify:deploy` prints the current code hash; task 0 on both, expires 2026-11-25)
 - Next: F07 wallet connection and owner actions · F08 task creation, polish, Vercel deploy · F09 README, video, X post

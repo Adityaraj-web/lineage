@@ -113,7 +113,7 @@ function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide
     <motion.div
       className={cn(
         "flex min-w-0 flex-col items-start gap-2 rounded-2xl border p-3 md:p-3.5",
-        attackerPaid ? "border-attacker-ring bg-attacker-soft" : poisoned && gatedStatus(side) ? "border-p3-ring bg-p3-soft" : "border-white/[0.07] bg-raised-2",
+        attackerPaid ? "border-attacker-ring bg-raised-2" : poisoned && gatedStatus(side) ? "border-p3-ring bg-raised-2" : "border-white/[0.07] bg-raised-2",
         k === "guarded" && "md:items-end md:text-right",
       )}
       style={{ opacity: land }}
@@ -183,9 +183,9 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(70%_60%_at_70%_70%,rgb(251_113_133/0.10),transparent_70%)]" style={{ opacity: split }} />
       <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(60%_50%_at_80%_80%,rgb(251_113_133/0.18),transparent_70%)]" style={{ opacity: flash }} />
 
-      <div className="relative grid grid-cols-2 items-end gap-4 md:grid-cols-[1fr_auto_1fr]">
-        <Counter vault="vault" value={view.attackerReceived.vault} text={text.vault} testId="attacker-vault" label="Attacker received from Lineage" className="w-full" />
-        <p className="hidden pb-2 text-center text-micro text-muted-foreground md:block">
+      <div className="relative flex flex-wrap items-end gap-x-6 gap-y-5">
+        <Counter vault="vault" value={view.attackerReceived.vault} text={text.vault} testId="attacker-vault" label="Attacker received from Lineage" className="flex-1" />
+        <p className="hidden shrink-0 pb-2 text-center text-micro text-muted-foreground md:block">
           attacker
           <span className="block font-mono text-[12px] text-attacker">{shortId(view.attacker)}</span>
         </p>
@@ -195,7 +195,7 @@ function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionVal
           text={text.guarded}
           testId="attacker-guarded"
           label="Attacker received from LimitsOnly"
-          className="w-full md:text-right"
+          className="flex-1 md:text-right"
         />
       </div>
 
@@ -273,12 +273,13 @@ function PaymentsInRun({ view }: { view: CompareView }) {
       <h2 id="run-payments-title" className="font-serif text-title">
         Every payment in this run
       </h2>
-      <div className="mt-6 hidden grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b border-hairline px-5 pb-3 text-small text-muted-foreground md:grid">
+      <div className="mt-6 md:overflow-hidden md:rounded-[var(--radius)] md:border md:border-hairline md:bg-raised">
+      <div className="hidden grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b border-hairline px-5 py-3 text-small text-muted-foreground md:grid">
         <span>What the agent asked</span>
         <span>Lineage vault</span>
         <span>LimitsOnly vault</span>
       </div>
-      <ol className="mt-4 flex flex-col gap-3 md:mt-0 md:gap-0 md:divide-y md:divide-white/[0.05]">
+      <ol className="flex flex-col gap-3 md:gap-0 md:divide-y md:divide-white/[0.05]">
         {view.rows.map((row, i) => (
           <li
             key={row.message}
@@ -300,6 +301,7 @@ function PaymentsInRun({ view }: { view: CompareView }) {
           </li>
         ))}
       </ol>
+      </div>
     </section>
   );
 }

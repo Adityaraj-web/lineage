@@ -29,7 +29,7 @@ export function Counter({
     </span>
   );
   return (
-    <div data-testid={testId} className={cn("stat-box", className)}>
+    <div data-testid={testId} className={cn("stat-box", className)} style={{ "--stat-chars": fmtUsdc(value).length } as React.CSSProperties}>
       <p className="text-micro text-muted-foreground">{label}</p>
       <div className="mt-1.5">{vault === "guarded" ? <Shared name="attacker-guarded">{visible}</Shared> : visible}</div>
       <span className="sr-only">{fmtUsdc(value)}</span>

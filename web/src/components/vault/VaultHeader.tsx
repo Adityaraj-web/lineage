@@ -21,7 +21,7 @@ const COPY = {
 
 function Stat({ label, value, tone }: { label: string; value: bigint; tone?: string }) {
   return (
-    <div className="stat-box min-w-[9rem] flex-1 basis-[11rem]">
+    <div className="stat-box flex-1" style={{ "--stat-chars": fmtUsdc(value).length } as React.CSSProperties}>
       <dt className="text-small text-muted-foreground">{label}</dt>
       <dd className="mt-2">
         <CountUp value={value} format={fmtUsdc} className={`stat [--stat-max:3.5rem] ${tone ?? ""}`} />
@@ -40,7 +40,7 @@ export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | n
           <h1 className="font-serif text-display">{c.title}</h1>
           <p className="mt-4 text-body text-muted-foreground">{c.blurb}</p>
         </div>
-        <dl className="flex flex-wrap gap-x-10 gap-y-6 lg:min-w-[26rem] lg:flex-nowrap">
+        <dl className="flex flex-wrap gap-x-10 gap-y-6 lg:w-[34rem] lg:shrink-0">
           <Stat label="Balance" value={BigInt(view.config.balance)} />
           <Stat label="In flight" value={BigInt(view.config.total_reserved)} tone={view.config.total_reserved !== "0" ? "text-p3" : "text-muted-foreground"} />
         </dl>

@@ -120,7 +120,7 @@
   --secondary-foreground: #eceef3;
   --muted: rgb(255 255 255 / 0.05);
   --muted-foreground: #9aa3b5;
-  --faint: #7e879a;
+  --faint: #858ea1;
   --accent: rgb(255 255 255 / 0.07);
   --accent-foreground: #eceef3;
   --destructive: #fb7185;
@@ -310,13 +310,17 @@
 }
 
 /* Big numbers: sized against their container so they never overflow it. Put .stat inside a
-   .stat-box; two stats in a row wrap (flex-basis) before they shrink below --stat-min. */
+   .stat-box that sets --stat-chars (the longest text it will show). The size is the box width over
+   the text's width in em (tabular figures run about 0.6em a character), clamped to the type scale.
+   In a flex row, a box's basis is its text at --stat-min, so two stats wrap before either shrinks
+   below the minimum. */
 .stat-box {
   container-type: inline-size;
   min-width: 0;
+  flex-basis: calc(var(--stat-chars, 8) * 0.6 * var(--stat-min, 2.25rem));
 }
 .stat {
-  font-size: clamp(var(--stat-min, 2.25rem), var(--stat-fit, 17cqi), var(--stat-max, 4.5rem));
+  font-size: clamp(var(--stat-min, 2.25rem), calc(100cqi / (var(--stat-chars, 8) * 0.6)), var(--stat-max, 4.5rem));
   line-height: 1;
   letter-spacing: -0.02em;
   font-weight: 500;
