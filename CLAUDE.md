@@ -25,6 +25,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - Contracts: `cargo test` (workspace) · `npm run build` (cargo near build non-reproducible-wasm for all three; output in repo-root `target/near/<crate_name>/`)
 - Deploy: `LINEAGE_ROOT=<your-account>.testnet npm run deploy` (idempotent; needs ~15 testnet NEAR)
 - Verify the live deployment, no account needed: `npm install && npm run verify:deploy`
+- Upgrade vault code (state kept, no `new` call; idempotent): `npm run build && npm run upgrade:vaults [-- --dry-run]`
 - Agent: `npm test` (offline unit tests) · `npm run demo [-- --only vault|guarded]` (deployer only: owner setup, a fresh task per vault, agent runs, exits 0 only if acceptance holds) · `npm run demo -- --plan-only` (read-only, prints the plan)
 
 ## Workflow rules
@@ -45,6 +46,7 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 - U128 values are JSON strings. Use `BigInt`, never `Number`. `usdc(n) = n * 1_000_000n`.
 - Owner calls (`create_task`, `approve_payment`, `reject_payment`, `unfreeze`, `close_task`, `withdraw`) attach exactly 1 yocto. `freeze` attaches nothing.
 - In a negative test, assert the specific error (e.g. access-key method-name mismatch), not just "it threw".
+- Rust `String::truncate` and string slicing are byte-indexed and panic mid-character (`assertion failed: self.is_char_boundary(new_len)`). Cut untrusted text on `is_char_boundary`.
 
 ## Definition of done (every feature, before its last commit)
 
@@ -54,6 +56,6 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 
 ## Status
 
-- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (34 agent unit tests)
-- Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run the same wasm, code hash `7tq25xKEFJ2FhJBiznTZdiTX6dzFKKGF8VbAtSwtZCea`; task 0 on both, expires 2026-11-25)
-- Next: memo fix in the vault (`String::truncate` panics mid-character) · F06–F08 Next.js dashboard · F09 README, video, X post
+- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks)
+- Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run identical code; `npm run verify:deploy` prints the current code hash; task 0 on both, expires 2026-11-25)
+- Next: F06–F08 Next.js dashboard · F09 README, video, X post

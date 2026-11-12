@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkAcceptance, type PaymentRecord, type RunRecord } from "./run.js";
+import { checkAcceptance, showReason, type PaymentRecord, type RunRecord } from "./run.js";
 import type { PaymentStatus } from "./vault-types.js";
 import { names } from "./test-support.js";
 
@@ -151,4 +151,11 @@ test("acceptance: --only guarded expects 49 tUSDC from guarded", () => {
   r.ran = ["guarded"];
   delete r.vaults.vault;
   assert.deepEqual(checkAcceptance(r, names), []);
+});
+
+test("report: the reason is shown unless it is empty or just 'Paid'", () => {
+  assert.equal(showReason("Paid"), false);
+  assert.equal(showReason(""), false);
+  assert.equal(showReason("Payee address came from untrusted input"), true);
+  assert.equal(showReason("Resolved price 25000000 exceeds the agent's ceiling 20000000"), true);
 });

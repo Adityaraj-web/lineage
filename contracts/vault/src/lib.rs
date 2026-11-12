@@ -220,7 +220,13 @@ impl LineageVault {
         require!(task.agent == agent, "Only this task's agent can request payments");
 
         let mut memo = memo.unwrap_or_default();
-        memo.truncate(MAX_MEMO_LEN);
+        if memo.len() > MAX_MEMO_LEN {
+            let mut cut = MAX_MEMO_LEN;
+            while !memo.is_char_boundary(cut) {
+                cut -= 1;
+            }
+            memo.truncate(cut);
+        }
         let now = env::block_timestamp_ms();
         let mut payment = Payment {
             id: self.payments.len(),

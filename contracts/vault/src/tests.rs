@@ -318,3 +318,32 @@ fn deposits_only_from_configured_token() {
     call_as(acc("fake-usdc.testnet"), NearToken::from_yoctonear(0), MINUTE_NS);
     let _ = v.ft_on_transfer(attacker(), usdc(1_000_000), String::new());
 }
+
+fn stored_memo(memo: &str) -> String {
+    let mut v = setup(Mode::Lineage);
+    call_as(agent(), NearToken::from_yoctonear(0), MINUTE_NS);
+    let p = value(v.request_payment(0, PayeeRef::Raw { account_id: attacker() }, usdc(1), Some(memo.to_string())));
+    assert_eq!(p.status, PaymentStatus::AwaitingApproval);
+    v.get_payment(p.id).unwrap().memo
+}
+
+#[test]
+fn memo_of_em_dashes_is_cut_on_a_char_boundary() {
+    let input = "—".repeat(84);
+    assert_eq!(input.len(), 252);
+    let memo = stored_memo(&input);
+    assert!(memo.len() <= 200);
+    assert!(input.starts_with(&memo));
+    assert_eq!(memo, "—".repeat(66));
+}
+
+#[test]
+fn memo_with_boundary_at_200_keeps_200_bytes() {
+    let memo = stored_memo(&format!("{}—tail", "a".repeat(200)));
+    assert_eq!(memo, "a".repeat(200));
+}
+
+#[test]
+fn short_memo_is_unchanged() {
+    assert_eq!(stored_memo("Invoice A-102 — logo"), "Invoice A-102 — logo");
+}
