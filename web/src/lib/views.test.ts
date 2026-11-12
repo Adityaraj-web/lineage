@@ -206,5 +206,7 @@ describe("buildOverview", () => {
     expect(o.awaitingCount).toBe(1);
     expect(o.demo.attackerReceivedText).toEqual({ vault: "0 tUSDC", guarded: "49 tUSDC" });
     expect(o.vaults.vault.balance).toBe("414 tUSDC");
+    expect(o.compare.rows).toHaveLength(3);
+    expect(o.compare.attackerReceivedText.guarded).toBe("49 tUSDC");
   });
 });

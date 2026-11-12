@@ -129,6 +129,7 @@ export interface Overview {
     attackerReceived: Record<VaultKey, bigint>;
     attackerReceivedText: Record<VaultKey, string>;
   };
+  compare: CompareView;
 }
 
 export interface LoadDeps {
@@ -323,6 +324,7 @@ export function buildOverview(f: OverviewFacts): Overview {
       attackerReceived: f.compare.attackerReceived,
       attackerReceivedText: f.compare.attackerReceivedText,
     },
+    compare: f.compare,
   };
 }
 
