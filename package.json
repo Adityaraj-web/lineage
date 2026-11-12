@@ -11,6 +11,7 @@
     "build": "bash scripts/build.sh",
     "deploy": "tsx scripts/deploy.ts",
     "verify:deploy": "tsx scripts/verify-deploy.ts",
+    "upgrade:vaults": "tsx scripts/upgrade-vaults.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"agent/**/*.test.ts\"",
     "demo": "tsx agent/run.ts"

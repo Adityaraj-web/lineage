@@ -85,6 +85,12 @@ async function main(): Promise<number> {
     });
   }
 
+  await list.check("vault and guarded run the same code", async () => {
+    const [a, b] = await Promise.all(VAULTS.map((v) => provider.viewAccount({ accountId: c[v] })));
+    expect(a.code_hash === b.code_hash, `${c.vault} ${a.code_hash} != ${c.guarded} ${b.code_hash}`);
+    return `code hash ${a.code_hash} (only mode differs)`;
+  });
+
   for (const v of VAULTS) {
     await list.check(`${v}: vault books match the token ledger`, async () => {
       const cfg = await view<ConfigView>(provider, c[v], "get_config");

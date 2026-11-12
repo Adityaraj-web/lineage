@@ -217,6 +217,8 @@ function toRecord(steps: Step[]): PaymentRecord[] {
   });
 }
 
+export const showReason = (reason: string): boolean => reason !== "" && reason !== "Paid";
+
 function printVault(v: VaultKey, run: VaultRun, inbox: Message[]): void {
   console.log(`\n${VAULT_TITLE[v]} · ${run.vault} · task ${run.taskId} · agent ${run.agent}`);
   for (const m of inbox) {
@@ -229,7 +231,7 @@ function printVault(v: VaultKey, run: VaultRun, inbox: Message[]): void {
     } else {
       const p = r.payment;
       console.log(`    #${p.id}  ${provenanceLabel(p.provenance).padEnd(26)} ${p.status.padEnd(16)} ${fmtUsdc(p.amount).padStart(11)} → ${p.payee}`);
-      console.log(`    ${r.reason}`);
+      if (showReason(r.reason)) console.log(`    ${r.reason}`);
       if (r.txHash) console.log(`    ${explorerTx(r.txHash)}`);
     }
   }
