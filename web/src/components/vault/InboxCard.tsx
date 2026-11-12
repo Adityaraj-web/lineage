@@ -3,7 +3,6 @@
 import { Inbox as InboxIcon, ShieldOff } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useRef } from "react";
-import { fmtDate } from "@/lib/format";
 import type { Inbox as InboxModel, InboxItem } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { EASE_OUT } from "../motion";
@@ -28,25 +27,13 @@ export function InboxCard({ item }: { item: InboxItem }) {
       className="surface relative overflow-hidden border-p3-ring/70"
     >
       <div className="grid md:grid-cols-[1.05fr_1fr]">
-        <div className="flex flex-col gap-5 p-6 md:border-r md:border-white/[0.06] md:p-8">
+        <div className="flex flex-col gap-7 p-6 md:border-r md:border-white/[0.06] md:p-8">
           <div className="flex flex-wrap items-center gap-3">
-            <h3 id={headingId} className="label">
-              Payment #{p.id} · held for you · task #{p.task_id}
+            <h3 id={headingId} className="text-small font-medium text-muted-foreground">
+              Payment #{p.id}, held for you
             </h3>
             <StatusPill status={p.status} />
           </div>
-          <div>
-            <p className="num text-stat">{item.row.amount}</p>
-            <p className="mt-2 flex flex-wrap items-baseline gap-2 text-muted-foreground">
-              <span>to</span>
-              {p.payee ? <AccountId id={p.payee} link className="text-[14px]" /> : <span>an unresolved payee</span>}
-            </p>
-          </div>
-          <ProvenanceBadge badge={item.row.badge} />
-          <p className="text-small text-muted-foreground">
-            <span className="text-foreground">Why the vault held it: </span>
-            {p.reason}
-          </p>
           <ReferenceLink
             row={item.row}
             related={related}
@@ -54,9 +41,14 @@ export function InboxCard({ item }: { item: InboxItem }) {
             play={play}
             delay={findingDelay(Math.max(0, dupIndex)) + 0.3}
           />
-          <p className="text-micro text-faint">
-            requested {fmtDate(p.created_at_ms)} by <AccountId id={p.agent} className="text-[11px]" />
-          </p>
+          <div className="flex flex-col gap-3">
+            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="num text-[clamp(2rem,4vw,2.75rem)] leading-none font-medium whitespace-nowrap">{item.row.amount}</span>
+              <span className="text-muted-foreground">to</span>
+              {p.payee ? <AccountId id={p.payee} link className="text-[14px]" /> : <span>an unresolved payee</span>}
+            </p>
+            <ProvenanceBadge badge={item.row.badge} compact />
+          </div>
         </div>
         <div className="bg-white/[0.012] p-6 md:p-8">
           <RiskCard risk={item.risk} play={play} />
@@ -98,10 +90,10 @@ export function Inbox({ inbox }: { inbox: InboxModel }) {
         {inbox.items.map((item) => (
           <motion.div
             key={item.row.payment.id}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.35, ease: EASE_OUT }}
+            initial={{ opacity: 0, transform: "translateY(-8px)" }}
+            animate={{ opacity: 1, transform: "none" }}
+            exit={{ opacity: 0, transform: "translateY(-8px)" }}
+            transition={{ duration: 0.22, ease: EASE_OUT }}
           >
             <InboxCard item={item} />
           </motion.div>

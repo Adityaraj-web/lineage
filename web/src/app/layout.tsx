@@ -6,7 +6,7 @@ import { instrumentSerif, jakarta, jetbrains } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Lineage — provenance you can see", template: "%s · Lineage" },
+  title: { default: "Lineage — provenance you can see", template: "%s — Lineage" },
   description:
     "Prepared statements for money: a NEAR vault for AI agents that checks where a payee came from before it pays. Live testnet dashboard.",
 };

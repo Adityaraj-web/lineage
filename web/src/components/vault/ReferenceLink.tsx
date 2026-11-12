@@ -6,7 +6,7 @@ import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import type { PaymentRow } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { Memo } from "../Memo";
-import { EASE_IN_OUT } from "../motion";
+import { EASE_IN_OUT, EASE_OUT } from "../motion";
 import { ProvenanceBadge } from "../ProvenanceBadge";
 
 interface Geometry {
@@ -64,8 +64,8 @@ export function ReferenceLink({
   const drawn = reduced || play;
   return (
     <div ref={box} className="relative flex flex-col">
-      <p className="label mb-1.5">Memo · written by the agent&apos;s source, untrusted</p>
-      <p className="text-body text-foreground">
+      <p className="mb-1.5 text-small text-muted-foreground">The memo, copied from an email the agent read</p>
+      <p className="text-lead text-foreground">
         &ldquo;
         <Memo text={row.payment.memo} tokens={tokens} markRef={(el) => void (markA.current = el)} />
         &rdquo;
@@ -102,7 +102,7 @@ export function ReferenceLink({
                 strokeLinecap="round"
                 initial={reduced ? false : { pathLength: 0, opacity: 0 }}
                 animate={drawn ? { pathLength: 1, opacity: 0.9 } : { pathLength: 0, opacity: 0 }}
-                transition={{ duration: 0.6, delay: reduced ? 0 : delay, ease: EASE_IN_OUT }}
+                transition={{ duration: 0.45, delay: reduced ? 0 : delay, ease: EASE_IN_OUT }}
               />
               {[geo.a, geo.b].map((p, i) => (
                 <motion.circle
@@ -111,9 +111,9 @@ export function ReferenceLink({
                   cy={p.y}
                   r={3}
                   fill="var(--color-attacker)"
-                  initial={reduced ? false : { scale: 0 }}
-                  animate={{ scale: drawn ? 1 : 0 }}
-                  transition={{ duration: 0.25, delay: reduced ? 0 : delay + (i ? 0.55 : 0), ease: "backOut" }}
+                  initial={reduced ? false : { opacity: 0 }}
+                  animate={{ opacity: drawn ? 1 : 0 }}
+                  transition={{ duration: 0.2, delay: reduced ? 0 : delay + (i ? 0.4 : 0), ease: EASE_OUT }}
                 />
               ))}
             </svg>

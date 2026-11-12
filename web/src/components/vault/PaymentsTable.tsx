@@ -10,7 +10,8 @@ import { fmtDate } from "@/lib/format";
 import type { PaymentRow, TaskRow } from "@/lib/views";
 import { AccountId } from "../AccountId";
 import { Memo } from "../Memo";
-import { DUR, EASE_OUT } from "../motion";
+import { EASE_OUT } from "../motion";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ProvenanceBadge } from "../ProvenanceBadge";
 import { StatusPill } from "../StatusPill";
 import { accentHex, badgeAccent } from "../tone";
@@ -55,8 +56,10 @@ export function PaymentsTable({
             value={String(t.task.id)}
             className="h-8 rounded-full px-3.5 text-small data-[state=on]:bg-white/[0.09]"
           >
-            <span className="num">Task {t.task.id}</span>
-            {t.label && <span className="text-muted-foreground">, {t.label}</span>}
+            <span>
+              <span className="num">Task {t.task.id}</span>
+              {t.label && <span className="text-muted-foreground">, {t.label}</span>}
+            </span>
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
@@ -81,17 +84,19 @@ export function PaymentsTable({
               const p = r.payment;
               const mark = marks.get(p.id);
               const accent = accentHex[badgeAccent[r.badge.tone]];
+              const unasked = r.badge.code === "P3" && r.badge.tone === "red";
               return (
                 <motion.div
                   role="row"
                   key={p.id}
                   data-payment-id={p.id}
+                  data-paid-without-asking={unasked || undefined}
                   layout={!reduced}
-                  initial={reduced ? false : { opacity: 0, y: -12 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={reduced ? false : { opacity: 0, transform: "translateY(-8px)" }}
+                  animate={{ opacity: 1, transform: "none" }}
                   exit={reduced ? undefined : { opacity: 0 }}
-                  transition={{ duration: DUR.slow, ease: EASE_OUT }}
-                  className={cn("relative grid gap-3 px-5 py-4", COLS)}
+                  transition={{ duration: 0.22, ease: EASE_OUT }}
+                  className={cn("relative grid gap-3 px-5 py-4", COLS, unasked && "bg-attacker-soft")}
                 >
                   {mark && (
                     <motion.span
@@ -104,10 +109,22 @@ export function PaymentsTable({
                     />
                   )}
                   <span role="cell" className="relative num text-small text-muted-foreground">
-                    #{p.id}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span tabIndex={0} className="rounded outline-none focus-visible:ring-2">
+                          #{p.id}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="text-micro" aria-hidden="true">
+                        Task #{p.task_id}, updated {fmtDate(p.updated_at_ms)}
+                      </TooltipContent>
+                    </Tooltip>
+                    <span className="sr-only">
+                      , task #{p.task_id}, updated {fmtDate(p.updated_at_ms)}
+                    </span>
                   </span>
                   <span role="cell" className="relative min-w-0">
-                    <ProvenanceBadge badge={r.badge} />
+                    <ProvenanceBadge badge={r.badge} compact />
                   </span>
                   <span role="cell" className="relative flex flex-wrap items-center gap-2">
                     <StatusPill status={p.status} />
@@ -125,9 +142,6 @@ export function PaymentsTable({
                   </span>
                   <span role="cell" className="relative min-w-0 text-small text-muted-foreground">
                     <Memo text={p.memo} className="line-clamp-2" />
-                    <span className="mt-0.5 block text-micro text-faint">
-                      task #{p.task_id} · {fmtDate(p.updated_at_ms)}
-                    </span>
                   </span>
                 </motion.div>
               );

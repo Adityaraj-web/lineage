@@ -30,10 +30,10 @@ export function LiveIndicator() {
     live.status === "loading"
       ? "connecting…"
       : live.status === "paused"
-        ? "paused · tab hidden"
+        ? "paused while the tab is hidden"
         : live.status === "error"
           ? live.retryAt
-            ? `RPC error · retry in ${Math.max(0, Math.ceil((live.retryAt - now) / 1000))} s`
+            ? `RPC error, retrying in ${Math.max(0, Math.ceil((live.retryAt - now) / 1000))} s`
             : "RPC error"
           : live.updatedAt
             ? `updated ${fmtAgo(live.updatedAt, now)}`

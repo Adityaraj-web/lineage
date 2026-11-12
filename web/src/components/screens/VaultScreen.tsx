@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useChanges } from "@/hooks/useChanges";
 import { usePolling } from "@/hooks/usePolling";
 import type { VaultKey } from "@/lib/config";
-import { liveDeps } from "@/lib/live";
+import { DEMO_RUN, liveDeps } from "@/lib/live";
 import { loadVaultView, type Overview } from "@/lib/views";
 import { readPollCache } from "@/hooks/poll-cache";
 import { ErrorToast, LoadError } from "../live/ScreenState";
@@ -29,7 +29,7 @@ export function VaultScreen({ vaultKey }: { vaultKey: VaultKey }) {
   if (!data) return error ? <LoadError error={error} onRetry={refresh} /> : <VaultSkeleton awaiting={vaultKey === "vault" ? (readPollCache<Overview>("overview")?.awaitingCount ?? null) : null} />;
   return (
     <>
-      <VaultDashboard view={data} marks={marks} now={Date.now()} />
+      <VaultDashboard view={data} demoRun={DEMO_RUN} marks={marks} now={Date.now()} />
       <ErrorToast error={error} />
     </>
   );

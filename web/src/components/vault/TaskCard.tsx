@@ -50,7 +50,7 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
         </div>
         <p className="mt-2 flex flex-wrap justify-between gap-x-4 num text-micro text-muted-foreground">
           <span>
-            <span className="text-foreground">{row.spent}</span> spent · <span className="text-p3">{row.inFlight}</span> in
+            <span className="text-foreground">{row.spent}</span> spent, <span className="text-p3">{row.inFlight}</span> in
             flight
           </span>
           <span>of {row.budget}</span>
@@ -83,7 +83,7 @@ export function TaskCard({ row, now }: { row: TaskRow; now: number }) {
                 <p className="text-small text-p1">{s.label}</p>
                 <AccountId id={s.account_id} link />
                 <p className="mt-0.5 num text-micro text-muted-foreground">
-                  max {fmtUsdc(s.max_amount)} · committed {fmtUsdc(s.committed)}
+                  max {fmtUsdc(s.max_amount)}, committed {fmtUsdc(s.committed)}
                 </p>
               </li>
             ))}

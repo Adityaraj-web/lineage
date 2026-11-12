@@ -46,6 +46,24 @@ describe("PaymentsTable", () => {
     expect(screen.getByText("Payment #5: Needs you → Rejected.")).toBeInTheDocument();
   });
 
+  it("keeps badge detail and time out of the row: tooltip and screen-reader text only", () => {
+    const view = vaultView("vault");
+    renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);
+    const four = screen.getAllByRole("row")[2];
+    expect(within(four).getByText("Alice — logo, max 20 tUSDC (task #2)")).toHaveClass("sr-only");
+    expect(four).not.toHaveTextContent("task #2 ·");
+  });
+
+  it("washes rose the LimitsOnly rows paid without asking", () => {
+    const view = vaultView("guarded");
+    renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);
+    const flagged = screen.getAllByRole("row").filter((r) => r.hasAttribute("data-paid-without-asking"));
+    expect(flagged.map((r) => r.getAttribute("data-payment-id"))).toEqual(["5"]);
+    const lineage = vaultView("vault");
+    const { container } = renderUI(<PaymentsTable payments={lineage.payments} tasks={lineage.tasks} />);
+    expect(container.querySelector("[data-paid-without-asking]")).toBeNull();
+  });
+
   it("has no owner-action controls (those are F07)", () => {
     const view = vaultView("vault");
     renderUI(<PaymentsTable payments={view.payments} tasks={view.tasks} />);

@@ -316,7 +316,6 @@
   min-width: 0;
 }
 .stat {
-  display: block;
   font-size: clamp(var(--stat-min, 2.25rem), var(--stat-fit, 17cqi), var(--stat-max, 4.5rem));
   line-height: 1;
   letter-spacing: -0.02em;

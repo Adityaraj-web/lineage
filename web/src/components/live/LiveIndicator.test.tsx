@@ -15,7 +15,7 @@ describe("LiveIndicator", () => {
   it("says paused while the tab is hidden", () => {
     const store = setup();
     act(() => store.set({ status: "paused", updatedAt: Date.now() }));
-    expect(screen.getByRole("status")).toHaveTextContent("paused · tab hidden");
+    expect(screen.getByRole("status")).toHaveTextContent("paused while the tab is hidden");
   });
 
   it("shows an RPC error with a retry countdown", () => {
@@ -27,7 +27,7 @@ describe("LiveIndicator", () => {
         retryAt: Date.now() + 10_000,
       }),
     );
-    expect(screen.getByRole("status")).toHaveTextContent("RPC error · retry in 10 s");
+    expect(screen.getByRole("status")).toHaveTextContent("RPC error, retrying in 10 s");
   });
 
   it("refresh button calls the page's refresh", () => {
