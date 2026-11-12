@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LedgerField } from "@/components/field/LedgerField";
+import { Backdrop } from "@/components/backdrop/Backdrop";
 import { Nav } from "@/components/live/Nav";
 import { Providers } from "@/components/Providers";
 import { instrumentSerif, jakarta, jetbrains } from "./fonts";
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body>
         <Providers>
-          <LedgerField />
+          <Backdrop />
           <Nav />
           <main className="relative z-10 mx-auto w-full max-w-[75rem] px-5 pb-24 md:px-10">{children}</main>
         </Providers>

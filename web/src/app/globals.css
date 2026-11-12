@@ -245,68 +245,83 @@
   }
 }
 
-/* Ledger field (components/field). Aurora and dot grid are CSS: compositor-only, and they still
-   show without JS. Peaks sit at the edges; behind text columns the aurora stays near ink. */
-.ledger-field {
+/* Backdrop (components/backdrop): WebGL mesh gradient, a CSS gradient in the same colours under it
+   (shown when WebGL is off), static grain and the cursor light. The glass above blurs all of it. */
+.backdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  background: #070a12;
 }
-.ledger-field .aurora {
-  position: absolute;
-  inset: -12%;
-  opacity: 0;
-  transition: opacity 600ms var(--ease-out);
-  animation: aurora-drift 60s ease-in-out infinite alternate;
-  will-change: transform;
-}
-.ledger-field[data-mood="overview"] .aurora-overview,
-.ledger-field[data-mood="lineage"] .aurora-lineage,
-.ledger-field[data-mood="limits"] .aurora-limits,
-.ledger-field[data-mood="compare"] .aurora-compare {
-  opacity: 1;
-}
-.aurora-overview {
-  background:
-    radial-gradient(34% 30% at 10% 6%, rgb(52 211 153 / 0.15), transparent 70%),
-    radial-gradient(30% 34% at 94% 20%, rgb(56 189 248 / 0.13), transparent 70%),
-    radial-gradient(36% 26% at 78% 100%, rgb(251 191 36 / 0.07), transparent 70%);
-}
-.aurora-lineage {
-  background:
-    radial-gradient(42% 32% at 8% 0%, rgb(52 211 153 / 0.16), transparent 70%),
-    radial-gradient(30% 30% at 100% 92%, rgb(52 211 153 / 0.07), transparent 70%);
-}
-.aurora-limits {
-  background:
-    radial-gradient(42% 32% at 8% 0%, rgb(251 113 133 / 0.15), transparent 70%),
-    radial-gradient(30% 30% at 100% 92%, rgb(251 113 133 / 0.07), transparent 70%);
-}
-.aurora-compare {
-  background:
-    radial-gradient(30% 55% at 0% 45%, rgb(52 211 153 / 0.14), transparent 70%),
-    radial-gradient(30% 55% at 100% 45%, rgb(251 113 133 / 0.14), transparent 70%);
-}
-.field-grid {
+.backdrop-gl {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at center, rgb(255 255 255 / 0.07) 0.9px, transparent 1.4px);
-  background-size: 28px 28px;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
 }
-@keyframes aurora-drift {
-  from {
-    transform: translate3d(-2%, -1%, 0) scale(1);
-  }
-  to {
-    transform: translate3d(2%, 1.5%, 0) scale(1.06);
-  }
+.backdrop[data-gl="on"] .backdrop-gl {
+  opacity: 1;
 }
-@media (prefers-reduced-motion: reduce) {
-  .ledger-field .aurora {
-    animation: none;
-  }
+.backdrop-css {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 800ms var(--ease-in-out);
+}
+.backdrop[data-gl="off"][data-mood="overview"] .backdrop-css-overview,
+.backdrop[data-gl="off"][data-mood="lineage"] .backdrop-css-lineage,
+.backdrop[data-gl="off"][data-mood="limits"] .backdrop-css-limits,
+.backdrop[data-gl="off"][data-mood="compare"] .backdrop-css-compare {
+  opacity: 1;
+}
+.backdrop-css-overview {
+  background:
+    radial-gradient(45% 55% at 8% 12%, #1a1f4d, transparent 70%),
+    radial-gradient(40% 50% at 92% 30%, #0e3b43, transparent 70%),
+    radial-gradient(45% 45% at 62% 95%, #1a1f4d, transparent 70%),
+    radial-gradient(25% 25% at 12% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-lineage {
+  background:
+    radial-gradient(45% 55% at 6% 10%, #0e3b43, transparent 70%),
+    radial-gradient(38% 45% at 94% 28%, #0d3f32, transparent 70%),
+    radial-gradient(45% 45% at 60% 98%, #0e3b43, transparent 70%),
+    radial-gradient(25% 25% at 90% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-limits {
+  background:
+    radial-gradient(45% 55% at 6% 10%, #1a1f4d, transparent 70%),
+    radial-gradient(38% 45% at 94% 30%, #4a1830, transparent 70%),
+    radial-gradient(45% 45% at 60% 98%, #1a1f4d, transparent 70%),
+    radial-gradient(25% 25% at 88% 100%, #3a2a0c, transparent 70%);
+}
+.backdrop-css-compare {
+  background:
+    radial-gradient(38% 60% at 4% 30%, #0e3b43, transparent 70%),
+    radial-gradient(38% 60% at 96% 30%, #4a1830, transparent 70%),
+    radial-gradient(30% 30% at 50% 105%, #3a2a0c, transparent 70%);
+}
+.backdrop-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.025) 55%, transparent);
+  opacity: 0;
+  will-change: transform;
+}
+.backdrop-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
 }
 
 /* Big numbers: sized against their container so they never overflow it. Put .stat inside a
@@ -412,12 +427,5 @@ html.lenis body {
 @media (prefers-reduced-motion: reduce) {
   .scroll-cue {
     animation: none;
-  }
-}
-
-/* Phones: text covers most of the screen, so the threads sit further back. */
-@media (max-width: 767px) {
-  .ledger-field canvas {
-    opacity: 0.55;
   }
 }
