@@ -72,6 +72,6 @@ Payee provenance, enforced on-chain in `contracts/vault`:
 
 ## Status
 
-- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks) · F06 read-only dashboard in `web/` (Overview scroll story with a glass vault hero, both vaults, Compare scroll stage; glass panels over a WebGL mesh gradient; live testnet reads; 195 web tests, 8 verify:web checks)
+- Done: F00 scaffold · F01 vault · F02 registry · F03 mock USDC (23 unit tests) · F04 testnet deploy + verify (12/12 checks) · F05 agent (35 agent unit tests) · F05.1 memo cut on a char boundary + `upgrade:vaults` (21 vault unit tests, 13 verify checks) · F06 read-only dashboard in `web/` (Overview scroll story with a glass vault hero, both vaults, Compare scroll stage; glass panels over a WebGL mesh gradient; live testnet reads; 191 web tests, 8 verify:web checks)
 - Live on testnet: `deployments/testnet.json` (root `lineage-aditya.testnet`; vault and guarded run identical code; `npm run verify:deploy` prints the current code hash; task 0 on both, expires 2026-11-25)
 - Next: F07 wallet connection and owner actions · F08 task creation, polish, Vercel deploy · F09 README, video, X post

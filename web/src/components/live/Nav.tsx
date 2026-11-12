@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import { Popover } from "radix-ui";
 import { useState } from "react";
 import { cn } from "@/components/cn";
-import { LiveIndicator } from "./LiveIndicator";
 
 const LINKS = [
   { href: "/", label: "Overview" },
@@ -72,10 +71,6 @@ function MobileMenu({ path }: { path: string }) {
               })}
             </ul>
           </nav>
-          <p className="mt-1 flex items-center gap-1.5 border-t border-hairline px-3 pt-2.5 pb-1.5 text-micro text-muted-foreground sm:hidden">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-p3" />
-            Testnet
-          </p>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
@@ -94,10 +89,6 @@ export function Nav() {
           <LineageMark className="size-5" />
           <span className="text-[1.125rem] leading-none font-semibold">Lineage</span>
         </Link>
-        <span className="hidden shrink-0 items-center gap-1.5 text-micro text-muted-foreground sm:inline-flex">
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-p3" />
-          Testnet
-        </span>
 
         <nav aria-label="Main" className="ml-auto hidden h-full lg:block">
           <ul className="flex h-full items-center gap-1">
@@ -129,8 +120,7 @@ export function Nav() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-2">
-          <LiveIndicator />
+        <div className="ml-auto flex shrink-0 items-center lg:hidden">
           <MobileMenu path={path} />
         </div>
       </div>

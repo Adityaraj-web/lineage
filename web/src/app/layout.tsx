@@ -22,6 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Backdrop />
           <Nav />
           <main className="relative z-10 mx-auto w-full max-w-[75rem] px-5 pb-24 md:px-10">{children}</main>
+          <footer className="relative z-10 mx-auto w-full max-w-[75rem] px-5 pb-10 text-small text-muted-foreground md:px-10">
+            Live data from NEAR testnet.
+          </footer>
         </Providers>
       </body>
     </html>

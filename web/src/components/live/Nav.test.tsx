@@ -30,8 +30,10 @@ describe("Nav", () => {
     expect(button).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("says it is on testnet in plain words", () => {
+  it("stays quiet: no network label, live status or refresh button", () => {
     renderUI(<Nav />);
-    expect(screen.getByText("Testnet")).toBeInTheDocument();
+    expect(screen.queryByText(/testnet/i)).toBeNull();
+    expect(screen.queryByText(/updated/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /refresh/i })).toBeNull();
   });
 });
