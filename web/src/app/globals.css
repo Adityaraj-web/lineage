@@ -244,3 +244,67 @@
     animation-delay: 0s !important;
   }
 }
+
+/* Ledger field (components/field). Aurora and dot grid are CSS: compositor-only, and they still
+   show without JS. Peaks sit at the edges; behind text columns the aurora stays near ink. */
+.ledger-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ledger-field .aurora {
+  position: absolute;
+  inset: -12%;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+  animation: aurora-drift 60s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.ledger-field[data-mood="overview"] .aurora-overview,
+.ledger-field[data-mood="lineage"] .aurora-lineage,
+.ledger-field[data-mood="limits"] .aurora-limits,
+.ledger-field[data-mood="compare"] .aurora-compare {
+  opacity: 1;
+}
+.aurora-overview {
+  background:
+    radial-gradient(34% 30% at 10% 6%, rgb(52 211 153 / 0.15), transparent 70%),
+    radial-gradient(30% 34% at 94% 20%, rgb(56 189 248 / 0.13), transparent 70%),
+    radial-gradient(36% 26% at 78% 100%, rgb(251 191 36 / 0.07), transparent 70%);
+}
+.aurora-lineage {
+  background:
+    radial-gradient(42% 32% at 8% 0%, rgb(52 211 153 / 0.16), transparent 70%),
+    radial-gradient(30% 30% at 100% 92%, rgb(52 211 153 / 0.07), transparent 70%);
+}
+.aurora-limits {
+  background:
+    radial-gradient(42% 32% at 8% 0%, rgb(251 113 133 / 0.15), transparent 70%),
+    radial-gradient(30% 30% at 100% 92%, rgb(251 113 133 / 0.07), transparent 70%);
+}
+.aurora-compare {
+  background:
+    radial-gradient(30% 55% at 0% 45%, rgb(52 211 153 / 0.14), transparent 70%),
+    radial-gradient(30% 55% at 100% 45%, rgb(251 113 133 / 0.14), transparent 70%);
+}
+.field-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, rgb(255 255 255 / 0.07) 0.9px, transparent 1.4px);
+  background-size: 28px 28px;
+}
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 1.5%, 0) scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ledger-field .aurora {
+    animation: none;
+  }
+}
