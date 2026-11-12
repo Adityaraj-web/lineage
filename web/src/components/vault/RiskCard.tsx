@@ -14,7 +14,7 @@ export const FINDING_STAGGER = 0.12;
 export const findingDelay = (i: number) => FINDINGS_START + i * FINDING_STAGGER;
 
 const LEVELS: RiskLevel[] = ["low", "medium", "high"];
-const LEVEL_WORD: Record<RiskLevel, string> = { high: "High risk", medium: "Medium risk", low: "Low risk" };
+export const LEVEL_WORD: Record<RiskLevel, string> = { high: "High risk", medium: "Medium risk", low: "Low risk" };
 const ICON: Record<FindingTone, typeof Info> = {
   danger: ShieldAlert,
   warn: TriangleAlert,

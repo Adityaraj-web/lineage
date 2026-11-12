@@ -2,7 +2,7 @@ import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { parseEmail } from "@/lib/emails";
 import { agentKeyProof } from "@/lib/views";
-import { CODE_HASH, GUARDED, VAULT, agentKey, p5Poisoned } from "@/lib/test-fixtures";
+import { CODE_HASH, GUARDED, NO_STATS, PLAIN_ACCOUNT, VAULT, agentKey, demoTask, p3Translation, p4Alice, p5Poisoned } from "@/lib/test-fixtures";
 import { renderUI } from "@/test/render";
 import { setPinned, setReducedMotion } from "@/test/media";
 import { compareView, demoPayments, overview } from "@/test/views";
@@ -138,13 +138,23 @@ describe("OverviewStory", () => {
     expect(screen.getByRole("heading", { name: "Different code." })).toBeInTheDocument();
   });
 
-  it("scene 5 opens three doorways with live facts", () => {
-    renderUI(<OverviewStory view={overview()} emails={EMAILS} />);
+  it("scene 5 opens three doorways with live facts, the held payment previewed", () => {
+    const held = { payment: p5Poisoned(), task: demoTask(), mode: "Lineage" as const, taskPayments: [p3Translation(), p4Alice(), p5Poisoned()], account: PLAIN_ACCOUNT, stats: NO_STATS };
+    renderUI(<OverviewStory view={overview({ held })} emails={EMAILS} />);
     const doors = within(screen.getByRole("region", { name: "See it for yourself." }));
-    expect(doors.getByRole("link", { name: /Review what needs you/ })).toHaveAttribute("href", "/vault/vault#inbox");
-    expect(doors.getByRole("link", { name: /Review what needs you/ })).toHaveTextContent("49 tUSDC to vendor-payments, held for you");
+    const review = doors.getByRole("link", { name: /Review what needs you/ });
+    expect(review).toHaveAttribute("href", "/vault/vault#inbox");
+    expect(review).toHaveTextContent("49 tUSDC to vendor-payments");
+    expect(within(review).getByText("Untrusted — needs you")).toBeInTheDocument();
+    expect(within(review).getByText("High risk")).toBeInTheDocument();
     expect(doors.getByRole("link", { name: /See the attack side by side/ })).toHaveAttribute("href", "/compare");
     expect(doors.getByRole("link", { name: /Inspect the vaults/ })).toHaveAttribute("href", "/vault/vault");
+  });
+
+  it("the review doorway never shows a lone number", () => {
+    renderUI(<OverviewStory view={overview({ awaitingCount: 0 })} emails={EMAILS} />);
+    const review = within(screen.getByRole("region", { name: "See it for yourself." })).getByRole("link", { name: /Review what needs you/ });
+    expect(review).toHaveTextContent("Nothing is waiting for you");
   });
 
   it("uses no middle-dot strings", () => {

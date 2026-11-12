@@ -120,6 +120,8 @@ export interface OverviewFacts {
 }
 
 export interface HeldPreview {
+  // Untrusted: the agent copied it from an email. Plain text only.
+  memo: string;
   amount: string;
   payee: string;
   badge: Badge;
@@ -344,6 +346,7 @@ export function buildOverview(f: OverviewFacts): Overview {
 
 function heldPreview(facts: RiskFacts): HeldPreview {
   return {
+    memo: facts.payment.memo,
     amount: fmtUsdc(facts.payment.amount),
     payee: facts.payment.payee!,
     badge: provenanceBadge(facts.payment, facts.task, facts.mode),
