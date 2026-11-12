@@ -49,15 +49,9 @@ export function CompareSkeleton() {
 
 export function OverviewSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading live state from testnet" className="flex flex-col gap-6">
-      <div className="grid gap-6 md:grid-cols-[1.6fr_1fr]">
-        <Block className="h-56" />
-        <Block className="h-56" />
-      </div>
-      <div className="grid gap-6 md:grid-cols-2">
-        <Block className="h-64" />
-        <Block className="h-64" />
-      </div>
+    <div aria-busy="true" aria-label="Loading live state from testnet" className="flex flex-col gap-6 py-24">
+      <Block className="h-12 w-2/3 max-w-xl" />
+      <Block className="aspect-[1200/620] w-full" />
     </div>
   );
 }

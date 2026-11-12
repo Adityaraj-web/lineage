@@ -3,10 +3,11 @@
 import { useCallback, useEffect } from "react";
 import { seedPollCache } from "@/hooks/poll-cache";
 import { usePolling } from "@/hooks/usePolling";
-import { liveDeps } from "@/lib/live";
+import { DEMO_EMAILS, liveDeps } from "@/lib/live";
 import { loadOverview } from "@/lib/views";
 import { ErrorToast, LoadError } from "../live/ScreenState";
-import { OverviewDashboard } from "../overview/OverviewDashboard";
+import { Hero } from "../overview/Hero";
+import { OverviewStory } from "../overview/OverviewStory";
 import { OverviewSkeleton } from "./Skeletons";
 
 export function OverviewScreen() {
@@ -16,11 +17,17 @@ export function OverviewScreen() {
   useEffect(() => {
     if (data) seedPollCache("compare", data.compare);
   }, [data]);
-  if (!data) return error ? <LoadError error={error} onRetry={refresh} /> : <OverviewSkeleton />;
   return (
     <>
-      <OverviewDashboard view={data} />
-      <ErrorToast error={error} />
+      <Hero count={data ? data.awaitingCount : null} />
+      {data ? (
+        <OverviewStory view={data} emails={DEMO_EMAILS} />
+      ) : error ? (
+        <LoadError error={error} onRetry={refresh} />
+      ) : (
+        <OverviewSkeleton />
+      )}
+      {data && <ErrorToast error={error} />}
     </>
   );
 }

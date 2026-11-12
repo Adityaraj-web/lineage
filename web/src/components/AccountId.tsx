@@ -4,6 +4,9 @@ import { DEPLOYMENT, explorerAccount } from "@/lib/config";
 
 const SUFFIX = `.${DEPLOYMENT.root}`;
 
+// "vendor-payments.lineage-aditya.testnet" → "vendor-payments" (labels where the full id is nearby).
+export const shortId = (id: string): string => (id.endsWith(SUFFIX) ? id.slice(0, -SUFFIX.length) : id);
+
 // Mono account id with the deployment root dimmed: vendor-payments.lineage-aditya.testnet.
 // The full id is always in the DOM; the suffix moves to its own line, and only clips with an ellipsis when even that is too narrow.
 export function AccountId({ id, link = false, className }: { id: string; link?: boolean; className?: string }) {

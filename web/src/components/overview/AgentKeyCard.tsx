@@ -36,7 +36,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id={`key-${vault}-title`} className="label flex items-center gap-2">
-            <KeyRound className="size-3.5" aria-hidden="true" /> Agent key · {vaultName}
+            <KeyRound className="size-3.5" aria-hidden="true" /> Agent key for the {vaultName}
           </h3>
           <AccountId id={agentId} link className="mt-1.5 block text-[13px]" />
         </div>
@@ -46,7 +46,7 @@ export function AgentKeyCard({ vault, agentId, proof }: { vault: VaultKey; agent
             proof.ok ? "border-p1-ring bg-p1-soft text-p1" : "border-attacker-ring bg-attacker-soft text-attacker",
           )}
         >
-          {proof.ok ? "1 key · function-call only" : "Key check failed"}
+          {proof.ok ? "One function-call key" : "Key check failed"}
         </span>
       </header>
 

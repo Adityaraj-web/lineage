@@ -28,7 +28,7 @@ export function ProvenanceBadge({
         a.soft,
         a.border,
         wrap && "items-start rounded-[11px] whitespace-normal",
-        needsYou && "animate-glow-amber motion-reduce:animate-none motion-reduce:shadow-[0_0_14px_1px_rgb(251_191_36/0.28)]",
+        needsYou && "glow-amber",
         className,
       )}
     >

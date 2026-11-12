@@ -41,7 +41,7 @@ export function StatusPill({
       className={cn(
         "relative inline-flex h-6 items-center overflow-hidden rounded-full border px-2.5 text-micro font-medium whitespace-nowrap transition-colors duration-300",
         cls,
-        status === "AwaitingApproval" && "animate-glow-amber motion-reduce:animate-none",
+        status === "AwaitingApproval" && "glow-amber",
         className,
       )}
     >

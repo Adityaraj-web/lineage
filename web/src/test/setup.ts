@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { MotionGlobalConfig } from "motion/react";
 import { afterEach } from "vitest";
-import { setReducedMotion } from "./media";
+import { setPinned, setReducedMotion } from "./media";
 
 MotionGlobalConfig.skipAnimations = true;
 
@@ -22,4 +22,5 @@ setReducedMotion(false);
 afterEach(() => {
   cleanup();
   setReducedMotion(false);
+  setPinned(false);
 });
