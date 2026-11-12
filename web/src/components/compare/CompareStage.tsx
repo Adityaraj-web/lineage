@@ -1,37 +1,26 @@
 "use client";
 
-import { ArrowUpRight, Check, Lock, Mail, RotateCcw, ShieldCheck, ShieldOff, X } from "lucide-react";
-import { motion, useInView, type TargetAndTransition, type Transition } from "motion/react";
-import { useRef, useState } from "react";
+import { ArrowUpRight, RotateCcw } from "lucide-react";
+import { animate, motion, useInView, useMotionValue, useScroll, useTransform, type AnimationPlaybackControls, type MotionValue } from "motion/react";
+import { useCallback, useEffect, useRef } from "react";
 import { cn } from "@/components/cn";
+import { usePinned } from "@/hooks/useMediaQuery";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
-import { VAULT_IDS, type VaultKey } from "@/lib/config";
+import { type VaultKey } from "@/lib/config";
 import { fmtUsdc } from "@/lib/format";
 import type { CompareRow, CompareSide, CompareView } from "@/lib/views";
-import { AccountId } from "../AccountId";
-import { CountUp } from "../CountUp";
-import { Shared } from "../transitions";
+import { AccountId, shortId } from "../AccountId";
 import { Memo } from "../Memo";
-import { EASE_IN_OUT, EASE_OUT } from "../motion";
 import { ProvenanceBadge } from "../ProvenanceBadge";
+import { Seal } from "../Seal";
+import { useSmoothScroll } from "../SmoothScroll";
 import { StatusPill } from "../StatusPill";
-import { accentClass, accentHex, badgeAccent, type Accent } from "../tone";
+import { Counter } from "../story/Counter";
+import { useCount, useStep } from "../story/progress";
+import { accentHex, badgeAccent, type Accent } from "../tone";
 
-// One timeline, in seconds from the moment the stage is first in view.
-const T = {
-  seal: 0,
-  rows: 0.3,
-  rowStagger: 0.08,
-  flow: 0.75, // the two clean rows, one after the other
-  flowGap: 0.45,
-  flowDur: 0.6,
-  poison: 1.8,
-  poisonDur: 0.9,
-  counters: 2.9,
-  summary: 4.1,
-};
-const GATE_AT = T.poison + T.poisonDur * 0.55;
-const ARRIVE = T.poison + T.poisonDur;
+const REPLAY_SECONDS = 6;
+const STACKED_SECONDS = 3;
 
 export function compareSummary(view: CompareView): string {
   const row = view.rows.find((r) => r.poisoned);
@@ -56,375 +45,338 @@ export function compareSummary(view: CompareView): string {
   return `Same agent, same plan${view.sameCode ? ", same code" : ""}. ${lineage}; ${limits}.`;
 }
 
-interface Play {
-  on: boolean;
-  reduced: boolean;
+const gatedStatus = (s: CompareSide) => {
+  const st = s.payment?.status;
+  return st === "AwaitingApproval" || st === "Rejected" || st === "Blocked";
+};
+const sideAccent = (s: CompareSide): Accent => (s.badge ? badgeAccent[s.badge.tone] : "neutral");
+
+// Each row's share of the stage's progress; everything has landed by 85%.
+interface RowTiming {
+  draw: [number, number]; // both threads to their gate point
+  finish: Record<VaultKey, [number, number]>; // gate closes, or the thread runs on to the vault
+  land: Record<VaultKey, [number, number]>; // the outcome appears
+}
+function rowTiming(row: CompareRow, clean: number): RowTiming {
+  if (row.poisoned)
+    return {
+      draw: [0.4, 0.5],
+      finish: { vault: [0.5, 0.58], guarded: [0.58, 0.68] },
+      land: { vault: [0.53, 0.58], guarded: [0.64, 0.68] },
+    };
+  const s = 0.08 + clean * 0.16;
+  return {
+    draw: [s, s + 0.08],
+    finish: { vault: [s + 0.08, s + 0.12], guarded: [s + 0.08, s + 0.12] },
+    land: { vault: [s + 0.11, s + 0.15], guarded: [s + 0.11, s + 0.15] },
+  };
 }
 
-// initial/animate/transition for an element that animates from `off` to `on` once the stage plays.
-function play(p: Play, off: TargetAndTransition, on: TargetAndTransition, transition: Transition) {
-  if (p.reduced) return { initial: false as const, animate: on };
-  return { initial: off, animate: p.on ? on : off, transition };
+// The thread from the request (centre) out to one vault: draws to the gate point, then either stops
+// at a closed gate or runs on. Transform only (scaleX on two bars).
+function Track({ dir, side, t, k, p }: { dir: "left" | "right"; side: CompareSide; t: RowTiming; k: VaultKey; p: MotionValue<number> }) {
+  const gated = gatedStatus(side);
+  const color = accentHex[sideAccent(side)];
+  const a = useStep(p, t.draw[0], t.draw[1]);
+  const b = useStep(p, t.finish[k][0], t.finish[k][1]);
+  const aT = useTransform(a, (v) => `scaleX(${v})`);
+  const bT = useTransform(b, (v) => `scaleX(${v})`);
+  const origin = dir === "left" ? "origin-right" : "origin-left";
+  const near = dir === "left" ? "right-0" : "left-0";
+  const far = dir === "left" ? "left-0" : "right-0";
+  return (
+    <div className="relative hidden h-full min-h-14 md:block" aria-hidden="true">
+      <span className="absolute inset-x-0 top-1/2 h-px bg-white/[0.07]" />
+      <motion.span className={cn("absolute top-1/2 h-[2px] w-[60%] -translate-y-1/2", near, origin)} style={{ background: color, transform: aT }} />
+      {gated ? (
+        <>
+          <motion.span
+            className={cn("absolute top-1/2 h-9 w-[3px] -translate-y-1/2 rounded-full", dir === "left" ? "left-[38%]" : "right-[38%]")}
+            style={{ background: color, opacity: b }}
+          />
+          <motion.span
+            className={cn("absolute top-1/2 size-14 -translate-y-1/2 rounded-full", dir === "left" ? "left-[calc(38%-1.6rem)]" : "right-[calc(38%-1.6rem)]")}
+            style={{ background: `radial-gradient(circle, ${color}55, transparent 70%)`, opacity: b }}
+          />
+        </>
+      ) : (
+        <motion.span className={cn("absolute top-1/2 h-[2px] w-[40%] -translate-y-1/2", far, origin)} style={{ background: color, transform: bT }} />
+      )}
+    </div>
+  );
 }
 
-const shortHash = (h: string) => (h.length > 12 ? `${h.slice(0, 4)}…${h.slice(-4)}` : h);
-
-function SameCodeSeal({ view, p }: { view: CompareView; p: Play }) {
-  const same = view.sameCode;
-  const ring = same ? "var(--color-p1)" : "var(--color-attacker)";
+function StageSide({ k, side, t, p, poisoned }: { k: VaultKey; side: CompareSide; t: RowTiming; p: MotionValue<number>; poisoned: boolean }) {
+  const land = useStep(p, t.land[k][0], t.land[k][1]);
+  const attackerPaid = poisoned && k === "guarded" && side.payment?.status === "Paid";
   return (
     <motion.div
-      data-testid="same-code-seal"
       className={cn(
-        "relative grid size-32 place-items-center rounded-full border bg-ink",
-        same ? "border-p1-ring shadow-[0_0_40px_-8px_rgb(52_211_153/0.45)]" : "border-attacker-ring",
+        "flex min-w-0 flex-col items-start gap-2 rounded-2xl border p-3 md:p-3.5",
+        attackerPaid ? "border-attacker-ring bg-attacker-soft" : poisoned && gatedStatus(side) ? "border-p3-ring bg-p3-soft" : "border-white/[0.07] bg-raised-2",
+        k === "guarded" && "md:items-end md:text-right",
       )}
-      {...play(
-        p,
-        { scale: 1.15, rotate: -8, opacity: 0 },
-        { scale: 1, rotate: 0, opacity: 1 },
-        { type: "spring", stiffness: 260, damping: 20, delay: T.seal },
-      )}
+      style={{ opacity: land }}
     >
-      <svg viewBox="0 0 128 128" className="absolute inset-0 size-full" aria-hidden="true">
-        <defs>
-          <path id="seal-ring" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
-        </defs>
-        <circle cx="64" cy="64" r="58" fill="none" stroke={ring} strokeOpacity="0.25" strokeDasharray="2 4" />
-        <text className="fill-muted-foreground text-[10px] font-medium">
-          <textPath href="#seal-ring">same agent · same plan · same contract ·</textPath>
-        </text>
-      </svg>
-      <div className="relative flex flex-col items-center gap-0.5 text-center">
-        {same ? (
-          <Check className="size-4 text-p1" aria-hidden="true" />
-        ) : (
-          <X className="size-4 text-attacker" aria-hidden="true" />
-        )}
-        <span className={cn("text-[1rem] leading-tight font-semibold", same ? "text-p1" : "text-attacker")}>
-          {same ? "same code" : "different code"}
-        </span>
-        {same && view.codeHashes.vault && (
-          <>
-            <span className="font-mono text-[10px] text-muted-foreground" aria-hidden="true">
-              {shortHash(view.codeHashes.vault)}
-            </span>
-            <span className="sr-only">{view.codeHashes.vault}</span>
-          </>
-        )}
-        {!same && (
-          <span className="sr-only">
-            Lineage {view.codeHashes.vault ?? "no code"}, LimitsOnly {view.codeHashes.guarded ?? "no code"}
+      <p className="text-micro text-muted-foreground md:hidden">{k === "vault" ? "Lineage" : "LimitsOnly"}</p>
+      {side.payment && side.badge ? (
+        <>
+          <ProvenanceBadge badge={{ ...side.badge, detail: "" }} wrap />
+          <span className="flex flex-wrap items-center gap-2">
+            <StatusPill status={side.payment.status} accent={attackerPaid ? "attacker" : undefined} />
+            <span className="num text-small text-foreground">{side.amount}</span>
           </span>
-        )}
-      </div>
+        </>
+      ) : (
+        <p className="text-small text-faint">{side.statusLabel}</p>
+      )}
     </motion.div>
   );
 }
 
-// The lane a payment travels from the shared message (centre) out to one vault's outcome.
-function Track({
-  dir,
-  accent,
-  gated,
-  delay,
-  duration,
-  p,
-}: {
-  dir: "left" | "right";
-  accent: Accent;
-  gated: boolean;
-  delay: number;
-  duration: number;
-  p: Play;
-}) {
-  const color = accentHex[accent];
-  const from = dir === "left" ? "100%" : "0%";
-  const to = dir === "left" ? "0%" : "100%";
-  const stop = dir === "left" ? "30%" : "70%";
-  const overshoot = dir === "left" ? "24%" : "76%";
-  const gateAt = dir === "left" ? "left-[16%]" : "left-[84%]";
+function StageRow({ row, t, p }: { row: CompareRow; t: RowTiming; p: MotionValue<number> }) {
   return (
-    <div className="relative hidden h-full min-h-16 md:block" aria-hidden="true">
-      <span
-        className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2"
-        style={{ backgroundImage: `linear-gradient(90deg, ${color}55 50%, transparent 0)`, backgroundSize: "6px 1px" }}
-      />
-      {gated && (
-        <motion.span
-          className={cn("absolute top-1/2 h-9 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full", gateAt)}
-          style={{ background: color, boxShadow: `0 0 16px 2px ${color}88`, originY: 0.5 }}
-          {...play(p, { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1 }, {
-            type: "spring",
-            stiffness: 520,
-            damping: 24,
-            delay: GATE_AT,
-          })}
-        />
-      )}
-      {gated && (
-        <motion.span
-          className={cn("absolute top-[calc(50%-30px)] -translate-x-1/2", gateAt)}
-          {...play(p, { opacity: 0 }, { opacity: 1 }, { duration: 0.2, delay: GATE_AT + 0.1 })}
-        >
-          <Lock className="size-3" style={{ color }} />
-        </motion.span>
-      )}
-      <motion.span
-        className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{ background: color, boxShadow: `0 0 14px 3px ${color}99` }}
-        {...play(
-          p,
-          { left: from, opacity: 0 },
-          gated ? { left: [from, overshoot, stop], opacity: [0, 1, 1] } : { left: [from, to], opacity: [0, 1] },
-          gated
-            ? { duration, delay, times: [0, 0.82, 1], ease: [EASE_IN_OUT, EASE_OUT] }
-            : { duration, delay, ease: EASE_IN_OUT, opacity: { duration: 0.15, delay } },
+    <div className={cn("grid grid-cols-2 gap-2 md:grid-cols-[minmax(0,1fr)_minmax(2.5rem,5rem)_minmax(12rem,17rem)_minmax(2.5rem,5rem)_minmax(0,1fr)] md:items-center md:gap-0")}>
+      <div className="order-2 md:order-none">
+        <StageSide k="vault" side={row.sides.vault} t={t} p={p} poisoned={row.poisoned} />
+      </div>
+      <Track dir="left" side={row.sides.vault} t={t} k="vault" p={p} />
+      <div
+        className={cn(
+          "order-1 col-span-2 rounded-2xl border px-4 py-3 md:order-none md:col-span-1",
+          row.poisoned ? "border-dashed border-attacker-ring bg-attacker-soft" : "border-white/[0.07] bg-raised",
         )}
-      />
+      >
+        <p className="text-small leading-snug text-foreground">
+          <Memo text={row.subject} />
+        </p>
+        {row.poisoned && <p className="mt-1 text-micro text-attacker">Poisoned: new payout details</p>}
+      </div>
+      <Track dir="right" side={row.sides.guarded} t={t} k="guarded" p={p} />
+      <div className="order-3 md:order-none">
+        <StageSide k="guarded" side={row.sides.guarded} t={t} p={p} poisoned={row.poisoned} />
+      </div>
     </div>
   );
 }
 
-function SideCell({
-  vault,
-  side,
-  poisoned,
-  arriveAt,
-  p,
-}: {
-  vault: VaultKey;
-  side: CompareSide;
-  poisoned: boolean;
-  arriveAt: number;
-  p: Play;
-}) {
-  const accent: Accent = side.badge ? badgeAccent[side.badge.tone] : "neutral";
-  const a = accentClass[accent];
-  const attackerPaid = poisoned && vault === "guarded" && side.payment?.status === "Paid";
+function Stage({ view, p, settled, onReplay }: { view: CompareView; p: MotionValue<number>; settled: boolean; onReplay: (() => void) | null }) {
+  const count = useStep(p, 0.68, 0.8);
+  const counted = { vault: useCount(count, view.attackerReceived.vault), guarded: useCount(count, view.attackerReceived.guarded) };
+  const fixed = { vault: useMotionValue(fmtUsdc(view.attackerReceived.vault)), guarded: useMotionValue(fmtUsdc(view.attackerReceived.guarded)) };
+  useEffect(() => {
+    fixed.vault.set(fmtUsdc(view.attackerReceived.vault));
+    fixed.guarded.set(fmtUsdc(view.attackerReceived.guarded));
+  }, [view.attackerReceived.vault, view.attackerReceived.guarded, fixed.vault, fixed.guarded]);
+  const text = settled ? fixed : counted;
+
+  const split = useStep(p, 0.4, 0.5);
+  const flash = useTransform(p, [0.62, 0.65, 0.72], [0, 1, 0.4]);
+  const seal = useStep(p, 0.78, 0.85);
+  const sealT = useTransform(seal, (v) => `scale(${1.12 - 0.12 * v}) rotate(${-8 + 8 * v}deg)`);
+  const replayIn = useStep(p, 0.8, 0.85);
+  let clean = 0;
+
   return (
-    <div
-      data-testid={`side-${vault}`}
-      className={cn(
-        "relative flex min-w-0 flex-col gap-2.5 overflow-hidden rounded-2xl border p-4",
-        poisoned ? cn(a.border, "bg-raised") : "border-white/[0.07] bg-white/[0.02]",
-      )}
-    >
-      {poisoned && (
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(120% 140% at ${vault === "vault" ? "100%" : "0%"} 50%, ${accentHex[accent]}2e, transparent 70%)` }}
-          {...play(p, { opacity: 0 }, { opacity: 1 }, { duration: 0.5, delay: arriveAt })}
+    <div className="stage relative overflow-hidden p-4 md:p-8">
+      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[radial-gradient(70%_60%_at_30%_70%,rgb(52_211_153/0.08),transparent_70%)]" style={{ opacity: split }} />
+      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(70%_60%_at_70%_70%,rgb(251_113_133/0.10),transparent_70%)]" style={{ opacity: split }} />
+      <motion.div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(60%_50%_at_80%_80%,rgb(251_113_133/0.18),transparent_70%)]" style={{ opacity: flash }} />
+
+      <div className="relative grid grid-cols-2 items-end gap-4 md:grid-cols-[1fr_auto_1fr]">
+        <Counter vault="vault" value={view.attackerReceived.vault} text={text.vault} testId="attacker-vault" label="Attacker received from Lineage" className="w-full" />
+        <p className="hidden pb-2 text-center text-micro text-muted-foreground md:block">
+          attacker
+          <span className="block font-mono text-[12px] text-attacker">{shortId(view.attacker)}</span>
+        </p>
+        <Counter
+          vault="guarded"
+          value={view.attackerReceived.guarded}
+          text={text.guarded}
+          testId="attacker-guarded"
+          label="Attacker received from LimitsOnly"
+          className="w-full md:text-right"
         />
-      )}
-      <p className="label md:hidden">{vault === "vault" ? "Lineage" : "LimitsOnly"}</p>
+      </div>
+
+      <div className="relative mt-6 flex flex-col gap-3 md:mt-8" aria-hidden="true">
+        <div className="hidden grid-cols-[minmax(0,1fr)_minmax(2.5rem,5rem)_minmax(12rem,17rem)_minmax(2.5rem,5rem)_minmax(0,1fr)] text-small font-semibold md:grid">
+          <span>Lineage vault</span>
+          <span />
+          <span className="text-center text-muted-foreground">What the agent asked</span>
+          <span />
+          <span className="text-right">LimitsOnly vault</span>
+        </div>
+        {view.rows.map((row) => (
+          <StageRow key={row.message} row={row} t={rowTiming(row, row.poisoned ? 0 : clean++)} p={p} />
+        ))}
+      </div>
+
+      <div className="relative mt-6 flex items-center justify-center gap-6 md:mt-8">
+        <motion.div style={{ opacity: seal, transform: sealT }}>
+          <Seal hashes={view.codeHashes} sameCode={view.sameCode} />
+        </motion.div>
+        {onReplay && (
+          <motion.button
+            type="button"
+            onClick={onReplay}
+            style={{ opacity: replayIn }}
+            className="press inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-raised px-4 text-small text-foreground transition-colors duration-150 hover-fine:bg-raised-2 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none"
+          >
+            <RotateCcw className="size-4" aria-hidden="true" /> Replay
+          </motion.button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TxLink({ side, vault }: { side: CompareSide; vault: VaultKey }) {
+  if (!side.txUrl) return null;
+  return (
+    <a
+      href={side.txUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`View the ${vault === "vault" ? "Lineage" : "LimitsOnly"} transaction on NEAR Blocks`}
+      className="inline-grid size-7 place-items-center rounded-full text-muted-foreground transition-colors duration-150 hover-fine:bg-white/[0.06] hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
+    >
+      <ArrowUpRight className="size-4" aria-hidden="true" />
+    </a>
+  );
+}
+
+function TableSide({ side, vault }: { side: CompareSide; vault: VaultKey }) {
+  return (
+    <div data-testid={`side-${vault}`} className="flex min-w-0 flex-col gap-2">
+      <p className="text-micro text-muted-foreground md:hidden">{vault === "vault" ? "Lineage vault" : "LimitsOnly vault"}</p>
       {side.payment && side.badge ? (
         <>
-          <div className="relative">
-            <ProvenanceBadge badge={side.badge} compact wrap />
+          <ProvenanceBadge badge={side.badge} compact />
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <StatusPill status={side.payment.status} />
+            <span className="num text-small">{side.amount}</span>
+            <TxLink side={side} vault={vault} />
           </div>
-          <div className="relative flex flex-wrap items-center justify-between gap-2">
-            <StatusPill status={side.payment.status} accent={attackerPaid ? "attacker" : undefined} />
-            <span className="num text-body">{side.amount}</span>
-          </div>
-          <div className="relative flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            {side.payee ? <AccountId id={side.payee} className="text-[12px]" /> : <span className="text-faint">no payee</span>}
-            {side.txUrl && (
-              <a
-                href={side.txUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`View the ${vault === "vault" ? "Lineage" : "LimitsOnly"} transaction on NEAR Blocks`}
-                className="inline-flex items-center gap-0.5 text-micro text-muted-foreground hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
-              >
-                tx <ArrowUpRight className="size-3" aria-hidden="true" />
-              </a>
-            )}
-          </div>
+          {side.payee && <AccountId id={side.payee} className="text-[12px]" />}
         </>
       ) : (
-        <p className="text-small text-faint">Payment {side.statusLabel} on this vault.</p>
+        <p className="text-small text-faint">{side.statusLabel}</p>
       )}
     </div>
   );
 }
 
-function MessageCell({ row, p, index }: { row: CompareRow; p: Play; index: number }) {
+function PaymentsInRun({ view }: { view: CompareView }) {
   return (
-    <div
-      className={cn(
-        "relative col-span-2 flex flex-col gap-2 rounded-2xl border p-4 md:col-span-1",
-        row.poisoned ? "border-dashed border-attacker-ring bg-attacker-soft/40" : "border-white/[0.07] bg-white/[0.025]",
-      )}
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <Mail className={cn("size-3.5", row.poisoned ? "text-attacker" : "text-muted-foreground")} aria-hidden="true" />
-        <span className="font-mono text-[11px] text-muted-foreground">
-          {String(index + 1).padStart(2, "0")} · {row.message.replace(/^\d+-/, "")}
-        </span>
-        {row.poisoned && (
-          <span className="rounded-full bg-attacker px-1.5 py-px text-micro font-semibold text-ink">
-            poisoned
-          </span>
-        )}
+    <section aria-labelledby="run-payments-title" className="mt-24">
+      <h2 id="run-payments-title" className="font-serif text-title">
+        Every payment in this run
+      </h2>
+      <div className="mt-6 hidden grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b border-hairline px-5 pb-3 text-small text-muted-foreground md:grid">
+        <span>What the agent asked</span>
+        <span>Lineage vault</span>
+        <span>LimitsOnly vault</span>
       </div>
-      <p className="text-small leading-snug text-foreground">
-        <Memo text={row.subject} />
-      </p>
-      <p className="font-mono text-[11px] text-faint">
-        agent called <span className="text-muted-foreground">{row.tool}</span>
-      </p>
-    </div>
-  );
-}
-
-const GRID = "grid grid-cols-2 gap-3 md:grid-cols-[minmax(0,1fr)_4.5rem_minmax(13rem,17rem)_4.5rem_minmax(0,1fr)] md:gap-0";
-
-function Stage({ view, p }: { view: CompareView; p: Play }) {
-  let clean = 0;
-  return (
-    <div className="relative">
-      {/* LimitsOnly side flashes rose when the poisoned payment lands */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 left-1/2 hidden rounded-r-3xl md:block"
-        style={{ background: "linear-gradient(90deg, transparent, rgb(244 63 94 / 0.16) 45%, rgb(244 63 94 / 0.22))" }}
-        {...(p.reduced
-          ? { initial: false, animate: { opacity: 0 } }
-          : {
-              initial: { opacity: 0 },
-              animate: p.on && view.attackerReceived.guarded > 0n ? { opacity: [0, 1, 0] } : { opacity: 0 },
-              transition: { duration: 0.9, delay: ARRIVE, times: [0, 0.18, 1], ease: "easeOut" },
-            })}
-      />
-
-      <div className={cn(GRID, "items-end pb-6")}>
-        <div className="hidden md:block">
-          <p className="flex items-center gap-2 font-serif text-title">
-            <ShieldCheck className="size-5 text-p1" aria-hidden="true" /> Lineage
-          </p>
-          <AccountId id={VAULT_IDS.vault} className="text-[11.5px]" />
-        </div>
-        <span className="hidden md:block" />
-        <div className="col-span-2 flex justify-center md:col-span-1">
-          <SameCodeSeal view={view} p={p} />
-        </div>
-        <span className="hidden md:block" />
-        <div className="hidden text-right md:block">
-          <p className="flex items-center justify-end gap-2 font-serif text-title">
-            LimitsOnly <ShieldOff className="size-5 text-attacker" aria-hidden="true" />
-          </p>
-          <AccountId id={VAULT_IDS.guarded} className="text-[11.5px]" />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 md:gap-4">
-        {view.rows.map((row, i) => {
-          const start = row.poisoned ? T.poison : T.flow + clean++ * T.flowGap;
-          const dur = row.poisoned ? T.poisonDur : T.flowDur;
-          const arrive = start + dur;
-          const tone = (k: VaultKey): Accent => {
-            const b = row.sides[k].badge;
-            return b ? badgeAccent[b.tone] : "neutral";
-          };
-          const gated = (k: VaultKey) => {
-            const s = row.sides[k].payment?.status;
-            return s === "AwaitingApproval" || s === "Rejected" || s === "Blocked";
-          };
-          return (
-            <motion.div
-              key={row.message}
-              data-testid={`compare-row-${i}`}
-              data-poisoned={String(row.poisoned)}
-              className={cn(GRID, "relative rounded-3xl", row.poisoned && "md:bg-white/[0.015] md:p-2 md:ring-1 md:ring-white/[0.06]")}
-              {...play(p, { opacity: 0, y: 8 }, { opacity: 1, y: 0 }, {
-                duration: 0.35,
-                delay: T.rows + i * T.rowStagger,
-                ease: EASE_OUT,
-              })}
-            >
-              <div className="order-2 md:order-none">
-                <SideCell vault="vault" side={row.sides.vault} poisoned={row.poisoned} arriveAt={arrive} p={p} />
-              </div>
-              <Track dir="left" accent={tone("vault")} gated={gated("vault")} delay={start} duration={dur} p={p} />
-              <div className="order-1 col-span-2 md:order-none md:col-span-1">
-                <MessageCell row={row} p={p} index={i} />
-              </div>
-              <Track dir="right" accent={tone("guarded")} gated={gated("guarded")} delay={start} duration={dur} p={p} />
-              <div className="order-3 md:order-none">
-                <SideCell vault="guarded" side={row.sides.guarded} poisoned={row.poisoned} arriveAt={arrive} p={p} />
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className={cn(GRID, "mt-8 items-center")}>
-        <AttackerCounter vault="vault" view={view} />
-        <span className="hidden md:block" />
-        <p className="col-span-2 order-first text-center md:order-none md:col-span-1">
-          <span className="label block">attacker received</span>
-          <AccountId id={view.attacker} className="text-[11.5px]" />
-        </p>
-        <span className="hidden md:block" />
-        <AttackerCounter vault="guarded" view={view} />
-      </div>
-
-      <motion.p
-        className="mt-10 text-center text-lead md:text-[1.5rem] md:leading-snug"
-        {...play(p, { opacity: 0, y: 6 }, { opacity: 1, y: 0 }, { duration: 0.5, delay: T.summary, ease: EASE_OUT })}
-      >
-        {compareSummary(view)}
-      </motion.p>
-    </div>
-  );
-}
-
-function AttackerCounter({ vault, view }: { vault: VaultKey; view: CompareView }) {
-  const v = view.attackerReceived[vault];
-  return (
-    <div
-      data-testid={`attacker-${vault}`}
-      className={cn("flex flex-col gap-1", vault === "guarded" ? "items-end text-right" : "items-start")}
-    >
-      <span className="label">{vault === "vault" ? "from Lineage" : "from LimitsOnly"}</span>
-      {vault === "guarded" ? (
-        <Shared name="attacker-guarded">
-          <CountUp
-            value={v}
-            format={fmtUsdc}
-            delay={T.counters}
-            align="end"
-            className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")}
-          />
-        </Shared>
-      ) : (
-        <CountUp value={v} format={fmtUsdc} delay={T.counters} className={cn("text-stat", v > 0n ? "text-attacker" : "text-p1")} />
-      )}
-    </div>
-  );
-}
-
-export function CompareStage({ view }: { view: CompareView }) {
-  const reduced = useReducedMotionPref();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.25 });
-  const [playId, setPlayId] = useState(0);
-  const p: Play = { on: inView, reduced };
-
-  return (
-    <section ref={ref} aria-label="The demo run, side by side" className="stage relative p-5 md:p-10">
-      {!reduced && (
-        <button
-          type="button"
-          onClick={() => setPlayId((n) => n + 1)}
-          className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover-fine:text-foreground focus-visible:ring-2 focus-visible:outline-none"
-        >
-          <RotateCcw className="size-3.5" aria-hidden="true" /> Replay
-        </button>
-      )}
-      <Stage key={playId} view={view} p={p} />
+      <ol className="mt-4 flex flex-col gap-3 md:mt-0 md:gap-0 md:divide-y md:divide-white/[0.05]">
+        {view.rows.map((row, i) => (
+          <li
+            key={row.message}
+            data-testid={`compare-row-${i}`}
+            data-poisoned={String(row.poisoned)}
+            className={cn(
+              "surface grid gap-4 p-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-6 md:rounded-none md:border-0 md:bg-transparent md:px-5 md:py-5",
+              row.poisoned && "md:bg-attacker-soft",
+            )}
+          >
+            <div>
+              <p className="text-body text-foreground">
+                <Memo text={row.subject} />
+              </p>
+              {row.poisoned && <p className="mt-1 text-micro text-attacker">Poisoned: new payout details</p>}
+            </div>
+            <TableSide side={row.sides.vault} vault="vault" />
+            <TableSide side={row.sides.guarded} vault="guarded" />
+          </li>
+        ))}
+      </ol>
     </section>
+  );
+}
+
+// The demo run told by scroll: pinned for 250vh where there's room, played once in view otherwise,
+// settled under reduced motion. Replay drives the same progress by time and gives scroll back on
+// any input. `settled` (the data was already cached, e.g. from the Overview) shows the counters'
+// final values at once so the shared counter can morph in.
+export function CompareStage({ view, settled = false }: { view: CompareView; settled?: boolean }) {
+  const reduced = useReducedMotionPref();
+  const pinned = usePinned() && !reduced;
+  const smooth = useSmoothScroll();
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const p = useMotionValue(reduced ? 1 : 0);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
+  const replay = useRef<{ stop: () => void } | null>(null);
+
+  useEffect(() => {
+    if (reduced) {
+      p.set(1);
+      return;
+    }
+    if (!pinned) return;
+    p.set(scrollYProgress.get());
+    return scrollYProgress.on("change", (v) => {
+      if (!replay.current) p.set(v);
+    });
+  }, [reduced, pinned, scrollYProgress, p]);
+
+  useEffect(() => {
+    if (reduced || pinned || !inView || replay.current) return;
+    const c = animate(p, 1, { duration: STACKED_SECONDS, ease: "linear" });
+    return () => c.stop();
+  }, [reduced, pinned, inView, p]);
+
+  const stopReplay = useCallback(() => replay.current?.stop(), []);
+  useEffect(() => stopReplay, [stopReplay]);
+
+  const onReplay = useCallback(() => {
+    stopReplay();
+    const events = ["wheel", "touchstart", "keydown"] as const;
+    let done = false;
+    let controls: AnimationPlaybackControls | null = null;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      replay.current = null;
+      for (const e of events) window.removeEventListener(e, cancel);
+      smooth.start();
+    };
+    const cancel = () => {
+      controls?.stop();
+      finish();
+      if (pinned) p.set(scrollYProgress.get());
+    };
+    replay.current = { stop: cancel };
+    smooth.stop();
+    // The click's own keydown (Enter or Space) has already fired, so any input from here cancels.
+    for (const e of events) window.addEventListener(e, cancel, { passive: true });
+    p.set(0);
+    controls = animate(p, 1, { duration: pinned ? REPLAY_SECONDS : STACKED_SECONDS, ease: "linear", onComplete: finish });
+  }, [p, pinned, scrollYProgress, smooth, stopReplay]);
+
+  const stage = <Stage view={view} p={p} settled={settled || reduced} onReplay={reduced ? null : onReplay} />;
+  return (
+    <>
+      {pinned ? (
+        <section ref={ref} aria-label="The demo run, side by side" className="relative" style={{ height: "250vh" }}>
+          <div className="sticky top-16 flex h-[calc(100svh-4rem)] flex-col justify-center-safe py-4">{stage}</div>
+        </section>
+      ) : (
+        <section ref={ref} aria-label="The demo run, side by side">
+          {stage}
+        </section>
+      )}
+      <PaymentsInRun view={view} />
+    </>
   );
 }

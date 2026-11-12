@@ -10,8 +10,8 @@ interface SmoothScrollApi {
   start(): void;
 }
 
-const Ctx = createContext<SmoothScrollApi>({ stop() {}, start() {} });
-export const useSmoothScroll = (): SmoothScrollApi => useContext(Ctx);
+export const SmoothScrollContext = createContext<SmoothScrollApi>({ stop() {}, start() {} });
+export const useSmoothScroll = (): SmoothScrollApi => useContext(SmoothScrollContext);
 
 // Weighted wheel scrolling (Lenis) for mouse and trackpad. It moves the window's real scroll
 // position, so motion's useScroll and the scrollbar stay truthful. Off under reduced motion and on
@@ -35,5 +35,5 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     () => ({ stop: () => lenis.current?.stop(), start: () => lenis.current?.start() }),
     [],
   );
-  return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
+  return <SmoothScrollContext.Provider value={api}>{children}</SmoothScrollContext.Provider>;
 }

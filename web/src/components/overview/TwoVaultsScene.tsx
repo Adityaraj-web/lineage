@@ -8,12 +8,11 @@ import { cn } from "@/components/cn";
 import { usePinned } from "@/hooks/useMediaQuery";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
 import type { Email } from "@/lib/emails";
-import { fmtUsdc } from "@/lib/format";
 import type { CompareView } from "@/lib/views";
 import { shortId } from "../AccountId";
 import { pct, useCount, useSceneProgress, useStep } from "../story/progress";
 import { PinnedSection, SceneBox, useInViewProgress } from "../story/Scene";
-import { Shared } from "../transitions";
+import { Counter } from "../story/Counter";
 
 const W = 1200;
 const H = 500;
@@ -35,32 +34,6 @@ function useTwoVaults(view: CompareView) {
   };
 }
 
-export function Counter({
-  vault,
-  value,
-  text,
-  testId,
-  className,
-}: {
-  vault: "vault" | "guarded";
-  value: bigint;
-  text: MotionValue<string>;
-  testId: string;
-  className?: string;
-}) {
-  const visible = (
-    <span className={cn("stat", value > 0n ? "text-attacker" : "text-p1")} aria-hidden="true">
-      <motion.span className="inline-block">{text}</motion.span>
-    </span>
-  );
-  return (
-    <div data-testid={testId} className={cn("stat-box", className)}>
-      <p className="text-micro text-muted-foreground">{vault === "vault" ? "Attacker received from Lineage" : "Attacker received from LimitsOnly"}</p>
-      <div className="mt-1.5">{vault === "guarded" ? <Shared name="attacker-guarded">{visible}</Shared> : visible}</div>
-      <span className="sr-only">{fmtUsdc(value)}</span>
-    </div>
-  );
-}
 
 function Stage({ view, emails, p, fit }: { view: CompareView; emails: Record<string, Email>; p: MotionValue<number>; fit: boolean }) {
   const d = useTwoVaults(view);
@@ -130,13 +103,13 @@ function Stage({ view, emails, p, fit }: { view: CompareView; emails: Record<str
       </SceneBox>
       <div className="relative mt-[clamp(1rem,2vw,2rem)] grid grid-cols-2 gap-6">
         <div className="flex flex-col items-center text-center">
-          <Counter vault="vault" value={d.received.vault} text={lText} testId="scene-attacker-vault" className="w-full max-w-[22rem]" />
+          <Counter vault="vault" label="Attacker received from Lineage" value={d.received.vault} text={lText} testId="scene-attacker-vault" className="w-full max-w-[22rem]" />
           <motion.p className="mt-2 text-small text-p3" style={{ opacity: labels }}>
             {d.lineageHeld ? "Held for you" : "Paid after your approval"}
           </motion.p>
         </div>
         <div className="flex flex-col items-center text-center">
-          <Counter vault="guarded" value={d.received.guarded} text={rText} testId="scene-attacker-guarded" className="w-full max-w-[22rem]" />
+          <Counter vault="guarded" label="Attacker received from LimitsOnly" value={d.received.guarded} text={rText} testId="scene-attacker-guarded" className="w-full max-w-[22rem]" />
           <motion.p className="mt-2 text-small text-attacker" style={{ opacity: labels }}>
             {d.limitsPaid ? "Paid without asking" : "Not paid"}
           </motion.p>
@@ -188,7 +161,7 @@ function Stacked({ view, emails, reduced }: { view: CompareView; emails: Record<
           </svg>
           <div className="min-w-0 flex-1">
             <p className="text-small font-semibold">{k === "vault" ? "Lineage vault" : "LimitsOnly vault"}</p>
-            <Counter vault={k} value={d.received[k]} text={k === "vault" ? lText : rText} testId={`scene-attacker-${k}`} className="mt-2" />
+            <Counter vault={k} label={k === "vault" ? "Attacker received from Lineage" : "Attacker received from LimitsOnly"} value={d.received[k]} text={k === "vault" ? lText : rText} testId={`scene-attacker-${k}`} className="mt-2" />
             <motion.p className={cn("mt-2 text-small", k === "vault" ? "text-p3" : "text-attacker")} style={{ opacity: labels }}>
               {k === "vault" ? (d.lineageHeld ? "Held for you" : "Paid after your approval") : d.limitsPaid ? "Paid without asking" : "Not paid"}
             </motion.p>

@@ -1,8 +1,9 @@
-import { screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { SmoothScrollContext } from "@/components/SmoothScroll";
 import { CODE_HASH, p3Translation, p4Alice, p5Poisoned } from "@/lib/test-fixtures";
 import { renderUI } from "@/test/render";
-import { setReducedMotion } from "@/test/media";
+import { setPinned, setReducedMotion } from "@/test/media";
 import { compareView, demoPayments } from "@/test/views";
 import { CompareStage, compareSummary } from "./CompareStage";
 
@@ -55,6 +56,41 @@ describe("CompareStage", () => {
     renderUI(<CompareStage view={compareView()} />);
     expect(screen.queryByRole("button", { name: /replay/i })).toBeNull();
     expect(rows()).toHaveLength(3);
+  });
+});
+
+describe("CompareStage motion", () => {
+  const shown = (id: string) => screen.getByTestId(id).querySelector("[aria-hidden=true] .num, .stat[aria-hidden=true]")?.textContent;
+
+  it("shows the counters' final values at once when the data came from the cache", () => {
+    renderUI(<CompareStage view={compareView()} settled />);
+    expect(shown("attacker-guarded")).toBe("49 tUSDC");
+  });
+
+  it("counts the counters with the stage otherwise", () => {
+    setPinned(true);
+    renderUI(<CompareStage view={compareView()} />);
+    expect(shown("attacker-guarded")).toBe("0 tUSDC");
+    expect(within(screen.getByTestId("attacker-guarded")).getByText("49 tUSDC", { selector: ".sr-only" })).toBeInTheDocument();
+  });
+
+  it("Replay pauses smooth scrolling while it drives the stage, then hands it back", async () => {
+    setPinned(true);
+    const api = { stop: vi.fn(), start: vi.fn() };
+    renderUI(
+      <SmoothScrollContext.Provider value={api}>
+        <CompareStage view={compareView()} />
+      </SmoothScrollContext.Provider>,
+    );
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: /replay/i })));
+    expect(api.stop).toHaveBeenCalledTimes(1);
+    act(() => void window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown" })));
+    expect(api.start).toHaveBeenCalled();
+  });
+
+  it("drops the tool lines and middle dots", () => {
+    const { container } = renderUI(<CompareStage view={compareView()} />);
+    expect(container.textContent).not.toMatch(/agent called|·/);
   });
 });
 
