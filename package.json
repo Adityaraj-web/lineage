@@ -11,7 +11,9 @@
     "build": "bash scripts/build.sh",
     "deploy": "tsx scripts/deploy.ts",
     "verify:deploy": "tsx scripts/verify-deploy.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"agent/**/*.test.ts\"",
+    "demo": "tsx agent/run.ts"
   },
   "dependencies": {
     "dotenv": "^18.0.10",
