@@ -58,7 +58,7 @@ function Door({
         >
           <span aria-hidden="true" className={cn("door-tint pointer-events-none absolute inset-0 -z-10", TINT[tint])} />
           <h3 className="text-[1.375rem] leading-tight font-semibold">{title}</h3>
-          <div className={top ? undefined : "mt-auto"}>{children}</div>
+          <div className={top ? "flex flex-1 flex-col" : "mt-auto"}>{children}</div>
         </Glass>
       </Tilt>
     </motion.div>
@@ -76,7 +76,7 @@ function HeldPreview({ view }: { view: Overview }) {
   }
   const a = accentClass[levelAccent[held.risk.level]];
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       {held.memo && (
         <p className="max-w-[32rem] text-lead text-foreground">
           <Memo text={held.memo} />
@@ -96,7 +96,12 @@ function HeldPreview({ view }: { view: Overview }) {
           {LEVEL_WORD[held.risk.level]}
         </span>
       </div>
-      <p className="text-small text-muted-foreground">Held for you in the Lineage vault.</p>
+      <p className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-white/10 pt-4 text-small text-muted-foreground">
+        Held for you in the Lineage vault.
+        <span className="inline-flex items-center gap-1 font-medium text-foreground">
+          Review it <ArrowRight className="size-4" aria-hidden="true" />
+        </span>
+      </p>
     </div>
   );
 }
