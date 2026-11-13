@@ -3,7 +3,25 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotionPref } from "@/hooks/useReducedMotionPref";
-import { BLOBS, blobsAt, easeInOut, FrameMonitor, frameGate, mixPalette, moodFor, PALETTES, tierFor, type Mood, type Palette } from "./palette";
+import {
+  BLOBS,
+  blobsAt,
+  easeInOut,
+  FALLOFF,
+  FrameMonitor,
+  frameGate,
+  MIX_EDGE,
+  mixPalette,
+  moodFor,
+  OMEGA,
+  PALETTES,
+  resolve,
+  REST_T,
+  tierFor,
+  WARP,
+  type Mood,
+  type Resolved,
+} from "./palette";
 
 declare global {
   interface Window {
@@ -13,8 +31,10 @@ declare global {
 
 const VERT = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
 
-// Five soft blobs over ink, the domain warped once so their edges breathe. Additive, so where
+// Up to five soft blobs over ink (unused slots have zero strength), the domain warped once so their edges breathe. Additive, so where
 // two blobs meet the light region is brighter than either. A fixed per-pixel dither stops banding.
+// palette.ts `fieldAt` is this shader in TS (minus the dither); the constants are shared.
+const f = (n: number) => n.toFixed(6);
 const FRAG = `precision mediump float;
 uniform vec2 u_res;uniform float u_t;uniform vec3 u_ink;uniform vec3 u_c[${BLOBS}];uniform vec4 u_b[${BLOBS}];
 float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
@@ -22,25 +42,31 @@ void main(){
   vec2 px=gl_FragCoord.xy;
   vec2 uv=vec2(px.x/u_res.x,1.-px.y/u_res.y);
   vec2 asp=u_res/max(u_res.x,u_res.y);
-  float w=0.15708;
-  vec2 q=uv+0.035*vec2(sin(uv.y*5.+u_t*w*2.),cos(uv.x*4.-u_t*w));
+  float w=${f(OMEGA)};
+  vec2 q=uv+${f(WARP)}*vec2(sin(uv.y*5.+u_t*w*2.),cos(uv.x*4.-u_t*w));
   vec3 col=u_ink;
   for(int i=0;i<${BLOBS};i++){
     vec2 d=(q-u_b[i].xy)*asp;
     float r=u_b[i].z;
-    col+=u_c[i]*exp(-dot(d,d)/(r*r)*3.)*u_b[i].w;
+    col+=u_c[i]*exp(-dot(d,d)/(r*r)*${f(FALLOFF)})*u_b[i].w;
   }
   float cx=abs(uv.x-.5)*2.;
-  col=mix(u_ink,col,.5+.5*smoothstep(.1,.85,cx));
+  col=mix(u_ink,col,.5+.5*smoothstep(${f(MIX_EDGE[0])},${f(MIX_EDGE[1])},cx));
   col+=(hash(px)-.5)/255.;
   gl_FragColor=vec4(col,1.);
 }`;
 
 const TWEEN_MS = 800;
-const REST_T = 7;
+
+const RESOLVED: Record<Mood, Resolved> = {
+  overview: resolve(PALETTES.overview),
+  lineage: resolve(PALETTES.lineage),
+  limits: resolve(PALETTES.limits),
+  compare: resolve(PALETTES.compare),
+};
 
 interface Renderer {
-  draw: (p: Palette, t: number) => void;
+  draw: (p: Resolved, t: number) => void;
   resize: (w: number, h: number, scale: number) => void;
   finish: () => void;
   lost: () => boolean;
@@ -142,10 +168,10 @@ export function Backdrop() {
     let h = window.innerHeight;
     r.resize(w, h, scale);
 
-    let from: Palette = PALETTES[moodRef.current];
-    let to: Palette = from;
+    let from: Resolved = RESOLVED[moodRef.current];
+    let to: Resolved = from;
     let tweenStart = -1;
-    let shown: Palette = to;
+    let shown: Resolved = to;
     const t0 = performance.now();
     const elapsed = (now: number) => (reduced ? REST_T : REST_T + (now - t0) / 1000);
     const palette = (now: number) => {
@@ -224,7 +250,7 @@ export function Backdrop() {
 
     onMoodRef.current = (m) => {
       from = shown;
-      to = PALETTES[m];
+      to = RESOLVED[m];
       tweenStart = performance.now();
       if (reduced) tweenOnce();
     };

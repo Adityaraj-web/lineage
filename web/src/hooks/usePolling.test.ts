@@ -97,7 +97,56 @@ describe("usePolling", () => {
     expect(load).toHaveBeenCalledTimes(3);
   });
 
-  it("keeps the last good data on error, shows the error, retries with backoff, then clears it", async () => {
+  it("one failure stays quiet and retries after min(interval, 1.5 s); a success clears the count", async () => {
+    let fail = false;
+    const load = vi.fn(async () => {
+      if (fail) throw new RpcError("TIMEOUT_ERROR", "all RPC endpoints failed");
+      return { ok: 1 };
+    });
+    const statuses: string[] = [];
+    store.subscribe(() => statuses.push(store.get().status));
+    const { result } = renderHook(() => usePolling(load, 5000), { wrapper });
+    await flush();
+    const good = result.current.data;
+    fail = true;
+    await advance(5000);
+    expect(load).toHaveBeenCalledTimes(2);
+    expect(result.current.error).toBeNull();
+    expect(store.get().status).toBe("live");
+    expect(store.get().error).toBeNull();
+    fail = false;
+    await advance(1499);
+    expect(load).toHaveBeenCalledTimes(2);
+    await advance(1);
+    expect(load).toHaveBeenCalledTimes(3);
+    expect(result.current.error).toBeNull();
+    expect(result.current.data).toBe(good);
+    expect(statuses).not.toContain("error");
+    // The count was cleared: the next single failure is quiet again.
+    fail = true;
+    await advance(5000);
+    expect(load).toHaveBeenCalledTimes(4);
+    expect(result.current.error).toBeNull();
+  });
+
+  it("a short interval retries after the interval itself", async () => {
+    let fail = false;
+    const load = vi.fn(async () => {
+      if (fail) throw new Error("blip");
+      return { ok: 1 };
+    });
+    renderHook(() => usePolling(load, 1000), { wrapper });
+    await flush();
+    fail = true;
+    await advance(1000);
+    expect(load).toHaveBeenCalledTimes(2);
+    await advance(999);
+    expect(load).toHaveBeenCalledTimes(2);
+    await advance(1);
+    expect(load).toHaveBeenCalledTimes(3);
+  });
+
+  it("two consecutive failures surface the error, keep the last good data, back off, then clear on success", async () => {
     let fail = false;
     const load = vi.fn(async () => {
       if (fail) throw new RpcError("TIMEOUT_ERROR", "all RPC endpoints failed");
@@ -108,22 +157,39 @@ describe("usePolling", () => {
     const good = result.current.data;
     fail = true;
     await advance(5000);
-    expect(load).toHaveBeenCalledTimes(2);
+    expect(result.current.error).toBeNull();
+    await advance(1500); // the quick retry fails too
+    expect(load).toHaveBeenCalledTimes(3);
     expect(result.current.data).toBe(good);
     expect(result.current.error).toEqual({ name: "TIMEOUT_ERROR", message: "all RPC endpoints failed" });
     expect(store.get().status).toBe("error");
-    await advance(5000); // first retry after the interval
-    expect(load).toHaveBeenCalledTimes(3);
-    await advance(5000); // then backoff: 10 s
-    expect(load).toHaveBeenCalledTimes(3);
-    await advance(5000);
+    expect(store.get().retryAt).toBe(Date.now() + 5000);
+    await advance(5000); // then backoff: the interval, 10 s, 20 s, capped at 30 s
     expect(load).toHaveBeenCalledTimes(4);
+    await advance(9999);
+    expect(load).toHaveBeenCalledTimes(4);
+    await advance(1);
+    expect(load).toHaveBeenCalledTimes(5);
     fail = false;
     await advance(20_000);
-    expect(load).toHaveBeenCalledTimes(5);
+    expect(load).toHaveBeenCalledTimes(6);
     expect(result.current.error).toBeNull();
     expect(result.current.data).toBe(good);
     expect(store.get().status).toBe("live");
+  });
+
+  it("a first load that fails twice reports the error with no data", async () => {
+    const load = vi.fn(async () => {
+      throw new Error("down");
+    });
+    const { result } = renderHook(() => usePolling(load, 5000), { wrapper });
+    await flush();
+    expect(result.current.error).toBeNull();
+    expect(store.get().status).toBe("loading");
+    await advance(1500);
+    expect(load).toHaveBeenCalledTimes(2);
+    expect(result.current.data).toBeNull();
+    expect(result.current.error).toEqual({ name: "Error", message: "down" });
   });
 
   it("refresh polls now and resets the timer", async () => {

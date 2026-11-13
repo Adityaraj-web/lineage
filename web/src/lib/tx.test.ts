@@ -19,41 +19,55 @@ const success = {
 
 describe("parseOutcome", () => {
   it("full success", () => {
-    expect(parseOutcome(success)).toStrictEqual({ hash: HASH, ok: true, error: null });
+    expect(parseOutcome(success)).toStrictEqual({ hash: HASH, ok: true, error: null, value: null });
   });
 
   it("top-level Failure carries the contract message", () => {
     const raw = { ...success, status: failure(OWNER_ONLY), receipts_outcome: [receipt(failure(OWNER_ONLY))] };
-    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: OWNER_ONLY });
+    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: OWNER_ONLY, value: null });
   });
 
   it("success at the top but a failed receipt is not ok", () => {
     const msg = "Smart contract panicked: The account doesn't have enough balance";
     const raw = { ...success, receipts_outcome: [receipt({ SuccessValue: "" }), receipt(failure(msg))] };
-    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: msg });
+    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: msg, value: null });
   });
 
   it("non-FunctionCall failures are named by kind", () => {
     const raw = { ...success, status: { Failure: { ActionError: { index: 0, kind: { AccountDoesNotExist: { account_id: "x" } } } } } };
-    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: "ActionError: AccountDoesNotExist" });
+    expect(parseOutcome(raw)).toStrictEqual({ hash: HASH, ok: false, error: "ActionError: AccountDoesNotExist", value: null });
     const inv = { ...success, status: { Failure: { InvalidTxError: { InvalidNonce: {} } } } };
-    expect(parseOutcome(inv)).toStrictEqual({ hash: HASH, ok: false, error: "InvalidTxError: InvalidNonce" });
+    expect(parseOutcome(inv)).toStrictEqual({ hash: HASH, ok: false, error: "InvalidTxError: InvalidNonce", value: null });
   });
 
   it("hash-only shape counts as submitted", () => {
-    expect(parseOutcome({ transaction: { hash: HASH } })).toStrictEqual({ hash: HASH, ok: true, error: null });
+    expect(parseOutcome({ transaction: { hash: HASH } })).toStrictEqual({ hash: HASH, ok: true, error: null, value: null });
   });
 
   it("falls back to transaction_outcome.id for the hash", () => {
-    expect(parseOutcome({ transaction_outcome: { id: HASH } })).toStrictEqual({ hash: HASH, ok: true, error: null });
+    expect(parseOutcome({ transaction_outcome: { id: HASH } })).toStrictEqual({ hash: HASH, ok: true, error: null, value: null });
   });
 
   it.each([null, undefined, 42, "ok", {}, [], { transaction: { hash: 7 } }, { status: "weird" }])(
     "garbage %j has no hash and a readable message",
     (raw) => {
-      expect(parseOutcome(raw)).toStrictEqual({ hash: null, ok: false, error: NO_RESULT });
+      expect(parseOutcome(raw)).toStrictEqual({ hash: null, ok: false, error: NO_RESULT, value: null });
     },
   );
+
+  it("value is the base64-decoded top-level SuccessValue", () => {
+    expect(parseOutcome({ ...success, status: { SuccessValue: "MTU=" } })).toStrictEqual({ hash: HASH, ok: true, error: null, value: "15" });
+    expect(parseOutcome({ ...success, status: { SuccessValue: "IkFsaWNlIOKAlCBsb2dvIg==" } }).value).toBe('"Alice — logo"');
+  });
+
+  it("value is null when only a receipt carries a SuccessValue", () => {
+    expect(success.receipts_outcome[1].outcome.status).toStrictEqual({ SuccessValue: "eyJpZCI6NX0=" });
+    expect(parseOutcome(success).value).toBeNull();
+  });
+
+  it.each(["!!!", "/w==", ""])("value %j (bad base64, invalid UTF-8, empty) is null and still ok", (v) => {
+    expect(parseOutcome({ ...success, status: { SuccessValue: v } })).toStrictEqual({ hash: HASH, ok: true, error: null, value: null });
+  });
 
   it("caps a long contract message at 160 characters", () => {
     const raw = { ...success, status: failure("x".repeat(500)) };

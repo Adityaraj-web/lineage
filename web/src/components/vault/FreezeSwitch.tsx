@@ -11,6 +11,8 @@ import { BTN, WAITING } from "./owner-ui";
 const ID = "freeze";
 export const FREEZE_HELP = "Freeze stops every payment, including signed ones. Any owner key can freeze; unfreezing needs a full-access key.";
 export const UNFREEZE_CONFIRM = "Unfreeze? The agent can spend again within its caps.";
+// Off: the border alone marks the track, 3:1 against the brightest backdrop (FreezeSwitch.test.ts).
+export const TRACK = { on: "border-p2-ring bg-p2-soft", off: "border-white/55 bg-white/[0.04]" } as const;
 
 // Owner only. The switch shows the chain's `frozen` and nothing else: it flips after the refresh reads
 // the new value. Freezing is the safe direction and needs no confirm; unfreezing asks once.
@@ -54,7 +56,7 @@ export function FreezeSwitch({ frozen, owner }: { frozen: boolean; owner: OwnerC
           onClick={toggle}
           className={cn(
             "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-55 motion-reduce:transition-none",
-            frozen ? "border-p2-ring bg-p2-soft" : "border-white/15 bg-white/[0.04]",
+            frozen ? TRACK.on : TRACK.off,
           )}
         >
           <span

@@ -28,7 +28,7 @@ export function InboxCard({ item, owner }: { item: InboxItem; owner?: OwnerContr
       as="article"
       ref={ref}
       aria-labelledby={headingId}
-      className="overflow-hidden [--glass-edge:rgb(251_191_36/0.55)]"
+      className="overflow-hidden [--glass-edge:rgb(251_191_36/0.55)] [--glass-ink:0.4]"
     >
       <div className="grid md:grid-cols-[1.05fr_1fr]">
         <div className="flex flex-col gap-7 p-6 md:border-r md:border-white/[0.06] md:p-8">

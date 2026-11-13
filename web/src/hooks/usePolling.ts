@@ -6,6 +6,10 @@ import { useLiveStore, type PollError } from "./live-store";
 import { readPollCache, seedPollCache } from "./poll-cache";
 
 const MAX_BACKOFF_MS = 30_000;
+const QUICK_RETRY_MS = 1500;
+// One failed poll is usually an RPC blip: retry soon and say nothing. The error shows from the second
+// consecutive failure.
+export const SURFACE_AFTER = 2;
 
 function toPollError(e: unknown): PollError {
   if (e instanceof Error) return { name: e.name, message: e.message };
@@ -21,7 +25,8 @@ export interface Polled<T> {
 }
 
 // Polls `load` every `intervalMs` while the tab is visible. Identical results keep the previous
-// `data` reference (no re-render); errors keep the last good data and retry with backoff.
+// `data` reference (no re-render); errors keep the last good data and retry with backoff, and are
+// surfaced only from the second consecutive failure.
 // With `cacheKey`, the first render shows the last data any screen stored under that key.
 export function usePolling<T>(
   load: () => Promise<T>,
@@ -49,7 +54,12 @@ export function usePolling<T>(
   };
 
   const delay = useCallback(
-    () => (failures.current === 0 ? intervalMs : Math.min(intervalMs * 2 ** (failures.current - 1), MAX_BACKOFF_MS)),
+    () => {
+      const n = failures.current;
+      if (n === 0) return intervalMs;
+      if (n < SURFACE_AFTER) return Math.min(intervalMs, QUICK_RETRY_MS);
+      return Math.min(intervalMs * 2 ** (n - SURFACE_AFTER), MAX_BACKOFF_MS);
+    },
     [intervalMs],
   );
 
@@ -82,6 +92,7 @@ export function usePolling<T>(
     } catch (e) {
       if (!alive.current) return;
       failures.current++;
+      if (failures.current < SURFACE_AFTER) return;
       const err = toPollError(e);
       setError((prev) => (prev && prev.name === err.name && prev.message === err.message ? prev : err));
       store.set({ status: "error", error: err, retryAt: isHidden() ? null : Date.now() + delay() });

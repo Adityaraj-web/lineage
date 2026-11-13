@@ -13,7 +13,8 @@
     "pretypecheck": "npm run sync",
     "typecheck": "tsc --noEmit",
     "preverify": "npm run sync",
-    "verify": "tsx scripts/verify-web.ts"
+    "verify": "tsx scripts/verify-web.ts",
+    "check:site": "tsx scripts/check-site.ts"
   },
   "dependencies": {
     "@hot-labs/near-connect": "0.12.0",

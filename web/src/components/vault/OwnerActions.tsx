@@ -16,7 +16,7 @@ export const TICK_LABEL = "I confirmed this address with the payee outside this 
 type Mode = "idle" | "approve" | "reject";
 const capReason = (s: string) => Array.from(s).slice(0, REJECT_REASON_MAX).join("");
 
-function Expand({ children }: { children: ReactNode }) {
+export function Expand({ children }: { children: ReactNode }) {
   const reduced = useReducedMotionPref();
   if (reduced) return <div>{children}</div>;
   return (

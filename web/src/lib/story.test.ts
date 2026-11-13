@@ -111,13 +111,23 @@ describe("attackerPayments", () => {
 });
 
 describe("splitTasks", () => {
-  it("shows the latest demo-run task and folds the earlier ones, newest first", () => {
+  it("shows the newest task and folds the earlier ones, newest first", () => {
     const { latest, earlier } = splitTasks(lineage());
     expect(latest?.task.id).toBe(2);
     expect(earlier.map((t) => t.task.id)).toEqual([1, 0]);
   });
 
-  it("falls back to the newest task when no task is the demo run", () => {
+  it("a task created after the demo run goes up front; the demo-run chip stays on its task", () => {
+    const v = lineage();
+    const created = { ...v.tasks[2], task: { ...v.tasks[2].task, id: 3 }, label: null };
+    const { latest, earlier } = splitTasks({ ...v, tasks: [v.tasks[0], created, v.tasks[1], v.tasks[2]] });
+    expect(latest?.task.id).toBe(3);
+    expect(latest?.label).toBeNull();
+    expect(earlier.map((t) => t.task.id)).toEqual([2, 1, 0]);
+    expect(earlier[0].label).toBe("latest demo run");
+  });
+
+  it("works with no demo-run label at all", () => {
     const v = { ...lineage(), tasks: lineage().tasks.map((t) => ({ ...t, label: null })) };
     expect(splitTasks(v).latest?.task.id).toBe(2);
   });

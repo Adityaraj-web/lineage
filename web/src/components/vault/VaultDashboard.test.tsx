@@ -11,7 +11,7 @@ import { renderUI } from "@/test/render";
 import { demoPayments, vaultView } from "@/test/views";
 import { VaultDashboard } from "./VaultDashboard";
 
-const CONTROLS = /approve|reject|freeze|unfreeze|withdraw|create/i;
+const CONTROLS = /approve|reject|freeze|unfreeze|withdraw|create|new task/i;
 const render = (view = vaultView("vault")) => renderUI(<VaultDashboard view={view} demoRun={DEMO_RUN_SNAPSHOT} now={NOW} />);
 
 // Task 1 is an earlier demo run on the LimitsOnly vault that also paid the attacker 49.
