@@ -56,29 +56,29 @@ const ROSE = hex("#4A1830");
 
 const b = (x: number, y: number, r: number, s: number, k: number, h?: RGB): Blob => (h ? { x, y, r, s, k, h } : { x, y, r, s, k });
 
-// One hue per page; Compare is the split, teal left and rose right. Peaks sit behind the stages (the
-// hero vault on the right, the vault header's title and stats, the Compare sides) and at the edges;
-// the reading column stays ink. Tuned so 65–78% of the page is ink (inkShare).
+// One hue per page; Compare is the split, teal left and rose right. Two wide, soft blobs in the top
+// band, off-centre: the colour reads as one light falling from the top; the reading column and the
+// lower page stay ink. Tuned so 65–78% of the page is ink (inkShare).
 export const PALETTES: Record<Mood, Palette> = {
   overview: {
     ink: INK,
     hue: INDIGO,
-    blobs: [b(0.06, 0.1, 0.164, 1.2, 1.3), b(0.8, 0.46, 0.164, 1, 1.1), b(0.95, 0.08, 0.123, 0.9, 1), b(0.6, 0.98, 0.148, 1, 1), b(0.08, 0.9, 0.115, 0.8, 0.9)],
+    blobs: [b(0.2, 0.02, 0.5, 0.28, 1), b(0.8, 0.08, 0.45, 0.28, 1)],
   },
   lineage: {
     ink: INK,
     hue: TEAL,
-    blobs: [b(0.06, 0.1, 0.188, 1.2, 1.3), b(0.84, 0.2, 0.16, 1, 1.1), b(0.97, 0.62, 0.141, 0.9, 1), b(0.6, 0.98, 0.169, 1, 1), b(0.04, 0.78, 0.132, 0.8, 0.9)],
+    blobs: [b(0.16, 0.02, 0.5, 0.25, 1.3), b(0.8, 0.08, 0.45, 0.25, 1.3)],
   },
   limits: {
     ink: INK,
     hue: ROSE,
-    blobs: [b(0.06, 0.1, 0.188, 1.2, 1.2), b(0.84, 0.2, 0.16, 1, 1), b(0.97, 0.62, 0.141, 0.9, 0.9), b(0.6, 0.98, 0.169, 1, 0.9), b(0.04, 0.78, 0.132, 0.8, 0.8)],
+    blobs: [b(0.16, 0.02, 0.5, 0.23, 1.3), b(0.8, 0.08, 0.45, 0.23, 1.3)],
   },
   compare: {
     ink: INK,
     hue: TEAL,
-    blobs: [b(0.04, 0.22, 0.162, 1.2, 1.3), b(0.16, 0.84, 0.136, 1, 1), b(0.96, 0.22, 0.162, 1, 1.1, ROSE), b(0.84, 0.84, 0.136, 0.9, 1, ROSE), b(0.28, 0.5, 0.102, 0.8, 0.9)],
+    blobs: [b(0.14, 0.04, 0.5, 0.28, 1.3), b(0.86, 0.04, 0.45, 0.28, 1.3, ROSE)],
   },
 };
 
@@ -90,14 +90,16 @@ export const HUE: Record<Mood, string> = {
   compare: "40 110 140",
 };
 
+// The shader has BLOBS slots; a palette with fewer fills the rest with zero-strength copies, so
+// tweens between palettes of any size stay slot by slot.
 export function resolve(p: Palette): Resolved {
-  return {
-    ink: p.ink,
-    blobs: p.blobs.map(({ x, y, r, s, k, h }) => {
-      const c = h ?? p.hue;
-      return { c: [c[0] * k, c[1] * k, c[2] * k], x, y, r, s };
-    }),
-  };
+  const blobs: ResolvedBlob[] = p.blobs.map(({ x, y, r, s, k, h }) => {
+    const c = h ?? p.hue;
+    return { c: [c[0] * k, c[1] * k, c[2] * k], x, y, r, s };
+  });
+  const last = blobs[blobs.length - 1];
+  while (blobs.length < BLOBS) blobs.push({ ...last, s: 0 });
+  return { ink: p.ink, blobs };
 }
 
 export function moodFor(path: string): Mood {

@@ -31,7 +31,7 @@ declare global {
 
 const VERT = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
 
-// Five soft blobs over ink, the domain warped once so their edges breathe. Additive, so where
+// Up to five soft blobs over ink (unused slots have zero strength), the domain warped once so their edges breathe. Additive, so where
 // two blobs meet the light region is brighter than either. A fixed per-pixel dither stops banding.
 // palette.ts `fieldAt` is this shader in TS (minus the dither); the constants are shared.
 const f = (n: number) => n.toFixed(6);

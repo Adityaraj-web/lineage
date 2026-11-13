@@ -42,10 +42,26 @@ describe("moodFor", () => {
 });
 
 describe("palettes", () => {
-  it("every mood has the same blob count and the brief's ink", () => {
+  it("every mood is two blobs over the brief's ink, padded to the shader's slots with zero strength", () => {
     for (const p of Object.values(PALETTES)) {
-      expect(p.blobs).toHaveLength(BLOBS);
+      expect(p.blobs).toHaveLength(2);
       expect(p.ink).toEqual(INK);
+      const r = resolve(p);
+      expect(r.blobs).toHaveLength(BLOBS);
+      for (const pad of r.blobs.slice(2)) expect(pad.s).toBe(0);
+    }
+  });
+
+  it("one light source from the top: both blobs in the top band, off-centre, wide and soft", () => {
+    for (const p of Object.values(PALETTES)) {
+      for (const bl of p.blobs) {
+        expect(bl.y).toBeLessThanOrEqual(0.12);
+        expect(Math.abs(bl.x - 0.5)).toBeGreaterThanOrEqual(0.25);
+        expect(bl.r).toBeGreaterThanOrEqual(0.4);
+        expect(bl.s).toBeLessThanOrEqual(0.5);
+      }
+      expect(p.blobs.some((bl) => bl.x < 0.5)).toBe(true);
+      expect(p.blobs.some((bl) => bl.x > 0.5)).toBe(true);
     }
   });
 
@@ -77,8 +93,9 @@ describe("palettes", () => {
   it("resolves a blob's colour as hue × k", () => {
     const p = PALETTES.lineage;
     const r = resolve(p);
-    r.blobs.forEach((bl, i) => {
-      const k = p.blobs[i].k;
+    p.blobs.forEach((src, i) => {
+      const bl = r.blobs[i];
+      const k = src.k;
       expect(bl.c).toEqual([TEAL[0] * k, TEAL[1] * k, TEAL[2] * k]);
     });
     expect(resolve(PALETTES.compare).blobs.some((bl) => bl.c[0] > bl.c[2])).toBe(true); // rose is red-led
