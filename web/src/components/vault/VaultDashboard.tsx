@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { Mark } from "@/lib/changes";
 import type { DemoRun } from "@/lib/config";
-import { attackerPayments, splitTasks, storyStrip } from "@/lib/story";
+import { attackerPayments, storyStrip } from "@/lib/story";
 import type { VaultView } from "@/lib/views";
 import type { Role } from "@/lib/wallet";
 import { Section } from "../live/ScreenState";
@@ -14,7 +13,7 @@ import { AttackerPaid } from "./AttackerPaid";
 import { Inbox } from "./InboxCard";
 import { LastAction } from "./LastAction";
 import { PaymentsTable } from "./PaymentsTable";
-import { TaskCard } from "./TaskCard";
+import { TasksSection } from "./TasksSection";
 import { VaultHeader } from "./VaultHeader";
 
 export function VaultDashboard({
@@ -34,7 +33,6 @@ export function VaultDashboard({
   const owner: OwnerControls | undefined = wallet?.role === "owner" ? { vault: view.vaultId, action: wallet.action } : undefined;
   const viewer = wallet?.role === "viewer" ? wallet.accountId : null;
   const strip = storyStrip(view, demoRun);
-  const { latest, earlier } = splitTasks(view);
   const held = view.inbox.kind === "lineage" ? view.inbox.items.length : 0;
   return (
     <div className="flex flex-col gap-24">
@@ -60,28 +58,7 @@ export function VaultDashboard({
         <AttackerPaid paid={attackerPayments(view, demoRun.attacker.account)} attacker={demoRun.attacker.account} note={view.inbox.message} />
       )}
 
-      <Section id="tasks" title="Tasks">
-        <div className="flex flex-col gap-6">
-          {latest && (
-            <div className="max-w-[40rem]">
-              <TaskCard row={latest} now={now} />
-            </div>
-          )}
-          {earlier.length > 0 && (
-            <details className="group">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full py-1 text-small text-muted-foreground outline-none hover-fine:text-foreground focus-visible:ring-2 [&::-webkit-details-marker]:hidden">
-                <ChevronRight className="size-4 transition-transform duration-200 group-open:rotate-90" aria-hidden="true" />
-                Earlier tasks ({earlier.length})
-              </summary>
-              <div className="mt-5 grid gap-5 md:grid-cols-2 md:gap-6">
-                {earlier.map((t) => (
-                  <TaskCard key={t.task.id} row={t} now={now} />
-                ))}
-              </div>
-            </details>
-          )}
-        </div>
-      </Section>
+      <TasksSection view={view} now={now} owner={owner} />
 
       <Section
         id="payments"

@@ -86,7 +86,6 @@ export function attackerPayments(view: VaultView, attacker: string): AttackerPay
 
 // The latest demo-run task up front; the rest (verify fixture, earlier runs) folded, newest first.
 export function splitTasks(view: VaultView): { latest: TaskRow | null; earlier: TaskRow[] } {
-  const sorted = [...view.tasks].sort((a, b) => b.task.id - a.task.id);
-  const latest = sorted.find((t) => t.label === "latest demo run") ?? sorted[0] ?? null;
-  return { latest, earlier: sorted.filter((t) => t !== latest) };
+  const [latest = null, ...earlier] = [...view.tasks].sort((a, b) => b.task.id - a.task.id);
+  return { latest, earlier };
 }

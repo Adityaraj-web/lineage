@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { freezeTx, rejectTx } from "@/lib/actions";
 import { VAULT } from "@/lib/test-fixtures";
 import { FAKE_HASH, FakeWallet } from "./test-wallet";
-import { REFRESH_AGAIN_MS, useOwnerAction } from "./useOwnerAction";
+import { REFRESH_AGAIN_MS, heldAction, useOwnerAction } from "./useOwnerAction";
 
 const OWNER_ONLY = "Smart contract panicked: Owner only";
 
@@ -122,5 +122,14 @@ describe("useOwnerAction", () => {
     await act(() => result.current.run("freeze", freezeTx(VAULT)));
     expect(result.current.state).toStrictEqual({ kind: "idle" });
     expect(refresh).not.toHaveBeenCalled();
+  });
+});
+
+describe("heldAction", () => {
+  it("parses held-payment ids and ignores every other action id", () => {
+    expect(heldAction("approve:5")).toStrictEqual({ verb: "approve", paymentId: 5 });
+    expect(heldAction("reject:14")).toStrictEqual({ verb: "reject", paymentId: 14 });
+    expect(heldAction("create-task")).toBeNull();
+    expect(heldAction("freeze")).toBeNull();
   });
 });

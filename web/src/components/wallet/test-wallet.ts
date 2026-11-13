@@ -2,8 +2,8 @@ import type { OwnerTx } from "@/lib/actions";
 import type { WalletDriver } from "@/lib/wallet";
 
 export const FAKE_HASH = "8pDqvWm5DPGbxQoVZRqTiyvqMxgSj2mGbjJVhQwsWPZe";
-export const okOutcome = (hash = FAKE_HASH) => ({
-  status: { SuccessValue: "" },
+export const okOutcome = (hash = FAKE_HASH, successValue = "") => ({
+  status: { SuccessValue: successValue },
   transaction: { hash },
   transaction_outcome: { id: hash },
   receipts_outcome: [],

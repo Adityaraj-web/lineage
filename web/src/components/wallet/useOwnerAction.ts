@@ -77,6 +77,8 @@ export function useOwnerAction(send: ((tx: OwnerTx) => Promise<unknown>) | null,
   return useMemo(() => ({ state, busy: state.kind === "signing", run, clear }), [state, run, clear]);
 }
 
+export const CREATE_TASK_ID = "create-task";
+
 // Ids of actions on a held payment: "approve:5", "reject:5".
 export type HeldVerb = "approve" | "reject";
 export const heldActionId = (verb: HeldVerb, paymentId: number): string => `${verb}:${paymentId}`;
