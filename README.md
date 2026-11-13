@@ -25,7 +25,7 @@ Every row is a real testnet transaction, from [`deployments/demo-run.json`](depl
 2. **Verify the deployment from a terminal**, with no NEAR account needed:
    ```bash
    git clone https://github.com/Adityaraj-web/lineage && cd lineage
-   npm install && npm run verify:deploy      # 11 read-only checks against testnet
+   npm install && npm run verify:deploy      # 11 read-only checks; 2 more sign with the agent keys and run only after your own deploy (they skip without .env.local)
    ```
    Among other things, it checks that both vaults run the same code, that the registry resolves `translate-hi` but not `vendor-payments`, that each agent account has **exactly one key** (a function-call key that can only call `request_payment` on its own vault), and that each vault's books match the token ledger.
 3. **Read the held payment** on [/vault/vault](https://lineage-near.vercel.app/vault/vault#inbox). The inbox card shows the email the address came from, and a risk card explaining why it is high risk.
@@ -128,7 +128,7 @@ Requirements: Node 22 (22.22.2 or later). For the contracts, Rust and `cargo-nea
 ```bash
 # Read-only, no account needed
 npm install
-npm run verify:deploy                 # 11 read-only checks; 2 more with the deployer's agent key
+npm run verify:deploy                 # 11 read-only checks; 2 more sign with the agent keys and run only after your own deploy (they skip without .env.local)
 npm run demo -- --plan-only           # what the agent would ask for, from the inbox + task 0's mandate
 
 # Dashboard
@@ -161,7 +161,7 @@ To use the dashboard as the owner, connect any NEAR Connect wallet holding a ful
 | Contracts (vault 21, registry 4, mock USDC 1) | 26 | `cargo test` |
 | Agent | 53 | `npm test` |
 | Dashboard | 449 | `npm run web:test` |
-| Live deployment checks | 13 (11 without the deployer's agent key) | `npm run verify:deploy` |
+| Live deployment checks | 13 (11 read-only + 2 with agent keys) | `npm run verify:deploy` |
 | Live dashboard checks | 8 | `npm run verify:web` |
 
 Negative tests assert the specific error (e.g. the access-key method mismatch), not just "it threw". Key guarantees are **mutation-checked**: for example, adding a root-key load to the `--task` path turns a test red, as does sending 0 yocto on approve.
