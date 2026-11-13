@@ -83,6 +83,29 @@ describe("assessPayment — demo poisoned invoice (#5)", () => {
   });
 });
 
+describe("assessPayment — poisoned invoice after the vault already paid the attacker once", () => {
+  it("is still high, with paid-before in place of never-paid", () => {
+    const card = assessPayment(
+      poisonedFacts({
+        stats: { payments: 1, total: "49000000", first_paid_at_ms: 1794473265209, last_paid_at_ms: 1794473265209 },
+      }),
+    );
+    expect(card.level).toBe("high");
+    expect(card.findings.map((f) => f.id)).toEqual([
+      "untrusted-source",
+      "not-signed",
+      "plain-account",
+      "paid-before",
+      "duplicate-reference",
+      "pressure-language",
+      "near-cap",
+    ]);
+    const f = card.findings.find((x) => x.id === "paid-before")!;
+    expect(f.text).toContain("1 payment,");
+    expect(f.text).toContain("49 tUSDC");
+  });
+});
+
 describe("assessPayment — demo signed payment (#4)", () => {
   it("is low, signed-match, no duplicate-reference even with #5 in the task", () => {
     const card = assessPayment({

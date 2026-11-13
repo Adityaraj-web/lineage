@@ -101,9 +101,11 @@ async function main(): Promise<number> {
       expect(!!item, `payment #${p3Id} not in the inbox`);
       const ids = item.risk.findings.map((f) => f.id);
       expect(item.risk.level === "high", `level is ${item.risk.level}`);
-      for (const id of ["untrusted-source", "not-signed", "never-paid", "duplicate-reference"] as const) {
+      for (const id of ["untrusted-source", "not-signed", "duplicate-reference"] as const) {
         expect(ids.includes(id), `missing ${id} (have ${ids.join(", ")})`);
       }
+      const history = ids.filter((id) => id === "never-paid" || id === "paid-before");
+      expect(history.length === 1, `want exactly one of never-paid | paid-before (have ${ids.join(", ")})`);
       return `high: ${ids.join(", ")}`;
     });
   }

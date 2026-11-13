@@ -6,6 +6,8 @@ import { AccountId } from "../AccountId";
 import { CountUp } from "../CountUp";
 import { shortHash } from "../Seal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import type { OwnerControls } from "../wallet/useOwnerAction";
+import { FreezeSwitch } from "./FreezeSwitch";
 import { StoryStrip } from "./StoryStrip";
 
 const COPY = {
@@ -30,7 +32,17 @@ function Stat({ label, value, tone }: { label: string; value: bigint; tone?: str
   );
 }
 
-export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | null }) {
+export function VaultHeader({
+  view,
+  strip,
+  owner,
+  viewer,
+}: {
+  view: VaultView;
+  strip: Strip | null;
+  owner?: OwnerControls;
+  viewer?: string | null;
+}) {
   const c = COPY[view.key];
   return (
     <header aria-label={c.title} className="flex flex-col gap-10 pt-14 md:pt-20">
@@ -45,11 +57,14 @@ export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | n
           <Stat label="In flight" value={BigInt(view.config.total_reserved)} tone={view.config.total_reserved !== "0" ? "text-p3" : "text-muted-foreground"} />
         </dl>
       </div>
+      {owner && <FreezeSwitch frozen={view.config.frozen} owner={owner} />}
       <p className="flex flex-wrap items-center gap-x-8 gap-y-3 text-small text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-foreground">
-          {view.config.frozen && <Snowflake className="size-3.5 text-p2" aria-hidden="true" />}
-          {view.config.frozen ? "Frozen" : "Active"}
-        </span>
+        {!owner && (
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-foreground">
+            {view.config.frozen && <Snowflake className="size-3.5 text-p2" aria-hidden="true" />}
+            {view.config.frozen ? "Frozen" : "Active"}
+          </span>
+        )}
         <span className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
           owned by <AccountId id={view.config.owner} link className="text-[13px]" />
         </span>
@@ -76,6 +91,12 @@ export function VaultHeader({ view, strip }: { view: VaultView; strip: Strip | n
         </span>
         <AccountId id={view.vaultId} link className="text-[13px]" />
       </p>
+      {viewer && (
+        <p className="-mt-6 text-small text-muted-foreground">
+          Connected as <AccountId id={viewer} className="text-[13px]" />. Only the owner{" "}
+          <AccountId id={view.config.owner} className="text-[13px]" /> can act on this vault.
+        </p>
+      )}
     </header>
   );
 }
