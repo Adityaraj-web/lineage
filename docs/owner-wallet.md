@@ -75,5 +75,5 @@ Record:
 - payment `#15` P2 → hindi-translator, 25 tUSDC, Paid: `HMm44KPC6YMArHUUUvcA5HHjZqNyqvGvk4vfZDzwg1kv`
 - payment `#16` P1 → Alice, 18 tUSDC, Paid: `9D1CHuSi3r32ktCixqp6xpMqr9Fp1qy3KrvE1wxzqBZz`
 - payment `#17` P3 → vendor-payments, 49 tUSDC, AwaitingApproval: `Hsan4pjH92WymTLifWSu4jrh3xXkp8dMULaR6oKREAcQ`
-- agent allowance used: 0.0025 NEAR · acceptance passed
+- agent allowance used: 0.0026 NEAR · acceptance passed
 - check:site on the Vercel URL: pending (Vercel import)
