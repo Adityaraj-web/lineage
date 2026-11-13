@@ -91,8 +91,7 @@ export const HUE: Record<Mood, string> = {
   compare: "40 110 140",
 };
 
-// The shader has BLOBS slots; a palette with fewer fills the rest with zero-strength copies, so
-// tweens between palettes of any size stay slot by slot.
+// The shader has BLOBS slots; a palette with fewer fills the rest with zero-strength copies.
 export function resolve(p: Palette): Resolved {
   const blobs: ResolvedBlob[] = p.blobs.map(({ x, y, r, s, k, h }) => {
     const c = h ?? p.hue;

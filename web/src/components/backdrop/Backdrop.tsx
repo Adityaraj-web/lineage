@@ -58,7 +58,7 @@ void main(){
 
 const TWEEN_MS = 800;
 
-const NEW_PALETTES: Record<Mood, Resolved> = {
+const RESOLVED: Record<Mood, Resolved> = {
   overview: resolve(PALETTES.overview),
   lineage: resolve(PALETTES.lineage),
   limits: resolve(PALETTES.limits),
@@ -168,8 +168,7 @@ export function Backdrop() {
     let h = window.innerHeight;
     r.resize(w, h, scale);
 
-    let set = NEW_PALETTES;
-    let from: Resolved = set[moodRef.current];
+    let from: Resolved = RESOLVED[moodRef.current];
     let to: Resolved = from;
     let tweenStart = -1;
     let shown: Resolved = to;
@@ -251,7 +250,7 @@ export function Backdrop() {
 
     onMoodRef.current = (m) => {
       from = shown;
-      to = set[m];
+      to = RESOLVED[m];
       tweenStart = performance.now();
       if (reduced) tweenOnce();
     };
@@ -293,15 +292,6 @@ export function Backdrop() {
       stop();
       setGl("off");
     };
-
-    // `next dev` only: ?bg=old draws the F07 palettes for an old/new comparison. NODE_ENV is inlined
-    // at build time, so the branch and the old palettes are not in the production export.
-    if (process.env.NODE_ENV === "development" && params.get("bg") === "old") {
-      void import("./palette-f07").then(({ PALETTES_F07 }) => {
-        set = PALETTES_F07;
-        onMoodRef.current?.(moodRef.current);
-      });
-    }
 
     render(performance.now());
     setGl("on");
