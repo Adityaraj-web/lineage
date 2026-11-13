@@ -2,6 +2,7 @@ export interface TxResult {
   hash: string | null;
   ok: boolean;
   error: string | null;
+  value: string | null;
 }
 
 const MAX_MESSAGE = 160;
@@ -32,12 +33,23 @@ function describeFailure(f: unknown): string {
   return "Transaction failed";
 }
 
+function decodeValue(b64: string): string | null {
+  if (b64.length === 0) return null;
+  try {
+    const bin = atob(b64);
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    return text.length > 0 ? text : null;
+  } catch {
+    return null;
+  }
+}
+
 function failureOf(status: unknown): { failure: unknown } | null {
   return isObj(status) && "Failure" in status ? { failure: status.Failure } : null;
 }
 
 export function parseOutcome(raw: unknown): TxResult {
-  if (!isObj(raw)) return { hash: null, ok: false, error: NO_RESULT };
+  if (!isObj(raw)) return { hash: null, ok: false, error: NO_RESULT, value: null };
   const tx = raw.transaction;
   const txo = raw.transaction_outcome;
   const hash = (isObj(tx) ? str(tx.hash) : null) ?? (isObj(txo) ? str(txo.id) : null);
@@ -47,11 +59,13 @@ export function parseOutcome(raw: unknown): TxResult {
     failureOf(raw.status) ??
     receipts.map((r) => (isObj(r) && isObj(r.outcome) ? failureOf(r.outcome.status) : null)).find((f) => f !== null) ??
     null;
-  if (found) return { hash, ok: false, error: describeFailure(found.failure) };
+  if (found) return { hash, ok: false, error: describeFailure(found.failure), value: null };
 
-  if (isObj(raw.status) && typeof raw.status.SuccessValue === "string") return { hash, ok: true, error: null };
-  if (hash) return { hash, ok: true, error: null };
-  return { hash: null, ok: false, error: NO_RESULT };
+  if (isObj(raw.status) && typeof raw.status.SuccessValue === "string") {
+    return { hash, ok: true, error: null, value: decodeValue(raw.status.SuccessValue) };
+  }
+  if (hash) return { hash, ok: true, error: null, value: null };
+  return { hash: null, ok: false, error: NO_RESULT, value: null };
 }
 
 export function walletErrorMessage(e: unknown): string {

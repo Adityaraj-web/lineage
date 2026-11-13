@@ -37,7 +37,7 @@ describe("useOwnerAction", () => {
       d.resolve({ status: { SuccessValue: "" }, transaction: { hash: FAKE_HASH } });
       await p;
     });
-    expect(action().state).toStrictEqual({ kind: "done", id: "freeze", result: { hash: FAKE_HASH, ok: true, error: null } });
+    expect(action().state).toStrictEqual({ kind: "done", id: "freeze", result: { hash: FAKE_HASH, ok: true, error: null, value: null } });
     expect(action().busy).toBe(false);
     expect(refresh).toHaveBeenCalledTimes(1);
     act(() => vi.advanceTimersByTime(REFRESH_AGAIN_MS - 1));
@@ -55,7 +55,7 @@ describe("useOwnerAction", () => {
       status: { Failure: { ActionError: { index: 0, kind: { FunctionCallError: { ExecutionError: OWNER_ONLY } } } } },
     });
     await act(() => action().run("reject:5", rejectTx(VAULT, 5, "x")));
-    expect(action().state).toStrictEqual({ kind: "done", id: "reject:5", result: { hash: FAKE_HASH, ok: false, error: OWNER_ONLY } });
+    expect(action().state).toStrictEqual({ kind: "done", id: "reject:5", result: { hash: FAKE_HASH, ok: false, error: OWNER_ONLY, value: null } });
   });
 
   it("closing the wallet is failed 'Cancelled in the wallet', and refreshes at most twice", async () => {
