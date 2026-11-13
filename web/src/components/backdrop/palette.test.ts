@@ -55,6 +55,8 @@ describe("palettes", () => {
   it("one light source from the top: both blobs in the top band, off-centre, wide and soft", () => {
     for (const p of Object.values(PALETTES)) {
       for (const bl of p.blobs) {
+        // Overview's second blob is anchored to the hero vault card (right column, mid-height), not the top band.
+        if (p === PALETTES.overview && bl === p.blobs[1]) continue;
         expect(bl.y).toBeLessThanOrEqual(0.12);
         expect(Math.abs(bl.x - 0.5)).toBeGreaterThanOrEqual(0.25);
         expect(bl.r).toBeGreaterThanOrEqual(0.4);
@@ -63,6 +65,18 @@ describe("palettes", () => {
       expect(p.blobs.some((bl) => bl.x < 0.5)).toBe(true);
       expect(p.blobs.some((bl) => bl.x > 0.5)).toBe(true);
     }
+  });
+
+  it("overview glows from the top-left and from behind the hero vault, k 1.3 like the other moods", () => {
+    const [top, vault] = PALETTES.overview.blobs;
+    expect(top.y).toBeLessThanOrEqual(0.12);
+    expect(top.x).toBeLessThan(0.5);
+    expect(vault.x).toBeGreaterThanOrEqual(0.72);
+    expect(vault.x).toBeLessThanOrEqual(0.82);
+    expect(vault.y).toBeGreaterThanOrEqual(0.3);
+    expect(vault.y).toBeLessThanOrEqual(0.6);
+    expect(vault.r).toBeLessThan(top.r);
+    for (const bl of PALETTES.overview.blobs) expect(bl.k).toBe(1.3);
   });
 
   it("one hue per page: indigo, teal, rose, every blob in the mood's hue, k ≤ 1.3", () => {

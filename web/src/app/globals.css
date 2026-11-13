@@ -375,7 +375,7 @@
 .backdrop-css-overview {
   background:
     radial-gradient(60% 90% at 20% 0%, rgb(26 31 77 / 0.6), transparent 70%),
-    radial-gradient(55% 80% at 80% 6%, rgb(26 31 77 / 0.6), transparent 70%);
+    radial-gradient(30% 50% at 77.5% 53%, rgb(26 31 77 / 0.8), transparent 70%);
 }
 .backdrop-css-lineage {
   background:

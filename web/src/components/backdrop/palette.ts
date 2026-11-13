@@ -63,7 +63,8 @@ export const PALETTES: Record<Mood, Palette> = {
   overview: {
     ink: INK,
     hue: INDIGO,
-    blobs: [b(0.2, 0.02, 0.5, 0.28, 1), b(0.8, 0.08, 0.45, 0.28, 1)],
+    // Blob 2 sits behind the hero vault card (centre measured at 1440×900 and 1920×1080).
+    blobs: [b(0.2, 0.02, 0.5, 0.2, 1.3), b(0.775, 0.53, 0.34, 0.25, 1.3)],
   },
   lineage: {
     ink: INK,
