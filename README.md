@@ -42,7 +42,7 @@ The agent never sends a bare "pay X". It calls `request_payment` with a **payee 
 
 | | Where the payee comes from | What the agent sends | What the vault does |
 |---|---|---|---|
-| **P1 · UserSigned** | A mandate the owner signed with a full-access key | `pay_signed_payee { slot, amount }` | Looks up the account in the signed slot and pays it if the amount fits the slot's signed maximum and the task's limits. **Auto-paid.** |
+| **P1 · UserSigned** | A mandate the owner signed with a full-access key | `pay_signed_payee { slot, amount }` | Looks up the account in the signed slot and pays it if the amount, plus what the slot has already committed, fits the slot's signed maximum and the task's limits. **Auto-paid.** |
 | **P2 · Resolved** | A resolver contract the owner pinned in the task (here, a curated registry) | `pay_registered_service { reference, max_price }` | Calls `lineage_resolve(reference)` on the pinned resolver, then in the callback pays **exactly the payee and price the resolver returned**, if the price is at most the agent's ceiling and within limits. The agent never names the address. **Auto-paid.** |
 | **P3 · Untrusted** | Anything else: an address the model read somewhere | `pay_account { account_id, amount }` | Records it as `AwaitingApproval`. **Never auto-paid.** Only the owner can approve (1 yoctoNEAR, so a full-access key) or reject it. |
 
@@ -85,7 +85,7 @@ Rehearsed on testnet (all hashes in [`docs/owner-wallet.md`](docs/owner-wallet.m
 | P3 poisoned invoice | Agent key | #17 **AwaitingApproval** 49 → `vendor-payments` · [`Hsan4p…REAcQ`](https://testnet.nearblocks.io/txns/Hsan4pjH92WymTLifWSu4jrh3xXkp8dMULaR6oKREAcQ) |
 | Approve with no deposit, as a function-call key would (F07 rehearsal, on #14) | Owner's root key (NEAR CLI) | **Refused by the contract:** "Attach exactly 1 yoctoNEAR (requires a full-access key)" · [`BgHENi…JXLx`](https://testnet.nearblocks.io/txns/BgHENiFvG9brA9YcabunzxFWoBimivo3SJUQEwz1JXLx) |
 
-The run used 0.0025 NEAR of the agent key's allowance.
+The run used 0.0026 NEAR of the agent key's allowance.
 
 ## Security model
 
@@ -95,7 +95,7 @@ The run used 0.0025 NEAR of the agent key's allowance.
 | **Owner** (`lineage-aditya.testnet`) | A full-access key, in their own wallet | `create_task`, `approve_payment`, `reject_payment`, `unfreeze`, `close_task` and `withdraw` each require **exactly 1 yoctoNEAR**. Function-call keys can't attach a deposit, so a leaked function-call key can't do any of them. `freeze` needs no deposit, so any owner key can stop the vault in an emergency. |
 | **Dashboard** | Nothing | A static export (`output: "export"`): no server, no API routes, no env secrets. Reads go browser → NEAR RPC. Owner actions are built as plain transactions and signed in the owner's wallet. Untrusted text (memos, emails, payee ids, reasons) renders as React text nodes only. |
 
-The **risk card** on a held payment (untrusted source, not a signed payee, contract or plain account, paid before, urgency language, near the cap) is **advisory**. The contract is the guarantee: a P3 payment can't move without an owner signature, whatever the card says.
+The **risk card** on a held payment (untrusted source, not a signed payee, contract or plain account, paid before, same invoice already paid to someone else, urgency language, near the cap) is **advisory**. The contract is the guarantee: a P3 payment can't move without an owner signature, whatever the card says.
 
 ## Honest limits
 
