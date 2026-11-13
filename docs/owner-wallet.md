@@ -17,7 +17,7 @@ near account add-key lineage-aditya.testnet \
 - It prints a seed phrase and the new public key. Keep the default key type (ed25519, no `--signature-scheme` flag): Meteor needs ed25519.
 - Write the public key here (public keys are safe to commit):
 
-  Meteor key: `ed25519:<to fill after add-key>`
+  Meteor key: `ed25519:A5FouqsuTqDD6Kz3oKtD8Zjn2cNddXUmCaXJr6Vi1gh4` (imported in Meteor by seed phrase)
 
 - Import the seed phrase in Meteor (testnet → Import → seed phrase). If Meteor cannot find the account (some wallets look it up through an indexer), import the printed private key instead.
 - Then `clear` the terminal. Never paste the phrase anywhere else.
@@ -44,15 +44,16 @@ Then run `list-keys` again: only the original key remains.
 
 Choose "NEAR CLI" in the NEAR Connect picker. It signs with near-cli-rs on your machine, so the key never leaves your keychain.
 
-## Rehearsal on testnet (in this order; record each tx hash)
+## Rehearsal on testnet (in this order; done 2026-11-12/13)
 
 1. `npm run web:dev`, connect Meteor as `lineage-aditya.testnet`. Both vaults show owner controls. Connect a different testnet account once: Viewer line, no controls.
 2. **Reject #5** on `/vault/vault` with the prefilled reason. The card leaves the inbox, "Last action" shows the hash, and the payments table shows #5 `Rejected` with the reason.
-   tx: `____`
+   tx: `5fTE3HuGfBtN8Z7NdWwKJHV8XC6MKWMptScPXwcVCwLz`
 3. **Freeze `vault`.** Run `npm run demo -- --only vault`: the new task's payments end `Blocked` ("Vault is frozen by the owner"). Acceptance fails, which is expected here. **Unfreeze** in the UI.
-   freeze tx: `____` · unfreeze tx: `____`
+   freeze tx: `CWFa5AdSPrrumK2uBtuiGQK6cVXLwZTdC61UNJuifKYX` · unfreeze tx: `dEPneAJzQX7osrupuVEPUec2iHEcELyQGfLdRUXknzp`
 4. `npm run demo` (both vaults, fresh run). **Approve** the new P3 once (tick the box). Expect `Paid` after the refresh. This pays the demo attacker account 49 tUSDC on the Lineage vault, which is fine on testnet.
-   tx: `____`
+   approve #11 tx: `6wxcrjgmyiDJH5YmTfxzkpRfnUSmC8WdmoYdPajBByXK`
+   Approving a poisoned P3 changes later risk cards for that payee from "never paid" to "paid before" (still high risk).
 5. Final clean `npm run demo`, so the latest task has a held P3 for the video and `demo-run.json` shows 0 vs 49 again. Then `npm run verify:web` (8/8) and `npm run verify:deploy`.
 6. Wrong-key check (optional, one tx): in the NEAR CLI wallet or by hand, try `approve_payment` with deposit 0 against the new P3. Expect the contract error "Attach exactly 1 yoctoNEAR (requires a full-access key)".
-   tx: `____`
+   0-deposit approve on #14 (failed as expected): `BgHENiFvG9brA9YcabunzxFWoBimivo3SJUQEwz1JXLx`
