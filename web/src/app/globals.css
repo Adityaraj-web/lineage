@@ -198,7 +198,7 @@
     --glass-blur: 12px;
   }
   :root[data-mood="lineage"] {
-    --hue: 20 140 120;
+    --hue: 30 130 145;
   }
   :root[data-mood="limits"] {
     --hue: 150 50 90;
@@ -374,30 +374,26 @@
 }
 .backdrop-css-overview {
   background:
-    radial-gradient(45% 55% at 8% 12%, #1a1f4d, transparent 70%),
-    radial-gradient(40% 50% at 92% 30%, #0e3b43, transparent 70%),
-    radial-gradient(45% 45% at 62% 95%, #1a1f4d, transparent 70%),
-    radial-gradient(25% 25% at 12% 100%, #3a2a0c, transparent 70%);
+    radial-gradient(26% 40% at 6% 10%, #1a1f4d, transparent 70%),
+    radial-gradient(24% 36% at 80% 46%, #1a1f4d, transparent 70%),
+    radial-gradient(24% 30% at 60% 100%, #1a1f4d, transparent 70%);
 }
 .backdrop-css-lineage {
   background:
-    radial-gradient(45% 55% at 6% 10%, #0e3b43, transparent 70%),
-    radial-gradient(38% 45% at 94% 28%, #0d3f32, transparent 70%),
-    radial-gradient(45% 45% at 60% 98%, #0e3b43, transparent 70%),
-    radial-gradient(25% 25% at 90% 100%, #3a2a0c, transparent 70%);
+    radial-gradient(28% 42% at 6% 10%, #0e3b43, transparent 70%),
+    radial-gradient(24% 36% at 84% 20%, #0e3b43, transparent 70%),
+    radial-gradient(24% 30% at 60% 100%, #0e3b43, transparent 70%);
 }
 .backdrop-css-limits {
   background:
-    radial-gradient(45% 55% at 6% 10%, #1a1f4d, transparent 70%),
-    radial-gradient(38% 45% at 94% 30%, #4a1830, transparent 70%),
-    radial-gradient(45% 45% at 60% 98%, #1a1f4d, transparent 70%),
-    radial-gradient(25% 25% at 88% 100%, #3a2a0c, transparent 70%);
+    radial-gradient(28% 42% at 6% 10%, #4a1830, transparent 70%),
+    radial-gradient(24% 36% at 84% 20%, #4a1830, transparent 70%),
+    radial-gradient(24% 30% at 60% 100%, #4a1830, transparent 70%);
 }
 .backdrop-css-compare {
   background:
-    radial-gradient(38% 60% at 4% 30%, #0e3b43, transparent 70%),
-    radial-gradient(38% 60% at 96% 30%, #4a1830, transparent 70%),
-    radial-gradient(30% 30% at 50% 105%, #3a2a0c, transparent 70%);
+    radial-gradient(26% 44% at 4% 26%, #0e3b43, transparent 70%),
+    radial-gradient(26% 44% at 96% 26%, #4a1830, transparent 70%);
 }
 .backdrop-light {
   position: absolute;

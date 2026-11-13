@@ -30,7 +30,7 @@ function RunCommand({ command }: { command: string }) {
     <div className="flex flex-col gap-2">
       <p className="text-muted-foreground">Run the agent on it:</p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <code className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-[12.5px] text-foreground select-all [overflow-wrap:anywhere]">
+        <code className="inline-flex h-9 max-w-full items-center overflow-x-auto rounded-lg border border-white/10 bg-white/[0.03] px-3 font-mono text-[12.5px] whitespace-nowrap text-foreground select-all">
           {command}
         </code>
         <button type="button" onClick={() => void onCopy()} className={PILL}>

@@ -122,6 +122,16 @@ describe("Tasks section: new task", () => {
     expect(btn("Copied")).toBeInTheDocument();
   });
 
+  it("the command box and the Copy button share one height, and the command stays on one line", async () => {
+    const fake = new FakeWallet({ account: ROOT });
+    fake.sendImpl = async () => okOutcome(FAKE_HASH, "MTU=");
+    owner(fake);
+    await signDemo();
+    const code = screen.getByText(COMMAND);
+    expect(code).toHaveClass("h-9", "whitespace-nowrap");
+    expect(btn("Copy")).toHaveClass("h-9");
+  });
+
   it("when the clipboard is blocked it says Select and copy, and one click selects the whole command", async () => {
     mockClipboard(() => Promise.reject(new Error("denied")));
     const fake = new FakeWallet({ account: ROOT });

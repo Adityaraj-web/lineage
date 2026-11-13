@@ -3,23 +3,46 @@
 export type Mood = "overview" | "lineage" | "limits" | "compare";
 export type RGB = readonly [number, number, number];
 
-// One soft shape: colour, anchor (fractions of the viewport, y from the top), radius as a
-// fraction of the viewport's longer side, and strength.
+// One soft shape: anchor (fractions of the viewport, y from the top), radius as a fraction of the
+// viewport's longer side, strength, and brightness k of the page hue (h overrides the hue: Compare only).
 export interface Blob {
+  x: number;
+  y: number;
+  r: number;
+  s: number;
+  k: number;
+  h?: RGB;
+}
+
+export interface Palette {
+  ink: RGB;
+  hue: RGB;
+  blobs: readonly Blob[];
+}
+
+// What the shader draws: one colour per blob.
+export interface ResolvedBlob {
   c: RGB;
   x: number;
   y: number;
   r: number;
   s: number;
 }
-
-export interface Palette {
+export interface Resolved {
   ink: RGB;
-  blobs: readonly Blob[];
+  blobs: readonly ResolvedBlob[];
 }
 
 export const BLOBS = 5;
 export const CYCLE_S = 40;
+// The reduced-motion frame (and where the moving field starts).
+export const REST_T = 7;
+
+// Shared with the fragment shader (Backdrop.tsx), so fieldAt draws the same picture.
+export const WARP = 0.035;
+export const FALLOFF = 3;
+export const MIX_EDGE: readonly [number, number] = [0.1, 0.85];
+export const OMEGA = (2 * Math.PI) / CYCLE_S;
 
 export function hex(h: string): RGB {
   const n = parseInt(h.replace("#", ""), 16);
@@ -29,39 +52,53 @@ export function hex(h: string): RGB {
 const INK = hex("#070A12");
 const INDIGO = hex("#1A1F4D");
 const TEAL = hex("#0E3B43");
-const EMERALD = hex("#0D3F32");
-const AMBER = hex("#3A2A0C");
 const ROSE = hex("#4A1830");
 
-const b = (c: RGB, x: number, y: number, r: number, s: number): Blob => ({ c, x, y, r, s });
+const b = (x: number, y: number, r: number, s: number, k: number, h?: RGB): Blob => (h ? { x, y, r, s, k, h } : { x, y, r, s, k });
 
-// Peaks sit at the edges and behind the stages; the reading column stays near ink.
+// One hue per page; Compare is the split, teal left and rose right. Peaks sit behind the stages (the
+// hero vault on the right, the vault header's title and stats, the Compare sides) and at the edges;
+// the reading column stays ink. Tuned so 65–78% of the page is ink (inkShare).
 export const PALETTES: Record<Mood, Palette> = {
   overview: {
     ink: INK,
-    blobs: [b(INDIGO, 0.08, 0.12, 0.36, 1.25), b(TEAL, 0.86, 0.5, 0.3, 1.15), b(INDIGO, 0.62, 0.95, 0.36, 1.1), b(EMERALD, 0.78, 0.02, 0.202, 0.8), b(AMBER, 0.12, 1.02, 0.216, 0.9)],
+    hue: INDIGO,
+    blobs: [b(0.06, 0.1, 0.164, 1.2, 1.3), b(0.8, 0.46, 0.164, 1, 1.1), b(0.95, 0.08, 0.123, 0.9, 1), b(0.6, 0.98, 0.148, 1, 1), b(0.08, 0.9, 0.115, 0.8, 0.9)],
   },
   lineage: {
     ink: INK,
-    blobs: [b(TEAL, 0.06, 0.1, 0.36, 1.3), b(EMERALD, 0.94, 0.28, 0.302, 1.1), b(TEAL, 0.6, 0.98, 0.346, 1.1), b(INDIGO, 0.3, 0.6, 0.274, 0.7), b(AMBER, 0.9, 1.02, 0.202, 0.8)],
+    hue: TEAL,
+    blobs: [b(0.06, 0.1, 0.188, 1.2, 1.3), b(0.84, 0.2, 0.16, 1, 1.1), b(0.97, 0.62, 0.141, 0.9, 1), b(0.6, 0.98, 0.169, 1, 1), b(0.04, 0.78, 0.132, 0.8, 0.9)],
   },
   limits: {
     ink: INK,
-    blobs: [b(INDIGO, 0.06, 0.1, 0.36, 1.3), b(ROSE, 0.94, 0.3, 0.302, 1.0), b(INDIGO, 0.6, 0.98, 0.346, 1.1), b(ROSE, 0.2, 0.75, 0.216, 0.55), b(AMBER, 0.88, 1.02, 0.202, 0.8)],
+    hue: ROSE,
+    blobs: [b(0.06, 0.1, 0.188, 1.2, 1.2), b(0.84, 0.2, 0.16, 1, 1), b(0.97, 0.62, 0.141, 0.9, 0.9), b(0.6, 0.98, 0.169, 1, 0.9), b(0.04, 0.78, 0.132, 0.8, 0.8)],
   },
   compare: {
     ink: INK,
-    blobs: [b(TEAL, 0.04, 0.2, 0.302, 1.3), b(TEAL, 0.14, 0.85, 0.274, 1.0), b(ROSE, 0.96, 0.2, 0.302, 1.0), b(ROSE, 0.86, 0.85, 0.274, 0.85), b(AMBER, 0.5, 1.06, 0.187, 0.7)],
+    hue: TEAL,
+    blobs: [b(0.04, 0.22, 0.162, 1.2, 1.3), b(0.16, 0.84, 0.136, 1, 1), b(0.96, 0.22, 0.162, 1, 1.1, ROSE), b(0.84, 0.84, 0.136, 0.9, 1, ROSE), b(0.28, 0.5, 0.102, 0.8, 0.9)],
   },
 };
 
-// Shadow tint per page (rgb triplet for `rgb(var(--hue) / a)`).
+// Shadow tint per page (rgb triplet for `rgb(var(--hue) / a)`), mirrored in globals.css.
 export const HUE: Record<Mood, string> = {
   overview: "59 68 168",
-  lineage: "20 140 120",
+  lineage: "30 130 145",
   limits: "150 50 90",
   compare: "40 110 140",
 };
+
+export function resolve(p: Palette): Resolved {
+  return {
+    ink: p.ink,
+    blobs: p.blobs.map(({ x, y, r, s, k, h }) => {
+      const c = h ?? p.hue;
+      return { c: [c[0] * k, c[1] * k, c[2] * k], x, y, r, s };
+    }),
+  };
+}
 
 export function moodFor(path: string): Mood {
   const p = path.length > 1 ? path.replace(/\/+$/, "") : path;
@@ -74,7 +111,7 @@ export function moodFor(path: string): Mood {
 const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t;
 const mixRgb = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 
-export function mixPalette(a: Palette, b: Palette, t: number): Palette {
+export function mixPalette(a: Resolved, b: Resolved, t: number): Resolved {
   const k = Math.min(1, Math.max(0, t));
   return {
     ink: mixRgb(a.ink, b.ink, k),
@@ -92,9 +129,9 @@ export const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t +
 const FREQ: readonly [number, number][] = [[1, 2], [2, 1], [1, 1], [2, 3], [1, 2]];
 const AMP = 0.07;
 
-export function blobsAt(p: Palette, t: number): Float32Array {
+export function blobsAt(p: { blobs: readonly { x: number; y: number; r: number; s: number }[] }, t: number): Float32Array {
   const out = new Float32Array(BLOBS * 4);
-  const w = (2 * Math.PI) / CYCLE_S;
+  const w = OMEGA;
   p.blobs.forEach((bl, i) => {
     const [fx, fy] = FREQ[i];
     out[i * 4] = bl.x + AMP * Math.sin(w * fx * t + i * 1.7);
@@ -103,6 +140,48 @@ export function blobsAt(p: Palette, t: number): Float32Array {
     out[i * 4 + 3] = bl.s;
   });
   return out;
+}
+
+const smoothstep = (e0: number, e1: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+  return t * t * (3 - 2 * t);
+};
+
+// The fragment shader in TS (without the ±0.5/255 dither): x, y are fractions of the viewport (y from
+// the top), aspect is width / height. Returns 0–255 per channel, clamped like the framebuffer.
+export function fieldAt(p: Palette | Resolved, x: number, y: number, t: number, aspect = 16 / 9): RGB {
+  const r = "hue" in p ? resolve(p) : p;
+  const asp = aspect >= 1 ? [1, 1 / aspect] : [aspect, 1];
+  const qx = x + WARP * Math.sin(y * 5 + t * OMEGA * 2);
+  const qy = y + WARP * Math.cos(x * 4 - t * OMEGA);
+  const bl = blobsAt(r, t);
+  const ink = r.ink.map((v) => v / 255);
+  const col = [...ink];
+  r.blobs.forEach((b, i) => {
+    const dx = (qx - bl[i * 4]) * asp[0];
+    const dy = (qy - bl[i * 4 + 1]) * asp[1];
+    const rad = bl[i * 4 + 2];
+    const w = Math.exp((-(dx * dx + dy * dy) / (rad * rad)) * FALLOFF) * bl[i * 4 + 3];
+    for (let c = 0; c < 3; c++) col[c] += (b.c[c] / 255) * w;
+  });
+  const m = 0.5 + 0.5 * smoothstep(MIX_EDGE[0], MIX_EDGE[1], Math.abs(x - 0.5) * 2);
+  const out = col.map((v, c) => Math.min(1, Math.max(0, ink[c] + (v - ink[c]) * m)) * 255);
+  return [out[0], out[1], out[2]];
+}
+
+// Share of a 64×36 grid (cell centres, 16:9) whose every channel is within 10/255 of ink.
+export function inkShare(p: Palette | Resolved, t: number): number {
+  const r = "hue" in p ? resolve(p) : p;
+  const W = 64;
+  const H = 36;
+  let n = 0;
+  for (let j = 0; j < H; j++) {
+    for (let i = 0; i < W; i++) {
+      const f = fieldAt(r, (i + 0.5) / W, (j + 0.5) / H, t, W / H);
+      if (f.every((v, c) => Math.abs(v - r.ink[c]) <= 10)) n++;
+    }
+  }
+  return n / (W * H);
 }
 
 export interface Tier {
