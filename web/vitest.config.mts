@@ -7,7 +7,7 @@ export default defineConfig({
     projects: [
       {
         extends: true,
-        test: { name: "lib", environment: "node", include: ["src/lib/**/*.test.ts", "src/components/**/*.test.ts"] },
+        test: { name: "lib", environment: "node", include: ["src/lib/**/*.test.ts", "src/components/**/*.test.ts", "scripts/**/*.test.ts"] },
       },
       {
         extends: true,

@@ -57,3 +57,22 @@ Choose "NEAR CLI" in the NEAR Connect picker. It signs with near-cli-rs on your 
 5. Final clean `npm run demo`, so the latest task has a held P3 for the video and `demo-run.json` shows 0 vs 49 again. Then `npm run verify:web` (8/8) and `npm run verify:deploy`.
 6. Wrong-key check (optional, one tx): in the NEAR CLI wallet or by hand, try `approve_payment` with deposit 0 against the new P3. Expect the contract error "Attach exactly 1 yoctoNEAR (requires a full-access key)".
    0-deposit approve on #14 (failed as expected): `BgHENiFvG9brA9YcabunzxFWoBimivo3SJUQEwz1JXLx`
+
+## F08 rehearsal: create a task in the dashboard, run the agent on it
+
+Adityaraj signs. Leave vault payment #14 alone (held for the video), so don't run plain `npm run demo` (it rejects stale held approvals).
+
+1. `npm run web:build && npx serve@14 web/out` (or the Vercel URL once imported) and open `/vault/vault`.
+2. Connect Meteor as `lineage-aditya.testnet` → **New task** → **Use demo mandate** → **Review**. Check the summary (agent-l, budget 100, max 50 tUSDC, payee Alice up to 20, the registry resolver, 14 days) → **Sign in wallet**. The result line shows "Task #N created" and the hash.
+3. `npm run demo -- --task N --plan-only` (read-only: the same three calls as the official plan), then `npm run demo -- --task N`. It uses only agent-l's function-call key, never the root key, and doesn't write `deployments/demo-run.json`. Expect P2 Paid 25, P1 Paid 18, P3 AwaitingApproval 49, acceptance passes.
+4. The new held P3 sits next to #14. Leave both, or reject the new one from the UI; decide in F09 with the video script.
+5. `npm --prefix web run check:site -- <Vercel URL>`: 4/4 pages passed.
+
+Record:
+
+- create_task tx: ``
+- task id: ``
+- payment `#` P2 → hindi-translator, 25 tUSDC: ``
+- payment `#` P1 → Alice, 18 tUSDC: ``
+- payment `#` P3 → vendor-payments, 49 tUSDC: ``
+- check:site on the Vercel URL: ``
