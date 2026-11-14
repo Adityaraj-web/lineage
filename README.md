@@ -2,7 +2,7 @@
 
 **Prepared statements for money.** A NEAR vault for AI agents that checks *where a payee came from* before it pays.
 
-**[Live dashboard](https://lineage-near.vercel.app)** · **[Demo video](VIDEO_URL)** · **[X post](X_POST_URL)** · NEAR testnet · MIT · Built at NEAR HACKATHON (Nov 2026)
+**[Live dashboard](https://lineage-near.vercel.app)** · **[Demo video](https://x.com/adityaraj_41545/status/2121398211541946552)** · **[X post](https://x.com/adityaraj_41545/status/2121398211541946552)** · NEAR testnet · MIT · Built at NEAR HACKATHON (Nov 2026)
 
 ---
 
